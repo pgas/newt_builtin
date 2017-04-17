@@ -40,7 +40,7 @@
 #include "bashgetopt.h"
 #include "common.h"
 
-
+#include <newt.h>
 
 /* A builtin `xxx' is normally implemented with an `xxx_builtin' function.
    If you're converting a command that uses the normal Unix argc/argv
@@ -62,8 +62,44 @@ int
 newt_builtin (list)
      WORD_LIST *list;
 {
-  printf("newt world\n");
-  fflush (stdout);
+  int c;
+  reset_internal_getopt ();
+  while ((c = internal_getopt (list, "")) != -1) {
+    switch (c)
+      {
+      case GETOPT_HELP:
+	builtin_help (); 
+	return (EX_USAGE);
+      default:
+	builtin_usage ();
+	return (EX_USAGE);
+      }
+  }
+  list = loptend;
+  if (list == NULL)
+    {
+      builtin_usage ();
+      return (EX_USAGE); 
+    }
+    begin_unwind_frame ("newt_builtin_env");
+  if (temporary_env)
+    {
+      push_scope (VC_BLTNENV, temporary_env);
+      temporary_env = (HASH_TABLE *)NULL;	  
+      add_unwind_protect (pop_scope, ( CMD_COMMAND_BUILTIN) ? 0 : "1");
+    }
+
+  if (strncmp(list->word->word, "init", 4) == 0 )
+    {
+      return newtInit();
+    }
+  else
+    {
+       builtin_usage ();
+      return (EX_USAGE);
+    }
+  if (temporary_env)
+    run_unwind_frame ("newt_builtin_env");
   return (EXECUTION_SUCCESS);
 }
 

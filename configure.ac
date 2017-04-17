@@ -47,6 +47,10 @@ if test x"$bashfound" = x
 	AC_MSG_ERROR([unable to find the bash headers please use --with-bash=/path/to/headers/])
 fi		     
 
+AC_CHECK_HEADERS([newt.h],[],[])
+AC_CHECK_LIB([newt],[newtInit],[])
+
+
 AC_CONFIG_FILES([Makefile src/Makefile])
 AC_OUTPUT
 
