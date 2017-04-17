@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Extract functions from newt.h
+# bash > 4
+
+if [[ $1 != *newt.h ]];then
+   echo >&2  "usage: extract_newt_h /path/to/newt.h"
+   exit 1
+fi
+
+readarray -t fnames < <(awk -F\( 'NF>1 && /;/ && !/^typedef/{sub(/.*newt/,"",$1);print $1}' "$1" )
+
+declare -A first_words
+for f in  "${fnames[@]}";do
+    f=${f,}
+    first_words["${f%%[[:upper:]]*}"]+=" ${f#${f%%[[:upper:]]*}}"
+done
+
+#if only one function, make it one word
+for k in "${!first_words[@]}";do
+    if [[ "${first_words[$k]}" != " "*" "* ]]; then
+        first_words[$k${first_words[$k]#" "}]=""
+	unset "first_words[$k]"
+    fi
+
+done
+
+# hashing using djb2...bash version
+# unsigned long
+#     hash(unsigned char *str)
+#     {
+#         unsigned long hash = 5381;
+#         int c;
+#         while (c = *str++)
+#             hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+#         return hash;
+#     }
+
+for k in "${!first_words[@]}";do
+    hash=5381
+    for ((i=0;i<${#k};i+=1)); do
+	LC_CTYPE=C printf -v c %d "'${k:i:1}"
+	((hash = ((hash << 5) + hash)+c))
+    done
+    printf "%s %ul\n" $k $hash
+done
+
+#printf "%s %s\n" "$k" "${first_words[$k]}"
