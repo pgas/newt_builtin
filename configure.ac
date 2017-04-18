@@ -17,7 +17,7 @@ AC_SUBST([finish_cmds], [""])
 #install the .so in $(libdir)/bash
 AC_SUBST([libdir], ["$libdir/bash"])
 
-AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_SRCDIR([src/newt.c])
 
 AC_PROG_CC
