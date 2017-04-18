@@ -1,5 +1,12 @@
 #include "libnewt.h"
 
+#if defined (HAVE_UNISTD_H)
+#  include <unistd.h>
+#endif
+
+#include <stdio.h>
+
+
 #include <newt.h>
 
 #define BELL 6385076388ull
@@ -50,8 +57,13 @@ unsigned long long hash(unsigned char *str) {
 }
 
 /* forward declarations */
+int libnewt_cls(WORD_LIST *);
+int libnewt_draw(WORD_LIST *);
 int libnewt_finished(WORD_LIST *);
 int libnewt_init(WORD_LIST *);
+int libnewt_pushHelpLine(WORD_LIST *);
+int libnewt_refresh(WORD_LIST *);
+
 
 /* 
   parse the commands and execute accordingly
@@ -76,9 +88,9 @@ int libnewt_run(WORD_LIST * list) {
   /* case CLEARKEYBUFFER: */
   /*   return libnewt_clearKeyBuffer(list->next); */
   /*   break; */
-  /* case CLS: */
-  /*   return libnewt_cls(list->next); */
-  /*   break; */
+  case CLS:
+    return libnewt_cls(list->next);
+    break;
   /* case COMPACTBUTTON: */
   /*   return libnewt_compactButton(list->next); */
   /*   break; */
@@ -94,9 +106,9 @@ int libnewt_run(WORD_LIST * list) {
   /* case DELAY: */
   /*   return libnewt_delay(list->next); */
   /*   break; */
-  /* case DRAW: */
-  /*   return libnewt_draw(list->next); */
-  /*   break; */
+  case DRAW:
+    return libnewt_draw(list->next);
+    break;
   /* case ENTRY: */
   /*   return libnewt_entry(list->next); */
   /*   break; */
@@ -127,18 +139,18 @@ int libnewt_run(WORD_LIST * list) {
   /* case POP: */
   /*   return libnewt_pop(list->next); */
   /*   break; */
-  /* case PUSHHELPLINE: */
-  /*   return libnewt_pushHelpLine(list->next); */
-  /*   break; */
+  case PUSHHELPLINE:
+    return libnewt_pushHelpLine(list->next);
+    break;
   /* case RADIO: */
   /*   return libnewt_radio(list->next); */
   /*   break; */
   /* case REDRAWHELPLINE: */
   /*   return libnewt_redrawHelpLine(list->next); */
   /*   break; */
-  /* case REFRESH: */
-  /*   return libnewt_refresh(list->next); */
-  /*   break; */
+  case REFRESH:
+    return libnewt_refresh(list->next);
+    break;
   /* case RESIZESCREEN: */
   /*   return libnewt_resizeScreen(list->next); */
   /*   break; */
@@ -174,6 +186,51 @@ int libnewt_run(WORD_LIST * list) {
   } 
 }
 
+int next(WORD_LIST ** plist) {
+  if ((*plist)->next != NULL){
+    *plist=((*plist)->next);
+    return 1;
+  } else {
+    fprintf(stderr, "argument needed\n");
+    return 0;
+  }
+}
+
+
+
+int libnewt_cls(WORD_LIST * list) {
+  newtCls();
+  return 0;
+}
+
+int libnewt_draw(WORD_LIST * list) {
+  if (list == NULL) {
+    fprintf(stderr, "draw requires an argument\n");
+    return 127;
+  }
+  if (strncmp(list->word->word,"roottext",8)==0) {
+    if (!next(&list)) {
+      return 127;
+    }
+    //TODO helper function to convert to int?
+    int col = (int) strtol(list->word->word, NULL, 10);    
+    if (!next(&list)) {
+      return 127;
+    }
+    int row = (int) strtol(list->word->word, NULL, 10);
+    if (!next(&list)) {
+      return 127;
+    }
+    newtDrawRootText(col, row, list->word->word);
+    return 0;
+  } else {
+    fprintf(stderr, "invalid argument for draw: %s\n", list->word->word);
+    return 127;
+  }
+  return 0;
+}
+
+
 
 int libnewt_finished(WORD_LIST * list) {
   return newtFinished();
@@ -181,4 +238,19 @@ int libnewt_finished(WORD_LIST * list) {
 
 int libnewt_init(WORD_LIST * list) {
   return newtInit();
+}
+
+
+libnewt_pushHelpLine(WORD_LIST * list) {
+  if (list != NULL) {
+    newtPushHelpLine(list->word->word);
+  } else {
+    newtPushHelpLine(NULL);
+  }
+  return 0;
+}
+
+int libnewt_refresh(WORD_LIST * list) {
+  newtRefresh();
+  return 0;
 }
