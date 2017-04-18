@@ -39,6 +39,8 @@ done
 #         return hash;
 #     }
 
+
+# list of defines
 for k in "${!first_words[@]}";do
     hash=5381
     for ((i=0;i<${#k};i+=1)); do
@@ -49,11 +51,16 @@ for k in "${!first_words[@]}";do
     printf "%sull\n" "${def%l}"
 done | sort
 
-
+#case statements
 printf '%s\n' "${!first_words[@]}" | sort | while read -r k; do
     printf "case %s:\n    return libnewt_%s(list->next);\n    break;\n" ${k^^} $k
 done 
 
 
 
-#printf "%s %s\n" "$k" "${first_words[$k]}"
+#list of sub commands
+for k in "${!first_words[@]}";do
+    if [[ ${first_words[$k]} == *[a-z]* ]];then 
+	printf "%s:%s\n" "$k" "${first_words[$k]}"
+    fi
+done | sort
