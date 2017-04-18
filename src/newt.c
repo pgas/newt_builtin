@@ -24,9 +24,6 @@
    You should have received a copy of the GNU General Public License
    along with Bash.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
-
 #include <config.h>
 
 #if defined (HAVE_UNISTD_H)
@@ -39,8 +36,6 @@
 #include "shell.h"
 #include "bashgetopt.h"
 #include "common.h"
-
-#include <newt.h>
 
 /* A builtin `xxx' is normally implemented with an `xxx_builtin' function.
    If you're converting a command that uses the normal Unix argc/argv
@@ -89,13 +84,15 @@ newt_builtin (list)
       add_unwind_protect (pop_scope, ( CMD_COMMAND_BUILTIN) ? 0 : "1");
     }
 
-  if (strncmp(list->word->word, "init", 4) == 0 )
+  int exit = libnewt_run(list);
+
+  if (exit != 127)
     {
-      return newtInit();
+      return exit;
     }
   else
     {
-       builtin_usage ();
+      builtin_usage ();
       return (EX_USAGE);
     }
   if (temporary_env)
