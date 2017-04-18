@@ -19,10 +19,12 @@ newt draw roottext 4
 
 set +x
 
-newt init
-newt cls
-newt draw roottext 10 10 "some root text"
-newt refresh
-sleep 2
-newt finished
+if newt init;then 
+    trap 'newt finished' EXIT
+    newt cls
+    newt draw roottext 10 10 "some root text"
+    newt refresh
+    sleep 2
+fi
+
 
