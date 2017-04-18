@@ -18,9 +18,12 @@ done
 
 #if only one function, make it one word
 for k in "${!first_words[@]}";do
+
     if [[ "${first_words[$k]}" != " "*" "* ]]; then
-        first_words[$k${first_words[$k]#" "}]=""
-	unset "first_words[$k]"
+	if [[ ${first_words[$k]} != " " ]];then
+            first_words[$k${first_words[$k]#" "}]=""
+	    unset "first_words[$k]"
+	fi
     fi
 
 done
@@ -40,9 +43,17 @@ for k in "${!first_words[@]}";do
     hash=5381
     for ((i=0;i<${#k};i+=1)); do
 	LC_CTYPE=C printf -v c %d "'${k:i:1}"
-	((hash = ((hash << 5) + hash)+c))
+	(( hash = ((hash '<<' 5) + hash)+c ))
     done
-    printf "%s %ul\n" $k $hash
-done
+    printf -v def "#define %s %ul" ${k^^} $hash
+    printf "%sull\n" "${def%l}"
+done | sort
+
+
+printf '%s\n' "${!first_words[@]}" | sort | while read -r k; do
+    printf "case %s:\n    return libnewt_%s(list->next);\n    break;\n" ${k^^} $k
+done 
+
+
 
 #printf "%s %s\n" "$k" "${first_words[$k]}"
