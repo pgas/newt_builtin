@@ -61,6 +61,7 @@ int libnewt_cls(WORD_LIST *);
 int libnewt_draw(WORD_LIST *);
 int libnewt_finished(WORD_LIST *);
 int libnewt_init(WORD_LIST *);
+int libnewt_pop(WORD_LIST *);
 int libnewt_pushHelpLine(WORD_LIST *);
 int libnewt_refresh(WORD_LIST *);
 
@@ -136,9 +137,9 @@ int libnewt_run(WORD_LIST * list) {
   /* case LISTITEM: */
   /*   return libnewt_listitem(list->next); */
   /*   break; */
-  /* case POP: */
-  /*   return libnewt_pop(list->next); */
-  /*   break; */
+  case POP:
+    return libnewt_pop(list->next);
+    break;
   case PUSHHELPLINE:
     return libnewt_pushHelpLine(list->next);
     break;
@@ -191,17 +192,17 @@ int next(WORD_LIST ** plist) {
     *plist=((*plist)->next);
     return 1;
   } else {
-    fprintf(stderr, "argument needed\n");
     return 0;
   }
 }
 
 // just a macros to advance conditionnally in the list
-#define NEXT(L)     \
-  do {              \
-  if (!next(&L)) {  \
-      return 127;   \
- }                  \
+#define NEXT(L, M)           \
+  do {                       \
+  if (!next(&L)) {           \
+      fprintf(stderr, M);    \
+      return 127;            \
+ }                           \
 } while(0) 
 
 int libnewt_cls(WORD_LIST * list) {
@@ -209,18 +210,24 @@ int libnewt_cls(WORD_LIST * list) {
   return 0;
 }
 
+static const char * DRAW_USAGE =                \
+  "argument missing\n"				\
+  "usage:\n"					\
+  "\tnewt draw roottext col row text\n"		\
+  "\tnewt draw form component\n";
+
 int libnewt_draw(WORD_LIST * list) {
   if (list == NULL) {
-    fprintf(stderr, "draw requires an argument\n");
+    fprintf(stderr, DRAW_USAGE);
     return 127;
   }
   if (strncmp(list->word->word,"roottext",8)==0) {
-    NEXT(list);
+    NEXT(list, DRAW_USAGE);
     //TODO helper function to convert to int?
     int col = (int) strtol(list->word->word, NULL, 10);    
-    NEXT(list);
+    NEXT(list, DRAW_USAGE);
     int row = (int) strtol(list->word->word, NULL, 10);
-    NEXT(list);
+    NEXT(list, DRAW_USAGE);
     newtDrawRootText(col, row, list->word->word);
     return 0;
   } else {
@@ -240,8 +247,11 @@ int libnewt_init(WORD_LIST * list) {
   return newtInit();
 }
 
+int libnewt_pop(WORD_LIST * list) {
 
-libnewt_pushHelpLine(WORD_LIST * list) {
+}
+
+int libnewt_pushHelpLine(WORD_LIST * list) {
   if (list != NULL) {
     newtPushHelpLine(list->word->word);
   } else {
