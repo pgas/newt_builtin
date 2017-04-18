@@ -31,7 +31,7 @@
 #define LISTBOX 229473570076266ull
 #define LISTITEM 7572627812773264ull
 #define POP 193502740ull
-#define PUSHHELPLINE 15641257600514309558ull
+#define PUSH 6385597157ull
 #define RADIO 210726343092ull
 #define REDRAWHELPLINE 15850614626379253499ull
 #define REFRESH 229481146857044ull
@@ -62,7 +62,7 @@ int libnewt_draw(WORD_LIST *);
 int libnewt_finished(WORD_LIST *);
 int libnewt_init(WORD_LIST *);
 int libnewt_pop(WORD_LIST *);
-int libnewt_pushHelpLine(WORD_LIST *);
+int libnewt_push(WORD_LIST *);
 int libnewt_refresh(WORD_LIST *);
 
 
@@ -140,8 +140,8 @@ int libnewt_run(WORD_LIST * list) {
   case POP:
     return libnewt_pop(list->next);
     break;
-  case PUSHHELPLINE:
-    return libnewt_pushHelpLine(list->next);
+  case PUSH:
+    return libnewt_push(list->next);
     break;
   /* case RADIO: */
   /*   return libnewt_radio(list->next); */
@@ -231,7 +231,7 @@ int libnewt_draw(WORD_LIST * list) {
     newtDrawRootText(col, row, list->word->word);
     return 0;
   } else {
-    fprintf(stderr, "invalid argument for draw: %s\n", list->word->word);
+    fprintf(stderr, DRAW_USAGE);
     return 127;
   }
   return 0;
@@ -247,15 +247,42 @@ int libnewt_init(WORD_LIST * list) {
   return newtInit();
 }
 
-int libnewt_pop(WORD_LIST * list) {
 
+static const char * POP_USAGE =                \
+  "argument missing\n"				\
+  "usage:\n"					\
+  "\tnewt pop window|windownorefresh|helpline\n";
+
+int libnewt_pop(WORD_LIST * list) {
+  if (list == NULL) {
+    fprintf(stderr, POP_USAGE);
+    return 127;
+  }
+  if (strncmp(list->word->word,"helpline",8)==0) {
+    newtPopHelpLine();
+  } else {
+    fprintf(stderr, POP_USAGE);
+    return 127;
+  }
+  return 0;
 }
 
-int libnewt_pushHelpLine(WORD_LIST * list) {
-  if (list != NULL) {
-    newtPushHelpLine(list->word->word);
+static const char * PUSH_USAGE =                \
+  "argument missing\n"				\
+  "usage:\n"					\
+  "\tnewt push helpline [message]\n";
+
+int libnewt_push(WORD_LIST * list) {
+  if ((list != NULL)
+      && (strncmp(list->word->word,"helpline",8)==0)) {
+    if (list->next!=NULL) {
+      newtPushHelpLine(list->next->word->word);
+    } else {
+      newtPushHelpLine(NULL);
+    }
   } else {
-    newtPushHelpLine(NULL);
+    fprintf(stderr, PUSH_USAGE);
+    return 127;
   }
   return 0;
 }

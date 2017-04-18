@@ -28,6 +28,12 @@ for k in "${!first_words[@]}";do
 
 done
 
+#for consistency
+unset "first_words[pushHelpLine]"
+first_words[push]=""
+declare -p first_words
+
+
 # hashing using djb2...bash version
 # unsigned long
 #     hash(unsigned char *str)
