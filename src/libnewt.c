@@ -196,7 +196,13 @@ int next(WORD_LIST ** plist) {
   }
 }
 
-
+// just a macros to advance conditionnally in the list
+#define NEXT(L)     \
+  do {              \
+  if (!next(&L)) {  \
+      return 127;   \
+ }                  \
+} while(0) 
 
 int libnewt_cls(WORD_LIST * list) {
   newtCls();
@@ -209,18 +215,12 @@ int libnewt_draw(WORD_LIST * list) {
     return 127;
   }
   if (strncmp(list->word->word,"roottext",8)==0) {
-    if (!next(&list)) {
-      return 127;
-    }
+    NEXT(list);
     //TODO helper function to convert to int?
     int col = (int) strtol(list->word->word, NULL, 10);    
-    if (!next(&list)) {
-      return 127;
-    }
+    NEXT(list);
     int row = (int) strtol(list->word->word, NULL, 10);
-    if (!next(&list)) {
-      return 127;
-    }
+    NEXT(list);
     newtDrawRootText(col, row, list->word->word);
     return 0;
   } else {
