@@ -1,0 +1,929 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head><script type="text/javascript" src="/static/js/analytics.js?v=1492440594.0" charset="utf-8"></script>
+
+<script type="text/javascript">archive_analytics.values.service='wb';archive_analytics.values.server_name='wwwb-app36.us.archive.org';archive_analytics.values.server_ms=445;</script>
+<script type="text/javascript" src="/static/js/wbhack.js?v=1492440594.0" charset="utf-8"></script>
+
+<script type="text/javascript">
+__wbhack.init('');
+</script>
+<link rel="stylesheet" type="text/css" href="/static/css/banner-styles.css?v=1492440594.0" />
+<link rel="stylesheet" type="text/css" href="/static/css/iconochive.css?v=1492440594.0" />
+
+<!-- End Wayback Rewrite JS Include -->
+ <meta name="GENERATOR" content="SGML-Tools 1.0.9">
+ <title>Writing Programs Using newt: Components</title>
+ <link href="tutorial-3.html" rel="previous">
+ <link href="tutorial.html#toc4" rel="contents">
+</head>
+<body><!-- BEGIN WAYBACK TOOLBAR INSERT -->
+<script type="text/javascript" src="/static/js/timestamp.js?v=1492440594.0" charset="utf-8"></script>
+<script type="text/javascript" src="/static/js/graph-calc.js?v=1492440594.0" charset="utf-8"></script>
+<script type="text/javascript" src="/static/js/auto-complete.js?v=1492440594.0" charset="utf-8"></script>
+<script type="text/javascript" src="/static/js/toolbar.js?v=1492440594.0" charset="utf-8"></script>
+
+<style type="text/css">
+body {
+  margin-top:0 !important;
+  padding-top:0 !important;
+  min-width:800px !important;
+}
+.wb-autocomplete-suggestions {
+    text-align: left; cursor: default; border: 1px solid #ccc; border-top: 0; background: #fff; box-shadow: -1px 1px 3px rgba(0,0,0,.1);
+    position: absolute; display: none; z-index: 2147483647; max-height: 254px; overflow: hidden; overflow-y: auto; box-sizing: border-box;
+}
+.wb-autocomplete-suggestion { position: relative; padding: 0 .6em; line-height: 23px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 1.02em; color: #333; }
+.wb-autocomplete-suggestion b { font-weight: bold; }
+.wb-autocomplete-suggestion.selected { background: #f0f0f0; }
+</style>
+<div id="wm-ipp" lang="en" style="display:none;direction:ltr;">
+<div style="position:fixed;left:0;top:0;width:100%!important">
+<div id="wm-ipp-inside">
+  <table style="width:100%;">
+    <tbody>
+      <tr>
+	<td id="wm-logo">
+	  <a href="/web/" title="Wayback Machine home page"><img src="/static/images/toolbar/wayback-toolbar-logo.png" alt="Wayback Machine" width="110" height="39" border="0" /></a>
+	</td>
+	<td class="c">
+	  <table style="margin:0 auto;">
+	    <tbody>
+	      <tr>
+		<td class="u" colspan="2">
+		  <form target="_top" method="get" action="/web/submit" name="wmtb" id="wmtb"><input type="text" name="url" id="wmtbURL" value="http://gnewt.sourceforge.net:80/tutorial-4.html" style="width:400px;" onfocus="this.focus();this.select();" /><input type="hidden" name="type" value="replay" /><input type="hidden" name="date" value="20160503023518" /><input type="submit" value="Go" /></form>
+		</td>
+		<td class="n" rowspan="2">
+		  <table>
+		    <tbody>
+		      <!-- NEXT/PREV MONTH NAV AND MONTH INDICATOR -->
+		      <tr class="m">
+			<td class="b" nowrap="nowrap"><a href="http://web.archive.org/web/20160331183425/http://gnewt.sourceforge.net:80/tutorial-4.html" title="31 Mar 2016"><strong>Mar</strong></a></td>
+			<td class="c" id="displayMonthEl" title="You are here: 02:35:18 May 03, 2016">MAY</td>
+			<td class="f" nowrap="nowrap"><a href="http://web.archive.org/web/20160829145111/http://gnewt.sourceforge.net:80/tutorial-4.html" title="29 Aug 2016"><strong>Aug</strong></a></td>
+		      </tr>
+		      <!-- NEXT/PREV CAPTURE NAV AND DAY OF MONTH INDICATOR -->
+		      <tr class="d">
+			<td class="b" nowrap="nowrap"><a href="http://web.archive.org/web/20160331183425/http://gnewt.sourceforge.net:80/tutorial-4.html" title="18:34:25 Mar 31, 2016"><img src="/static/images/toolbar/wm_tb_prv_on.png" alt="Previous capture" width="14" height="16" border="0" /></a></td>
+			<td class="c" id="displayDayEl" style="width:34px;font-size:24px;" title="You are here: 02:35:18 May 03, 2016">03</td>
+			<td class="f" nowrap="nowrap"><a href="http://web.archive.org/web/20160504132915/http://gnewt.sourceforge.net:80/tutorial-4.html" title="13:29:15 May 04, 2016"><img src="/static/images/toolbar/wm_tb_nxt_on.png" alt="Next capture" width="14" height="16" border="0" /></a></td>
+		      </tr>
+		      <!-- NEXT/PREV YEAR NAV AND YEAR INDICATOR -->
+		      <tr class="y">
+			<td class="b" nowrap="nowrap"><a href="http://web.archive.org/web/20141005015317/http://gnewt.sourceforge.net:80/tutorial-4.html" title="05 Oct 2014"><strong>2014</strong></a></td>
+			<td class="c" id="displayYearEl" title="You are here: 02:35:18 May 03, 2016">2016</td>
+			<td class="f" nowrap="nowrap">2017</td>
+		      </tr>
+		    </tbody>
+		  </table>
+		</td>
+	      </tr>
+	      <tr>
+		<td class="s">
+		  		  <div id="wm-nav-captures">
+		    		    <a class="t" href="/web/20160503023518*/http://gnewt.sourceforge.net:80/tutorial-4.html" title="See a list of every capture for this URL">19 captures</a>
+		    <div class="r" title="Timespan for captures of this URL">06 May 2001 - 06 Oct 2016</div>
+		    </div>
+		</td>
+		<td class="k">
+		  <a href="" id="wm-graph-anchor">
+		    <div id="wm-ipp-sparkline" title="Explore captures for this URL" style="position: relative">
+		      <canvas id="wm-sparkline-canvas" width="550" height="27" border="0"></canvas>
+		    </div>
+		  </a>
+		</td>
+	      </tr>
+	    </tbody>
+	  </table>
+	</td>
+	<td class="r">
+	  <a href="#" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=http://web.archive.org/web/20160503023518/http://gnewt.sourceforge.net:80/tutorial-4.html', '', 'height=400,width=600'); return false;" title="Share on Facebook" style="top: 4px; right: 16px;" target="_blank"><span class="iconochive-facebook" style="color:#3b5998;font-size:160%;"></span></a>
+	  <a href="#" onclick="window.open('https://twitter.com/intent/tweet?text=http://web.archive.org/web/20160503023518/http://gnewt.sourceforge.net:80/tutorial-4.html&amp;via=internetarchive', '', 'height=400,width=600'); return false;" title="Share on Twitter" style="bottom:14px;right:16px;" target="_blank"><span class="iconochive-twitter" style="color:#1dcaff;font-size:160%;"></span></a>
+	  <a href="http://faq.web.archive.org/" title="Get some help using the Wayback Machine" style="bottom:14px;right:5px;padding-right:0;"><span class="iconochive-question" style="color:rgb(87,186,244);font-size:160%;"></span></a>
+	  <a href="#close" onclick="__wm.h(event);return false;" style="top:-2px;right:0;padding-right:0;" title="Close the toolbar"><span class="iconochive-remove-circle" style="color:#888888;font-size:240%;"></span></a>
+	  <a id="wm-expand" class="wm-btn" href="#expand" onclick="__wm.ex(event);return false;"><span class="iconochive-down-solid"></span> <span style="font-size:80%">About this capture</span></a>
+	</td>
+      </tr>
+    </tbody>
+  </table>
+    <div id="wm-capinfo" style="border-top:1px solid #777;display:none;">
+            <div style="background-color:#353535;color:#aaa;font-weight:bold;text-align:center;"><a class="wm-selector selected" href="javascript:void(0)">COLLECTED BY</a></div>
+    <div style="padding:3px;position:relative;">
+            <div style="display:inline-block;vertical-align:top;width:50%;">
+			<span class="c-logo" style="background-image:url(https://archive.org/services/img/alexacrawls);"></span>
+		Organization: <a style="color:#33f;" href="https://archive.org/details/alexacrawls" target="_new"><span class="wm-title">Alexa Crawls</span></a>
+		<div style="max-height:75px;overflow:hidden;position:relative;">
+	  <div style="position:absolute;top:0;left:0;width:100%;height:75px;background:linear-gradient(to bottom,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 90%,rgba(255,255,255,255) 100%);"></div>
+	  Starting in 1996, <a href="http://www.alexa.com/">Alexa Internet</a> has been donating their crawl data to the Internet Archive.  Flowing in every day, these data are added to the <a href="http://web.archive.org/">Wayback Machine</a> after an embargo period.
+	</div>
+	      </div>
+      <div style="display:inline-block;vertical-align:top;width:49%;">
+			<span class="c-logo" style="background-image:url(https://archive.org/services/img/alexacrawls)"></span>
+		<div>Collection: <a style="color:#33f;" href="https://archive.org/details/alexacrawls" target="_new"><span class="wm-title">Alexa Crawls</span></a></div>
+		<div style="max-height:75px;overflow:hidden;position:relative;">
+	  <div style="position:absolute;top:0;left:0;width:100%;height:75px;background:linear-gradient(to bottom,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 90%,rgba(255,255,255,255) 100%);"></div>
+	  Starting in 1996, <a href="http://www.alexa.com/">Alexa Internet</a> has been donating their crawl data to the Internet Archive.  Flowing in every day, these data are added to the <a href="http://web.archive.org/">Wayback Machine</a> after an embargo period.
+	</div>
+	      </div>
+    </div></div></div></div></div><script type="text/javascript">
+__wm.bt(550,27,25,2,"web","http://gnewt.sourceforge.net:80/tutorial-4.html","2016-05-03",1996);
+</script>
+<!-- END WAYBACK TOOLBAR INSERT -->
+Next
+<a href="tutorial-3.html">Previous</a>
+<a href="tutorial.html#toc4">Contents</a>
+<hr>
+<h2><a name="s4">4. Components</a></h2>
+
+<p>Components are the basic user interface element <code>newt</code> provides. A
+single component may be (for example) a listbox, push button checkbox,
+a collection of other components. Most components are used to display
+information in a window, provide a place for the user to enter data, or a
+combination of these two functions. 
+<p>Forms, however, are a component whose primary purpose is not noticed by
+the user at all. Forms are collections of components (a form may contain
+another form) which logically relate the components to one another. Once
+a form is created and had all of its consituent components added to it,
+applications normally then run the form.  This gives control of the
+application to the form, which then lets the user enter data onto the
+form. When the user is done (a number of different events qualify as
+``done''), the form returns control to the part of the application which
+invoked it. The application may then read the information the user provided
+and continue appropriately.
+<p>All <code>newt</code> components are stored in a common data type, a
+<code>newtComponent</code> (some of the particulars of <code>newtComponents</code>s have
+already been mentioned. While this makes it easy for programmers to pass
+components around, it does force them to make sure they use they don't pass
+entry boxes to routines expecting push buttons, as the compiler can't
+ensure that for them.
+<p>We start off with a brief introduction to forms. While not terribly
+complete, this introduction is enough to let us illustrate the rest of
+the components with some sample code. We'll then discuss the remainder of
+the components, and end this section with a more exhaustive description of
+forms.
+<p>
+<h2><a name="ss4.1">4.1 Introduction to Forms</a>
+</h2>
+
+<p>As we've mentioned, forms are simply collections of components. As only one
+form can be active (or running) at a time, every component which the user
+should be able to access must be on the running form (or on a subform of
+the running form). A form is itself a component, which means forms are
+stored in <code>newtComponent</code> data structures.
+<p>
+<blockquote><code>
+<pre>
+newtComponent newtForm(newtComponent vertBar, const char * help, int flags);
+</pre>
+</code></blockquote>
+<p>To create a form, call <code>newtForm()</code>. The first parameter is a vertical
+scrollbar which should be associated with the form. For now, that should
+always be <code>NULL</code> (we'll discuss how to create scrolling forms later in
+this section). The second parameter, <code>help</code>, is currently unused and
+should always be <code>NULL</code>. The <code>flags</code> is normally 0, and othervalues
+it can take will be discussed later. Now that we've waved away the
+complexity of this function, creating a form boils down to simply:
+<p>
+<blockquote><code>
+<pre>
+newtComponent myForm;
+
+myForm = newtForm(NULL, NULL, 0);
+</pre>
+</code></blockquote>
+<p>After a form is created, components need to be added to it --- after all,
+an empty form isn't terribly usefull. There are two functions which add
+components to a form.
+<p>
+<blockquote><code>
+<pre>
+void newtFormAddComponent(newtComponent form, newtComponent co);
+void newtFormAddComponents(newtComponent form, ...);
+</pre>
+</code></blockquote>
+<p>The first function, <code>newtFormAddComponent()</code>, adds a single component
+to the form which is passed as the first parameter. The second function
+is simply a convience function. After passing the form to
+<code>newtFormAddComponents()</code>, an arbitrary number of components is then
+passed, followed by <code>NULL</code>. Every component passed is added to the form.
+<p>Once a form has been created and components have been added to it, it's
+time to run the form.
+<p>
+<blockquote><code>
+<pre>
+newtComponent newtRunForm(newtComponent form);
+</pre>
+</code></blockquote>
+<p>This function runs the form passed to it, and returns the component which
+caused the form to stop running. For now, we'll ignore the return value
+completely.
+<p>Notice that this function doesn't fit in with <code>newt</code>'s normal
+naming convention. It is an older interface which will not work for all
+forms. It was left in <code>newt</code> only for legacy applications. It is a
+simpler interface then the new <code>newtFormRun()</code> though, and is still used
+quite often as a result.
+<p>When an application is done with a form, it destroys the form and
+all of the components the form contains.
+<p>
+<blockquote><code>
+<pre>
+void newtFormDestroy(newtComponent form);       
+</pre>
+</code></blockquote>
+<p>This function frees the memory resources used by the form and all of the
+components which have been added to the form (including those components
+which are on subforms). Once a form has been destroyed, none of the form's
+components can be used.
+<p>
+<h2><a name="ss4.2">4.2 Components</a>
+</h2>
+
+<p>Non-form components are the most important user-interface component for
+users. They determine how users interact with <code>newt</code> and how information
+is presented to them.
+<p>
+<h2><a name="ss4.3">4.3 General Component Manipulation</a>
+</h2>
+
+<p>There are a couple of functions which work on more then one type of
+components. The description of each component indicates which (if any)
+of these functions are valid for that particular component.
+<p>
+<blockquote><code>
+<pre>
+typedef void (*newtCallback)(newtComponent, void *);
+
+void newtComponentAddCallback(newtComponent co, newtCallback f, void * data);
+void newtComponentTakesFocus(newtComponent co, int val);
+</pre>
+</code></blockquote>
+<p>The first registers a callback function for that component. A callback
+function is a function the application provides which <code>newt</code> calls for a
+particular component. Exactly when (if ever) the callback is invoked
+depends on the type of component the callback is attached to, and will be
+discussed for the components which support callbacks.
+<p><code>newtComponentTakesFocus()</code> works on all components. It allows the
+application to change which components the user is allowed to select as the
+current component, and hence provide input to. Components which do not
+take focus are skipped over during form traversal, but they are displayed
+on the terminal. Some components should never be set to take focus, such
+as those which display static text.
+<p>
+<h2><a name="ss4.4">4.4 Buttons</a>
+</h2>
+
+<p>Nearly all forms contain at least one button. <code>Newt</code> buttons come in two
+flavors, full buttons and compact buttons. Full buttons take up quit a bit
+of screen space, but look much better then the single-row compact buttons.
+Other then their size, both button styles behave identically. Different
+functions are used to create the two types of buttons.
+<p>
+<blockquote><code>
+<pre>
+newtComponent newtButton(int left, int top, const char * text);
+newtComponent newtCompactButton(int left, int top, const char * text);
+</pre>
+</code></blockquote>
+<p>Both functions take identical paramters. The first two parameters are the
+location of the upper left corner of the button, and the final parameter is
+the text which should be displayed in the button (such as ``Ok'' or
+``Cancel'').
+<p>
+<h3>Button Example</h3>
+
+<p>Here is a simple example of both full and compact buttons. It also
+illustrates opening and closing windows, as well a simple form.
+<p>
+<blockquote><code>
+<pre>
+#include &lt;newt.h&gt;
+#include &lt;stdlib.h&gt;
+
+void main(void) {
+    newtComponent form, b1, b2;
+    newtInit();
+    newtCls();
+
+    newtOpenWindow(10, 5, 40, 6, "Button Sample");
+
+    b1 = newtButton(10, 1, "Ok");
+    b2 = newtCompactButton(22, 2, "Cancel");
+    form = newtForm(NULL, NULL, 0);
+    newtFormAddComponents(form, b1, b2, NULL);
+
+    newtRunForm(form);
+
+    newtFormDestroy(form);
+    newtFinished();
+}
+</pre>
+</code></blockquote>
+<p>
+<h2><a name="ss4.5">4.5 Labels</a>
+</h2>
+
+<p>Labels are <code>newt</code>'s simplest component. They display some given text and
+don't allow any user input.
+<p>
+<blockquote><code>
+<pre>
+newtComponent newtLabel(int left, int top, const char * text);
+void newtLabelSetText(newtComponent co, const char * text);
+</pre>
+</code></blockquote>
+<p>Creating a label is just like creating a button; just pass the location of
+the label and the text it should display. Unlike buttons, labels do let the
+application change the text in the label with <code>newtLabelSetText</code>. When
+the label's text is changed, the label automatically redraws itself. It
+does not clear out any old text which may be leftover from the previous
+time is was displayed, however, so be sure that the new text is at least
+as long as the old text.
+<p>
+<h2><a name="ss4.6">4.6 Entry Boxes</a>
+</h2>
+
+<p>Entry boxes allow the user to enter a text string into the form which the
+application can later retrieve.
+<p>
+<blockquote><code>
+<pre>
+typedef int (*newtEntryFilter)(newtComponent entry, void * data, int ch,
+                               int cursor);
+
+newtComponent newtEntry(int left, int top, const char * initialValue, int width,
+                        char ** resultPtr, int flags);
+void newtEntrySet(newtComponent co, const char * value, int cursorAtEnd);
+char * newtEntryGetValue(newtComponent co);
+void newtEntrySetFilter(newtComponent co, newtEntryFilter filter, void * data);
+</pre>
+</code></blockquote>
+<p>
+<p><code>newtEntry()</code> creates a new entry box. After the location of the entry
+box, the initial value for the entry box is passed, which may be <code>NULL</code>
+if the box should start off empty. Next, the width of the phsyical box is
+given. This width may or may not limit the length of the string the user is
+allowed to enter; that depends on the <code>flags</code>. The <code>resultPtr</code> must
+be the address of a <code>char *</code>. Until the entry box is destroyed by
+<code>newtFormDestroy()</code>, that <code>char *</code> will point to the current value
+of the entry box. It's important that applications make a copy of that
+value before destroying the form if they need to use it later. The
+<code>resultPtr</code> may be <code>NULL</code>, in which case the user must use the
+<code>newtEntryGetValue()</code> function to get the value of the entry box.
+<p>Entry boxes support a number of flags:
+<p>
+<dl>
+<dt><b>NEWT_ENTRY_SCROLL</b><dd><p>If this flag is not specified, the user cannot
+enter text into the entry box which is wider then the entry box itself.
+This flag removes this limitation, and lets the user enter data of an
+arbitrary length.
+<dt><b>NEWT_FLAG_HIDDEN</b><dd><p>If this flag is specified, the value of the entry box
+is not displayed. This is usefull when the application needs to read a
+password, for example.
+<dt><b>NEWT_FLAG_RETURNEXIT</b><dd><p>When this flag is given, the entry box will cause
+the form to stop running if the user pressed return inside of the entry
+box. This can provide a nice shortcut for users.
+</dl>
+<p>
+<p>After an entry box has been created, it's contents can be set by
+<code>newtEntrySet()</code>. After the entry box itself, the new string to place
+in the entry box is passed. The final parameter, <code>cursorAtEnd</code>, controls
+where the cursor will appear in the entry box. If it is zero, the cursor
+remains at it's present location; a nonzero value moves the cursor to the
+end of the entry box's new value.
+<p>While the simplest way to find the value of an entry box is by using a
+<code>resultPtr</code>, doing so complicates some applications.
+<code>newtEntryGetValue()</code> returns a pointer to the string which the entry
+box currently contains. The returned pointer may not be valid once the
+user further modifies the entry box, and will not be valid after the 
+entry box has been destroyed, so be sure to save it's value in a more
+permanent location if necessary.
+<p>Entry boxes allow applications to filter characters as they are entered.
+This allows programs to ignore characters which are invalid (such as
+entering a ^ in the middle of a phone number) and provide intelligent aids
+to the user (such as automatically adding a '.' after the user has typed in
+the first three numbers in an IP address). 
+<p>When a filter is registered through <code>newtEntrySetFilter()</code>, both the
+filter itself and an aribtrary <code>void *</code>, which passed to the filter
+whenever it is invoked, are recorded. This data pointer isn't used for any
+other purpose, and may be <code>NULL</code>. Entry filters take four arguments.
+<p>
+<ol>
+<li>The entry box which had data entered into it</li>
+<li>The data pointer which was registered along with the filter</li>
+<li>The new character which <code>newt</code> is considering inserting into the
+entry box</li>
+<li>The current cursor position (0 is the leftmost position)</li>
+</ol>
+<p>The filter returns 0 if the character should be ignored, or the value of
+the character which should be inserted into the entry box. Filter functions
+which want to do complex manipulations of the string should use
+<code>newtEntrySet()</code> to update the entry box and then return 0 to prevent
+the new character from being inserted.
+<p>When a callback is attached to a entry box, the callback is invoked
+whenever the user moves off of the callback and on to another component.
+<p>Here is a sample program which illustrates the use of both labels and
+entry boxes.
+<p>
+<blockquote><code>
+<pre>
+#include &lt;newt.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+
+void main(void) {
+    newtComponent form, label, entry, button;
+    char * entryValue;
+
+    newtInit();
+    newtCls();
+
+    newtOpenWindow(10, 5, 40, 8, "Entry and Label Sample");
+
+    label = newtLabel(1, 1, "Enter a string");
+    entry = newtEntry(16, 1, "sample", 20, &amp;entryValue, 
+                      NEWT_FLAG_SCROLL | NEWT_FLAG_RETURNEXIT);
+    button = newtButton(17, 3, "Ok");
+    form = newtForm(NULL, NULL, 0);
+    newtFormAddComponents(form, label, entry, button, NULL);
+
+    newtRunForm(form);
+
+    newtFinished();
+
+    printf("Final string was: %s\n", entryValue);
+
+    /* We cannot destroy the form until after we've used the value
+       from the entry widget. */
+    newtFormDestroy(form);
+}
+</pre>
+</code></blockquote>
+<p>
+<h2><a name="ss4.7">4.7 Checkboxes</a>
+</h2>
+
+<p>Most widget sets include checkboxes which toggle between two value (checked
+or not checked). <code>Newt</code> checkboxes are more flexible. When the user
+presses the space bar on a checkbox, the checkbox's value changes to the
+next value in an arbitrary sequence (which wraps). Most checkboxes have
+two items in that sequence, checked or not, but <code>newt</code> allows an
+arbitrary number of value. This is usefull when the user must pick from a
+limited number of choices.
+<p>Each item in the sequence is a single character, and the sequence itself is
+represented as a string. The checkbox comoonents displays the character
+which currently represents its value the left of a text label, and returns
+the same character as its current value. The default sequence for
+checkboxes is <code>" *"</code>, with <code>' '</code> indicating false and <code>'*'</code> true.
+<p>
+<blockquote><code>
+<pre>
+newtComponent newtCheckbox(int left, int top, const char * text, char defValue,
+                           const char * seq, char * result);
+char newtCheckboxGetValue(newtComponent co);
+</pre>
+</code></blockquote>
+<p>
+<p>Like most components, the position of the checkbox is the first thing
+passed to the function that creates one. The next parameter, <code>text</code>, is
+the text which is displayed to the right of the area which is checked.  The
+<code>defValue</code> is the initial value for the checkbox, and <code>seq</code> is the
+sequence which the checkbox should go through (<code>defValue</code> must be
+in <code>seq</code>. <code>seq</code> may be <code>NULL</code>, in which case <code>" *"</code> is used.
+The final parameter, <code>result</code>, should point to a character which the
+checkbox should always record it's current value in. If <code>result</code> is
+<code>NULL</code>, <code>newtCheckboxGetValue()</code> must be used to get the current
+value of the checkbox.
+<p><code>newtCheckboxGetValue()</code> is straightforward, returning the character
+in the sequence which indicates the current value of the checkboxl
+<p>If a callback is attached to a checkbox, the callback is invoked whenever
+the checkbox responds to a user's keystroke. The entry box may respond by
+taking focus or giving up focus, as well as by changing its current value.
+<p>
+<h2><a name="ss4.8">4.8 Radio Buttons</a>
+</h2>
+
+<p>Radio buttons look very similiar to checkboxes. The key difference between
+the two is that radio buttons are grouped into sets, and exactly one radio
+button in that set may be turned on. If another radio button is selected,
+the button which was selected is automatically deselected.
+<p>
+<p>
+<blockquote><code>
+<pre>
+newtComponent newtRadiobutton(int left, int top, const char * text, 
+                              int isDefault, newtComponent prevButton);
+newtComponent newtRadioGetCurrent(newtComponent setMember);
+</pre>
+</code></blockquote>
+<p>Each radio button is created by calling <code>newtRadiobutton()</code>. After
+the position of the radio button, the text displayed with the button
+is passed. <code>isDefault</code> should be nonzero if the radio button is to
+be turned on by default. The final paramater, <code>prevMember</code> is used
+to group radio buttons into sets. If <code>prevMember</code> is <code>NULL</code>, the 
+radio button is assigned to a new set. If the radio button should belong
+to a preexisting set, <code>prevMember</code> must be the previous radio button
+added to that set.
+<p>Discovering which radio button in a set is currently selected neccesitates
+<code>newtRadioGetCurrent()</code>. It may be passed any radio button in the set
+you're inerested in, and it returns the radio button component currently
+selected.
+<p>Here is an example of both checkboxes and radio buttons.
+<p>
+<blockquote><code>
+<pre>
+#include &lt;newt.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+
+void main(void) {
+    newtComponent form, checkbox, rb[3], button;
+    char cbValue;
+    int i;
+
+    newtInit();
+    newtCls();
+
+    newtOpenWindow(10, 5, 40, 11, "Checkboxes and Radio buttons");
+
+    checkbox = newtCheckbox(1, 1, "A checkbox", ' ', " *X", &amp;cbValue);
+
+    rb[0] = newtRadiobutton(1, 3, "Choice 1", 1, NULL);
+    rb[1] = newtRadiobutton(1, 4, "Choice 2", 0, rb[0]);
+    rb[2] = newtRadiobutton(1, 5, "Choice 3", 0, rb[1]);
+
+    button = newtButton(1, 7, "Ok");
+
+    form = newtForm(NULL, NULL, 0);
+    newtFormAddComponent(form, checkbox);
+    for (i = 0; i &lt; 3; i++)
+        newtFormAddComponent(form, rb[i]);
+    newtFormAddComponent(form, button);
+
+    newtRunForm(form);
+    newtFinished();
+
+    /* We cannot destroy the form until after we've found the current
+       radio button */
+
+    for (i = 0; i &lt; 3; i++)
+        if (newtRadioGetCurrent(rb[0]) == rb[i])
+            printf("radio button picked: %d\n", i);
+    newtFormDestroy(form);
+
+    /* But the checkbox's value is stored locally */
+    printf("checkbox value: '%c'\n", cbValue);
+}
+</pre>
+</code></blockquote>
+<p>
+<h2><a name="ss4.9">4.9 Scales</a>
+</h2>
+
+<p>It's common for programs to need to display a progress meter on the
+terminal while it performs somey length operation (it behaves like an
+anaesthetic). The scale component is a simple way of doing this. It
+displays a horizontal bar graph which the application can update as the
+operation continues.
+<p>
+<blockquote><code>
+<pre>
+newtComponent newtScale(int left, int top, int width, long long fullValue);
+void newtScaleSet(newtComponent co, unsigned long long amount);
+</pre>
+</code></blockquote>
+<p>When the scale is created with <code>newtScale</code>, it is given the width of the
+scale itself as well as the value which means that the scale should be
+drawn as full. When the position of the scale is set with
+<code>newtScaleSet()</code>, the scale is told the amount of the scale which should
+be filled in realative to the <code>fullAmount</code>. For example, if the
+application is copying a file, <code>fullValue</code> could be the number of bytes
+in the file, and when the scale is updated <code>newtScaleSet()</code> would be
+passed the number of bytes which have been copied so far.
+<p>
+<h2><a name="ss4.10">4.10 Textboxes</a>
+</h2>
+
+<p>Textboxes display a block of text on the terminal, and is appropriate for
+display large amounts of text. 
+<p>
+<blockquote><code>
+<pre>
+newtComponent newtTextbox(int left, int top, int width, int height, int flags);
+void newtTextboxSetText(newtComponent co, const char * text);
+</pre>
+</code></blockquote>
+<p><code>newtTextbox()</code> creates a new textbox, but does not fill it with data.
+The function is passed the location for the textbox on the screen, the
+width and height of the textbox (in characters), and zero or more of the
+following flags:
+<p>
+<dl>
+<dt><b>NEWT_FLAG_WRAP</b><dd><p>All text in the textbox should be wrapped to fit
+the width of the textbox. If this flag is not specified, each newline
+delimited line in the text is trunctated if it is too long to fit.
+<p>When <code>newt</code> wraps text, it tries not to break lines on spaces or tabs.
+Literal newline characters are respected, and may be used to force line
+breaks.
+<dt><b>NEWT_FLAG_SCROLL</b><dd><p>The text box should be scrollable. When this option
+is used, the scrollbar which is added increases the width of the area used
+by the textbox by 2 characters; that is the textbox is 2 characters wider
+then the width passed to <code>newtTextbox()</code>.
+</dl>
+<p>
+<p>
+<p>After a textbox has been created, text may be added to it through
+<code>newtTextboxSetText()</code>, which takes only the textbox and the new text as
+parameters. If the textbox already contained text, that text is replaced by
+the new text. The textbox makes its own copy of the passed text, so these
+is no need to keep the original around unless it's convienent.
+<p>
+<h3>Reflowing Text</h3>
+
+<p>When applications need to display large amounts of text, it's common not to
+know exactly where the linebreaks should go. While textboxes are quite
+willing to scroll the text, the programmer still must know what width the
+text will look ``best'' at (where ``best'' means most exactly rectangular;
+no lines much shorter or much longer then the rest). This common is
+escpecially prevalent in internationalized programs, which need to make a
+wide variety of message string look god on a screen.
+<p>To help with this, <code>newt</code> provides routines to reformat text to look
+good. It tries different widths to figure out which one will look ``best''
+to the user. As these commons are almost always used to format text for
+textbox components, <code>newt</code> makes it easy to construct a textbox with
+reflowed text.
+<p>
+<blockquote><code>
+<pre>
+char * newtReflowText(char * text, int width, int flexDown, int flexUp,
+                      int * actualWidth, int * actualHeight);
+newtComponent newtTextboxReflowed(int left, int top, char * text, int width,
+                                  int flexDown, int flexUp, int flags);
+int newtTextboxGetNumLines(newtComponent co);
+</pre>
+</code></blockquote>
+<p>
+<p><code>newtReflowText()</code> reflows the <code>text</code> to a target width of
+<code>width</code>. The actual width of the longest line in the returned string is
+between <code>width - flexDown</code> and <code>width + flexUp</code>; the actual maximum
+line length is chosen to make the displayed check look rectuangular. 
+The <code>int</code>s pointed to by <code>actualWidth</code> and <code>actualHeight</code> are set
+to the width of the longest line and the number of lines in in the
+returned text, respectively. Either one may be <code>NULL</code>. The return
+value points to the reflowed text, and is allocated through <code>malloc()</code>.
+<p>When the reflowed text is being placed in a textbox it may be easier to use
+<code>newtTextboxReflowed()</code>, which creates a textbox, reflows the text, and
+places the reflowed text in the listbox. It's parameters consist of the
+position of the final textbox, the width and flex values for the text
+(which are identical to the parameters passed to <code>newtReflowText()</code>,
+and the flags for the textbox (which are the same as the flags for
+<code>newtTextbox()</code>. This function does not let you limit the height of the
+textbox, however, making limiting it's use to contructing textbox's which
+don't need to scroll.
+<p>To find out how tall the textbox created by <code>newtTextboxReflowed()</code> is, 
+use <code>newtTextboxGetNumLines()</code>, which returns the number of lines in the
+textbox. For textboxes created by <code>newtTextboxReflowed()</code>, this is
+always the same as the height of the textbox.
+<p>Here's a simple program which uses a textbox to display a message.
+<p>
+<blockquote><code>
+<pre>
+#include &lt;newt.h&gt;
+#include &lt;stdlib.h&gt;
+
+char message[] = "This is a pretty long message. It will be displayed "
+                 "in a newt textbox, and illustrates how to construct "
+                 "a textbox from arbitrary text which may not have "
+                 "very good line breaks.\n\n"
+                 "Notice how literal \\n characters are respected, and "
+                 "may be used to force line breaks and blank lines.";
+
+void main(void) {
+    newtComponent form, text, button;
+
+    newtInit();
+    newtCls();
+
+    text = newtTextboxReflowed(1, 1, message, 30, 5, 5, 0);
+    button = newtButton(12, newtTextboxGetNumLines(text) + 2, "Ok");
+
+    newtOpenWindow(10, 5, 37,
+                   newtTextboxGetNumLines(text) + 7, "Textboxes");
+
+    form = newtForm(NULL, NULL, 0);
+    newtFormAddComponents(form, text, button, NULL);
+
+    newtRunForm(form);
+    newtFormDestroy(form);
+    newtFinished();
+}
+</pre>
+</code></blockquote>
+<p>
+<h2><a name="ss4.11">4.11 Scrollbars</a>
+</h2>
+
+<p>Scrollbars (which, currently, are always vertical in <code>newt</code>), may be
+attached to forms to let them contain more data then they have space for.
+While the actual process of making scrolling forms is discussed at the end 
+of this section, we'll go ahead and introduct scrollbars now so you'll be
+ready.
+<p>
+<blockquote><code>
+<pre>
+newtComponent newtVerticalScrollbar(int left, int top, int height,
+                                    int normalColorset, int thumbColorset);
+</pre>
+</code></blockquote>
+<p>When a scrollbar is created, it is given a position on the screen, a
+height, and two colors. The first color is the color used for drawing the
+scrollbar, and the second color is used for drawing the thumb. This is the
+only place in newt where an application specifically sets colors for a
+component. It's done here to let the colors a scrollbar use match the
+colors of the component the scrollbar is mated too. When a scrollbar is
+being used with a form, <code>normalColorset</code> is often
+<code>NEWT_COLORSET_WINDOW</code> and <code>thumbColorset</code>
+<code>NEWT_COLORSET_ACTCHECKBOX</code>. Of course, feel free to puruse
+<code>&lt;newt.h&gt;</code> and pick your own colors.
+<p>As the scrollbar is normally updated by the component it is mated with,
+there is no public interface for moving the thumb.
+<p>
+<h2><a name="ss4.12">4.12 Listboxes</a>
+Listboxes are the most complicated components <code>newt</code> provides. They canallow a single selection or multiple selection, and are easy to update.Unfortunately, their API is also the least consistent of <code>newt</code>'scomponents. Each entry in a listbox is a ordered pair of the text which should bedisplayed for that item and a <b>key</b>, which is a <code>void *</code> thatuniquely identifies that listbox item. Many applications pass integers inas keys, but using arbitrary pointers makes many applications significantlyeasier to code.</h2>
+
+<h3>Basic Listboxes</h3>
+
+<p>Let's start off by looking at the most important listbox functions.
+<p>
+<blockquote><code>
+<pre>
+newtComponent newtListbox(int left, int top, int height, int flags);
+int newtListboxAppendEntry(newtComponent co, const char * text, 
+                           const void * data);
+void * newtListboxGetCurrent(newtComponent co);
+void newtListboxSetWidth(newtComponent co, int width);
+void newtListboxSetCurrent(newtComponent co, int num);
+void newtListboxSetCurrentByKey(newtComponent co, void * key);
+</pre>
+</code></blockquote>
+<p>
+<p>A listbox is created at a certain position and a given height. The
+<code>height</code> is used for two things. First of all, it is the minimum
+height the listbox will use. If there are less items in the listbox then
+the height, suggests the listbox will still take up that minimum amount
+of space. Secondly, if the listbox is set to be scrollable (by setting
+the <code>NEWT_FLAG_SCROLL flag</code>, the <code>height</code> is also the maximum height
+of the listbox. If the listbox may not scroll, it increases its height to
+display all of its items.
+<p>The following flags may be used when creating a listbox:
+<p>
+<dl>
+<dt><b>NEWT_FLAG_SCROLL</b><dd><p>The listbox should scroll to display all of the
+items it contains.
+<dt><b>NEWT_FLAG_RETURNEXIT</b><dd><p>When the user presses return on an item in the
+list, the form should return.
+<dt><b>NEWT_FLAG_BORDER</b><dd><p>A frame is drawn around the listbox, which can make
+it easier to see which listbox has the focus when a form contains multiple
+listboxes.
+<dt><b>NEWT_FLAG_MULTIPLE</b><dd><p>By default, a listbox only lets the user select
+one item in the list at a time. When this flag is specified, they may
+select multiple items from the list.
+</dl>
+<p>
+<p>Once a listbox has been created, items are added to it by invoking
+<code>newtListboxAppendEntry()</code>, which adds new items to the end of the list.
+In addition to the listbox component, <code>newtListboxAppendEntry()</code> needs
+both elements of the (text, key) ordered pair. 
+<p>For lists which only allow a single selection, <code>newtListboxGetCurrent()</code>
+should be used to find out which listbox item is currently selected. It
+returns the key of the currently selected item.
+<p>Normally, a listbox is as wide as it's widest element, plus space for a
+scrollbar if the listbox is supposed to have one. To make the listbox
+any larger then that, use <code>newtListboxSetWidth()</code>, which overrides the
+natural lis of the listbox. Once the width has been set, it's fixed. The
+listbox will no longer grow to accomodate new entries, so bad things may
+happen! 
+<p>An application can change the current position of the listbox (where the
+selection bar is displayed) by calling <code>newtListboxSetCurrent()</code> or
+<code>newtListboxSetCurrentByKey()</code>. The first sets the current position to the
+entry number which is passed as the second argument, with 0 indicating
+the first entry. <code>newtListboxSetCurrentByKey()</code> sets the current position
+to the entry whose <code>key</code> is passed into the function.
+<p>
+<h3>Manipulating Listbox Contents</h3>
+
+<p>While the contents of many listboxes never need to change, some applications
+need to change the contents of listboxes regularly. <code>Newt</code> includes
+complete support for updating listboxes. These new functions are in
+addtion to <code>newtListboxAppendEntry()</code>, which was already discussed.
+<p>
+<blockquote><code>
+<pre>
+void newtListboxSetEntry(newtComponent co, void * key, const char * text);
+int newtListboxInsertEntry(newtComponent co, const char * text, 
+                           const void * data, void * key);
+int newtListboxDeleteEntry(newtComponent co, void * key);
+void newtListboxClear(newtComponent co);
+</pre>
+</code></blockquote>
+<p>
+<p>The first of these, <code>newtListboxSetEntry()</code>, updates the text for a
+key which is already in the listbox. The <code>key</code> specifies which listbox
+entry should be modified, and <code>text</code> becomes the new text for that entry
+in the listbox.
+<p><code>newtListboxInsertEntry()</code> inserts a new listbox entry <b>after</b> an
+already existing entry, which is specified by the <code>key</code> parameter.
+The <code>text</code> and <code>data</code> parameters specify the new entry which should
+be added.
+<p>Already-existing entries are removed from a listbox with
+<code>newtListboxDeleteEntry()</code>. It removes the listbox entry with the
+specified <code>key</code>. If you want to remove all of the entries from a
+listbox, use <code>newtListboxClear()</code>. 
+<p>
+<h3>Multiple Selections</h3>
+
+<p>When a listbox is created with <code>NEWT_FLAG_MULTIPLE</code>, the user can select
+multiple items from the list. When this option is used, a different set of
+functions must be used to manipulate the listbox selection.
+<p>
+<blockquote><code>
+<pre>
+void newtListboxClearSelection(newtComponent co);
+void **newtListboxGetSelection(newtComponent co, int *numitems);
+void newtListboxSelectItem(newtComponent co, const void * key,
+                           enum newtFlagsSense sense);
+</pre>
+</code></blockquote>
+<p>The simplest of these is <code>newtListboxClearSelection()</code>, which deselects
+all of the items in the list (listboxes which allow multiple selections
+also allow zero selections). <code>newtListboxGetSelection()</code> returns a
+pointer to an array which contains the keys for all of the items in the
+listbox currently selected. The <code>int</code> pointed to by <code>numitems</code> is
+set to the number of items currently selected (and hence the number of
+items in the returned array). The returned array is dynamically allocated,
+and must be released through <code>free()</code>.
+<p><code>newtListboxSelectItem()</code> lets the program select and deselect specific
+listbox entries. The <code>key</code> of the listbox entry is being affected is
+passed, and <code>sense</code> is one of <code>NEWT_FLAGS_RESET</code>, which deselects
+the entry, <code>NEWT_FLAGS_SET</code>, which selects the entry, or
+<code>NEWT_FLAGS_TOGGLE</code>, which reverses the current selection status.
+<p>
+<p>
+<h2><a name="ss4.13">4.13 Advanced Forms</a>
+</h2>
+
+<p>Forms, which tie components together, are quite important in the world of
+<code>newt</code>. While we've already discussed the basics of forms, we've omitted
+many of the details.
+<p>
+<h3>Exiting From Forms</h3>
+
+<p>Forms return control to the application for a number of reasons:
+<p>
+<ul>
+<li>A component can force the form to exit. Buttons do this whenever they
+are pushed, and other components exit when <code>NEWT_FLAG_RETURNEXIT</code> has
+been specified.</li>
+<li>Applications can setup hot keys which cause the form to exit when
+they are pressed.</li>
+<li><code>Newt</code> can exit when file descriptors are ready to be read or
+ready to be written to.</li>
+</ul>
+<p>By default, <code>newt</code> forms exit when the F12 key is pressed (F12 is setup
+as a hot key by default). <code>Newt</code> applications should treat F12 as an
+``Ok'' button. If applications don't want F12 to exit the form, they can
+specify <code>NEWT_FLAG_NOF12</code> as flag when creating the form with 
+<code>newtForm</code>.
+<p>
+<blockquote><code>
+<pre>
+void newtFormAddHotKey(newtComponent co, int key);
+void newtFormWatchFd(newtComponent form, int fd, int fdFlags);
+</pre>
+</code></blockquote>
+<p>
+<blockquote><code>
+<pre>
+void newtDrawForm(newtComponent form);
+newtComponent newtFormGetCurrent(newtComponent co);
+void newtFormSetCurrent(newtComponent co, newtComponent subco);
+void newtFormRun(newtComponent co, struct newtExitStruct * es);
+</pre>
+</code></blockquote>
+<p>
+<blockquote><code>
+<pre>
+newtComponent newtForm(newtComponent vertBar, const char * help, int flags);
+void newtFormSetBackground(newtComponent co, int color);
+void newtFormSetHeight(newtComponent co, int height);
+void newtFormSetWidth(newtComponent co, int width);
+</pre>
+</code></blockquote>
+<p>
+<p>
+<p>
+<hr>
+Next
+<a href="tutorial-3.html">Previous</a>
+<a href="tutorial.html#toc4">Contents</a>
+</body>
+</html>

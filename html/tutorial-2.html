@@ -1,0 +1,367 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head><script type="text/javascript" src="/static/js/analytics.js?v=1492440594.0" charset="utf-8"></script>
+
+<script type="text/javascript">archive_analytics.values.service='wb';archive_analytics.values.server_name='wwwb-app17.us.archive.org';archive_analytics.values.server_ms=474;</script>
+<script type="text/javascript" src="/static/js/wbhack.js?v=1492440594.0" charset="utf-8"></script>
+
+<script type="text/javascript">
+__wbhack.init('');
+</script>
+<link rel="stylesheet" type="text/css" href="/static/css/banner-styles.css?v=1492440594.0" />
+<link rel="stylesheet" type="text/css" href="/static/css/iconochive.css?v=1492440594.0" />
+
+<!-- End Wayback Rewrite JS Include -->
+ <meta name="GENERATOR" content="SGML-Tools 1.0.9">
+ <title>Writing Programs Using newt: Basic Newt Functions</title>
+ <link href="tutorial-3.html" rel="next">
+ <link href="tutorial-1.html" rel="previous">
+ <link href="tutorial.html#toc2" rel="contents">
+</head>
+<body><!-- BEGIN WAYBACK TOOLBAR INSERT -->
+<script type="text/javascript" src="/static/js/timestamp.js?v=1492440594.0" charset="utf-8"></script>
+<script type="text/javascript" src="/static/js/graph-calc.js?v=1492440594.0" charset="utf-8"></script>
+<script type="text/javascript" src="/static/js/auto-complete.js?v=1492440594.0" charset="utf-8"></script>
+<script type="text/javascript" src="/static/js/toolbar.js?v=1492440594.0" charset="utf-8"></script>
+
+<style type="text/css">
+body {
+  margin-top:0 !important;
+  padding-top:0 !important;
+  min-width:800px !important;
+}
+.wb-autocomplete-suggestions {
+    text-align: left; cursor: default; border: 1px solid #ccc; border-top: 0; background: #fff; box-shadow: -1px 1px 3px rgba(0,0,0,.1);
+    position: absolute; display: none; z-index: 2147483647; max-height: 254px; overflow: hidden; overflow-y: auto; box-sizing: border-box;
+}
+.wb-autocomplete-suggestion { position: relative; padding: 0 .6em; line-height: 23px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 1.02em; color: #333; }
+.wb-autocomplete-suggestion b { font-weight: bold; }
+.wb-autocomplete-suggestion.selected { background: #f0f0f0; }
+</style>
+<div id="wm-ipp" lang="en" style="display:none;direction:ltr;">
+<div style="position:fixed;left:0;top:0;width:100%!important">
+<div id="wm-ipp-inside">
+  <table style="width:100%;">
+    <tbody>
+      <tr>
+	<td id="wm-logo">
+	  <a href="/web/" title="Wayback Machine home page"><img src="/static/images/toolbar/wayback-toolbar-logo.png" alt="Wayback Machine" width="110" height="39" border="0" /></a>
+	</td>
+	<td class="c">
+	  <table style="margin:0 auto;">
+	    <tbody>
+	      <tr>
+		<td class="u" colspan="2">
+		  <form target="_top" method="get" action="/web/submit" name="wmtb" id="wmtb"><input type="text" name="url" id="wmtbURL" value="http://gnewt.sourceforge.net/tutorial-2.html" style="width:400px;" onfocus="this.focus();this.select();" /><input type="hidden" name="type" value="replay" /><input type="hidden" name="date" value="20160408215104" /><input type="submit" value="Go" /></form>
+		</td>
+		<td class="n" rowspan="2">
+		  <table>
+		    <tbody>
+		      <!-- NEXT/PREV MONTH NAV AND MONTH INDICATOR -->
+		      <tr class="m">
+			<td class="b" nowrap="nowrap"><a href="http://web.archive.org/web/20151114060757/http://gnewt.sourceforge.net:80/tutorial-2.html" title="14 Nov 2015"><strong>Nov</strong></a></td>
+			<td class="c" id="displayMonthEl" title="You are here: 21:51:04 Apr 08, 2016">APR</td>
+			<td class="f" nowrap="nowrap">May</td>
+		      </tr>
+		      <!-- NEXT/PREV CAPTURE NAV AND DAY OF MONTH INDICATOR -->
+		      <tr class="d">
+			<td class="b" nowrap="nowrap"><a href="http://web.archive.org/web/20151114060757/http://gnewt.sourceforge.net:80/tutorial-2.html" title="06:07:57 Nov 14, 2015"><img src="/static/images/toolbar/wm_tb_prv_on.png" alt="Previous capture" width="14" height="16" border="0" /></a></td>
+			<td class="c" id="displayDayEl" style="width:34px;font-size:24px;" title="You are here: 21:51:04 Apr 08, 2016">08</td>
+			<td class="f" nowrap="nowrap"><img src="/static/images/toolbar/wm_tb_nxt_off.png" alt="Next capture" width="14" height="16" border="0" /></td>
+		      </tr>
+		      <!-- NEXT/PREV YEAR NAV AND YEAR INDICATOR -->
+		      <tr class="y">
+			<td class="b" nowrap="nowrap"><a href="http://web.archive.org/web/20131219225009/http://gnewt.sourceforge.net/tutorial-2.html" title="19 Dec 2013"><strong>2013</strong></a></td>
+			<td class="c" id="displayYearEl" title="You are here: 21:51:04 Apr 08, 2016">2016</td>
+			<td class="f" nowrap="nowrap">2017</td>
+		      </tr>
+		    </tbody>
+		  </table>
+		</td>
+	      </tr>
+	      <tr>
+		<td class="s">
+		  		  <div id="wm-nav-captures">
+		    		    <a class="t" href="/web/20160408215104*/http://gnewt.sourceforge.net/tutorial-2.html" title="See a list of every capture for this URL">10 captures</a>
+		    <div class="r" title="Timespan for captures of this URL">05 May 2001 - 08 Apr 2016</div>
+		    </div>
+		</td>
+		<td class="k">
+		  <a href="" id="wm-graph-anchor">
+		    <div id="wm-ipp-sparkline" title="Explore captures for this URL" style="position: relative">
+		      <canvas id="wm-sparkline-canvas" width="550" height="27" border="0"></canvas>
+		    </div>
+		  </a>
+		</td>
+	      </tr>
+	    </tbody>
+	  </table>
+	</td>
+	<td class="r">
+	  <a href="#" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=http://web.archive.org/web/20160408215104/http://gnewt.sourceforge.net/tutorial-2.html', '', 'height=400,width=600'); return false;" title="Share on Facebook" style="top: 4px; right: 16px;" target="_blank"><span class="iconochive-facebook" style="color:#3b5998;font-size:160%;"></span></a>
+	  <a href="#" onclick="window.open('https://twitter.com/intent/tweet?text=http://web.archive.org/web/20160408215104/http://gnewt.sourceforge.net/tutorial-2.html&amp;via=internetarchive', '', 'height=400,width=600'); return false;" title="Share on Twitter" style="bottom:14px;right:16px;" target="_blank"><span class="iconochive-twitter" style="color:#1dcaff;font-size:160%;"></span></a>
+	  <a href="http://faq.web.archive.org/" title="Get some help using the Wayback Machine" style="bottom:14px;right:5px;padding-right:0;"><span class="iconochive-question" style="color:rgb(87,186,244);font-size:160%;"></span></a>
+	  <a href="#close" onclick="__wm.h(event);return false;" style="top:-2px;right:0;padding-right:0;" title="Close the toolbar"><span class="iconochive-remove-circle" style="color:#888888;font-size:240%;"></span></a>
+	  <a id="wm-expand" class="wm-btn" href="#expand" onclick="__wm.ex(event);return false;"><span class="iconochive-down-solid"></span> <span style="font-size:80%">About this capture</span></a>
+	</td>
+      </tr>
+    </tbody>
+  </table>
+    <div id="wm-capinfo" style="border-top:1px solid #777;display:none;">
+            <div style="background-color:#353535;color:#aaa;font-weight:bold;text-align:center;"><a class="wm-selector selected" href="javascript:void(0)">COLLECTED BY</a></div>
+    <div style="padding:3px;position:relative;">
+      <div style="display:inline-block;vertical-align:top;width:49%;">
+			<span class="c-logo" style="background-image:url(https://archive.org/services/img/wikipediaoutlinks00004)"></span>
+		<div>Collection: <a style="color:#33f;" href="https://archive.org/details/wikipediaoutlinks00004" target="_new"><span class="wm-title">Wikipedia Outlinks March 2016</span></a></div>
+		<div style="max-height:75px;overflow:hidden;position:relative;">
+	  <div style="position:absolute;top:0;left:0;width:100%;height:75px;background:linear-gradient(to bottom,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 90%,rgba(255,255,255,255) 100%);"></div>
+	  Crawl of outlinks from wikipedia.org started March, 2016. These files are currently not publicly accessible.
+
+Properties of this collection.
+It has been several years since the last time we did this.
+For this collection, several things were done:
+1. Turned off duplicate detection.   This collection will be complete, as there is a
+good chance we will share the data, and sharing data with pointers to random
+other collections, is a complex problem.
+
+2. For the first time, did all the different wikis.   The original runs were just against the 
+enwiki.   This one, the seed list was built from all 865 collections.
+	</div>
+	      </div>
+    </div></div></div></div></div><script type="text/javascript">
+__wm.bt(550,27,25,2,"web","http://gnewt.sourceforge.net/tutorial-2.html","2016-04-08",1996);
+</script>
+<!-- END WAYBACK TOOLBAR INSERT -->
+<a href="tutorial-3.html">Next</a>
+<a href="tutorial-1.html">Previous</a>
+<a href="tutorial.html#toc2">Contents</a>
+<hr>
+<h2><a name="s2">2. Basic <code>Newt</code> Functions</a></h2>
+
+<p>While most <code>newt</code> functions are concerned with widgets or groups
+of widgets (called grids and forms), some parts of the <code>newt</code> API
+deal with more global issues, such as initializing <code>newt</code> or writing
+to the root window.
+<p>
+<h2><a name="ss2.1">2.1 Starting and Ending <code>newt</code> Services</a>
+</h2>
+
+<p>There are three functions which nearly every <code>newt</code> application use. The
+first two are used to initialize the system.
+<p>
+<blockquote><code>
+<pre>
+int newtInit(void);
+void newtCls(void);
+</pre>
+</code></blockquote>
+<p><code>newtInit()</code> should be the first function called by every <code>newt</code>
+program. It initializes internal data structures and places the terminal
+in raw mode. Most applications invoke <code>newtCls()</code> immediately after
+<code>newtInit()</code>, which causes the screen to be cleared. It's not
+necessary to call <code>newtCls()</code> to use any of <code>newt</code>'s features, but
+doing so will normally give a much neater appearance.
+<p>When a <code>newt</code> program is ready to exit, it should call <code>newtFinished()</code>.
+<p>
+<blockquote><code>
+<pre>
+int newtFinished(void);
+</pre>
+</code></blockquote>
+<p><code>newtFinished()</code> restores the terminal to it's appearance when
+<code>newtInit()</code> was called (if possible -- on some terminals the cursor will
+be moved to the bottom, but it won't be possible to remember the original
+terminal contents) and places the terminal in it's original input state.
+If this function isn't called, the terminal will probably need to be
+reset with the <code>reset</code> command before it can be used easily.
+<p>
+<h2><a name="ss2.2">2.2 Handling Keyboard Input</a>
+</h2>
+
+<p>Normally, <code>newt</code> programs don't read input directly from the
+user. Instead, they let <code>newt</code> read the input and hand it to the
+program in a semi-digested form. <code>Newt</code> does provide a couple of simple
+functions which give programs (a bit of) control over the terminal.
+<p>
+<blockquote><code>
+<pre>
+void newtWaitForKey(void);
+void newtClearKeyBuffer(void);
+</pre>
+</code></blockquote>
+<p>
+<p>The first of these, <code>newtWaitForKey()</code>, doesn't return until a key
+has been pressed. The keystroke is then ignored. If a key is already in
+the terminal's buffer, <code>newtWaitForKey()</code> discards a keystroke and
+returns immediately.
+<p><code>newtClearKeyBuffer()</code> discards the contents of the terminal's input
+buffer without waiting for additional input. 
+<p>
+<h2><a name="ss2.3">2.3 Drawing on the Root Window</a>
+</h2>
+
+<p>The background of the terminal's display (the part without any windows 
+covering it) is known as the <b>root window</b> (it's the parent of all
+windows, just like the system's root directory is ther parent of all 
+subdirectories). Normally, applications don't use the root window, instead
+drawing all of their text inside of windows (<code>newt</code> doesn't require
+this though -- widgets may be placed directly on the root window without
+difficulty). It is often desireable to display some text, such as a
+program's name or copyright information, on the root window, however.
+<code>Newt</code> provides two ways of displaying text on the root window. These
+functions may be called at any time. They are the only <code>newt</code> functions
+which are meant to write outside of the current window.
+<p>
+<blockquote><code>
+<pre>
+void newtDrawRootText(int left, int top, const char * text);
+</pre>
+</code></blockquote>
+<p>
+<p>This function is straightforward. It displays the string <code>text</code> at
+the position indicated. If either the <code>left</code> or <code>top</code> is
+negative, the position is measured from the opposite side of the
+screen. The final measurement will seem to be off by one though. For
+example, a <code>top</code> of -1 indicates the last line on the screen, and
+one of -2 is the line above that.
+<p>As it's common to use the last line on the screen to display help information,
+<code>newt</code> includes special support for doing exactly that. The last
+line on the display is known as the <b>help line</b>, and is treated as a
+stack. As the value of the help line normally relates to the window
+currently displayed, using the same structure forwindow order and the
+help line is very natural. Two functions are provided to manipulate the
+help line.
+<p>
+<blockquote><code>
+<pre>
+void newtPushHelpLine(const char * text);
+void newtPopHelpLine(void);
+</pre>
+</code></blockquote>
+<p>The first function, <code>newtPushHelpLine()</code>, saves the current help line
+on a stack (which is independent of the window stack) and displays the
+new line. If <code>text</code> is <code>NULL</code>, <code>newt</code>'s default help line is
+displayed (which provides basic instructions on using <code>newt</code>). If
+<code>text</code> is a string of length 0, the help line is cleared. For all
+other values of <code>text</code>, the passed string is displayed at the bottom,
+left-hand corner of the display. The space between the end of the displayed
+string the the right-hand edge of the terminal is cleared.
+<p><code>newtPopHelpLine()</code> replaces the current help line with the one it
+replaced. It's important not to call tt/newtPopHelpLine()/ more then
+<code>newtPushHelpLine()</code>!
+<p><code>Suspending Newt Applications</code>
+<p>By default, <code>newt</code> programs cannot be suspended by the user (compare
+this to most Unix programs which can be suspended by pressing the suspend
+key (normmaly <code>^Z</code>).  Instead, programs can specify a <b>callback</b>
+function which gets invoked when the user presses the suspend key. 
+<p>
+<blockquote><code>
+<pre>
+typedef void (*newtSuspendCallback)(void);
+
+void newtSetSuspendCallback(newtSuspendCallback cb);
+</pre>
+</code></blockquote>
+<p>The suepnd function neither expects nor returns any value, and can
+do whatever it likes to when it is invoked. If no suspend callback
+is registered, the suspend keystroke is ignored.
+<p>If the application should suspend and continue like most user applications,
+the suspend callback needs two other <code>newt</code> functions.
+<p>
+<blockquote><code>
+<pre>
+void newtSuspend(void);
+void newtResume(void);
+</pre>
+</code></blockquote>
+<p><code>newtSuspend()</code> tells <code>newt</code> to return the terminal to it's initial
+state. Once this is done, the application can suspend itself (by
+sending itself a <code>SIGTSTP</code>, fork a child program, or do whatever
+else it likes. When it wants to resume using the <code>newt</code> interface,
+it must call <code>newtResume</code> before doing so. 
+<p>Note that suspend callbacks are not signal handlers. When <code>newtInit()</code>
+takes over the terminal, it disables the part of the terminal interface
+which sends the suspend signal. Instead, if <code>newt</code> sees the suspend
+keystroke during normal input processing, it immediately calls the suspend
+callback if one has been set. This means that suspending newt applications
+is not asyncronous.
+<p>
+<h2><a name="ss2.4">2.4 Refreshing the Screen</a>
+</h2>
+
+<p>To increase performance, S-Lang only updates the display when it needs
+to, not when the program tells S-Lang to write to the terminal. ``When it
+needs to'' is implemented as ``right before the we wait for the user to
+press a key''. While this allows for optimized screen displays most of
+the time, this optimization makes things difficult for programs which
+want to display progress messages without forcing the user to input 
+characters. Applications can foce S-Lang to immediately update modified
+portions of the screen by calling <code>newtRefresh</code>.
+<p>
+<ol>
+<li>The program wants to display a progress message, without forcing
+for the user to enter any characters.</li>
+<li>A misfeature of the program causes part of the screen to be
+corrupted. Ideally, the program would be fixed, but that may not 
+always be practical.</li>
+</ol>
+<p>
+<h2><a name="ss2.5">2.5 Other Miscellaenous Funtions</a>
+</h2>
+
+<p>As always, some function defy characterization. Two of <code>newt</code>'s general
+function fit this oddball category.
+<p>
+<blockquote><code>
+<pre>
+void newtBell(void);
+void newtGetScreenSize(int * cols, int * rows);
+</pre>
+</code></blockquote>
+<p>The first sends a beep to the terminal. Depending on the terminal's
+settings, this been may or may not be audible. The second function,
+<code>newtGetScreenSize()</code>, fills in the passed pointers with the
+current size of the terminal.
+<p>
+<h2><a name="ss2.6">2.6 Basic <code>newt</code> Example</a>
+</h2>
+
+<p>To help illustrate the functions presented in this secion here is a short
+sample <code>newt</code> program which uses many of them. While it doesn't do
+anything interesting, it does show the basic structure of <code>newt</code> programs.
+<p>
+<blockquote><code>
+<pre>
+#include &lt;newt.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main(void) {
+    newtInit();
+    newtCls();
+
+    newtDrawRootText(0, 0, "Some root text");
+    newtDrawRootText(-25, -2, "Root text in the other corner");
+
+    newtPushHelpLine(NULL);
+    newtRefresh();
+    sleep(1);
+
+    newtPushHelpLine("A help line");
+    newtRefresh();
+    sleep(1);
+
+    newtPopHelpLine();
+    newtRefresh();
+    sleep(1);
+
+    newtFinished();
+}
+</pre>
+</code></blockquote>
+<p>
+<hr>
+<a href="tutorial-3.html">Next</a>
+<a href="tutorial-1.html">Previous</a>
+<a href="tutorial.html#toc2">Contents</a>
+</body>
+</html>
