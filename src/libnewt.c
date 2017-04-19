@@ -57,6 +57,7 @@ unsigned long long hash(unsigned char *str) {
 }
 
 /* forward declarations */
+int libnewt_bell(WORD_LIST *);
 int libnewt_clearKeyBuffer(WORD_LIST *);
 int libnewt_cls(WORD_LIST *);
 int libnewt_draw(WORD_LIST *);
@@ -79,9 +80,9 @@ int libnewt_run(WORD_LIST * list) {
   lower(&list->word->word);
 
   switch (hash(list->word->word)) {
-  /* case BELL: */
-  /*   return libnewt_bell(list->next); */
-  /*   break; */
+  case BELL:
+    return libnewt_bell(list->next);
+    break;
   /* case BUTTON: */
   /*   return libnewt_button(list->next); */
   /*   break; */
@@ -192,6 +193,10 @@ int libnewt_run(WORD_LIST * list) {
   } 
 }
 
+int libnewt_bell(WORD_LIST *list){
+  newtBell();
+  return 0;
+}
 
 int libnewt_clearKeyBuffer(WORD_LIST *list){
   newtClearKeyBuffer();

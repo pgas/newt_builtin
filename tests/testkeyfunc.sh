@@ -19,5 +19,6 @@ if newt init;then
     sleep 2
 
     newt clearKeyBuffer
+    newt bell
     newt waitForKey
 fi
