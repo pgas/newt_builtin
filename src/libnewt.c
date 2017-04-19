@@ -58,6 +58,7 @@ unsigned long long hash(unsigned char *str) {
 
 /* forward declarations */
 int libnewt_bell(WORD_LIST *);
+int libnewt_centeredWindow(WORD_LIST *);
 int libnewt_clearKeyBuffer(WORD_LIST *);
 int libnewt_cls(WORD_LIST *);
 int libnewt_draw(WORD_LIST *);
@@ -87,9 +88,9 @@ int libnewt_run(WORD_LIST * list) {
   /* case BUTTON: */
   /*   return libnewt_button(list->next); */
   /*   break; */
-  /* case CENTEREDWINDOW: */
-  /*   return libnewt_centeredWindow(list->next); */
-  /*   break; */
+  case CENTEREDWINDOW:
+    return libnewt_centeredWindow(list->next);
+    break;
   /* case CHECKBOX: */
   /*   return libnewt_checkbox(list->next); */
   /*   break; */
@@ -194,9 +195,31 @@ int libnewt_run(WORD_LIST * list) {
   } 
 }
 
+
 int libnewt_bell(WORD_LIST *list){
   newtBell();
   return 0;
+}
+
+static const char * CENTEREDWINDOW_USAGE =      \
+  "argument missing\n"				\
+  "usage:\n"					\
+  "\tnewt centeredWindow width height [title]\n";	
+
+int libnewt_centeredWindow(WORD_LIST * list) {
+  int width, height;
+
+  NOT_NULL(list, CENTEREDWINDOW_USAGE);
+  width = (int) strtol(list->word->word, NULL, 10);    
+  NEXT(list, CENTEREDWINDOW_USAGE);
+  height = (int) strtol(list->word->word, NULL, 10);
+
+  if (list->next == NULL) {
+    return newtCenteredWindow(width, height, NULL);
+  } else {
+    return newtCenteredWindow(width, height, list->next->word->word);
+  }
+
 }
 
 int libnewt_clearKeyBuffer(WORD_LIST *list){
@@ -216,10 +239,7 @@ static const char * DRAW_USAGE =                \
   "\tnewt draw form component\n";
 
 int libnewt_draw(WORD_LIST * list) {
-  if (list == NULL) {
-    fprintf(stderr, "%s",  DRAW_USAGE);
-    return 127;
-  }
+  NOT_NULL(list, DRAW_USAGE);
   if (strncmp(list->word->word,"roottext",8)==0) {
     NEXT(list, DRAW_USAGE);
     //TODO helper function to convert to int?
@@ -267,12 +287,11 @@ static const char * POP_USAGE =                \
   "\tnewt pop window|windownorefresh|helpline\n";
 
 int libnewt_pop(WORD_LIST * list) {
-  if (list == NULL) {
-    fprintf(stderr, "%s",  POP_USAGE);
-    return 127;
-  }
+  NOT_NULL(list, POP_USAGE);
   if (strncmp(list->word->word,"helpline",8)==0) {
     newtPopHelpLine();
+  } else if (strncmp(list->word->word,"window",6)==0) {
+    newtPopWindow();
   } else {
     fprintf(stderr, "%s",  POP_USAGE);
     return 127;

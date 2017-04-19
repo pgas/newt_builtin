@@ -14,6 +14,16 @@ int next(WORD_LIST ** plist);
  }                           \
 } while(0) 
 
+// continue if not null
+#define NOT_NULL(L, M)           \
+  do {                       \
+  if (L == NULL) {           \
+      fprintf(stderr, "%s",  M);    \
+      return 127;            \
+ }                           \
+} while(0) 
+
+
 
 void lower(char **ps);
 
