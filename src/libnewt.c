@@ -62,6 +62,7 @@ int libnewt_clearKeyBuffer(WORD_LIST *);
 int libnewt_cls(WORD_LIST *);
 int libnewt_draw(WORD_LIST *);
 int libnewt_finished(WORD_LIST *);
+int libnewt_getScreenSize(WORD_LIST *);
 int libnewt_init(WORD_LIST *);
 int libnewt_pop(WORD_LIST *);
 int libnewt_push(WORD_LIST *);
@@ -125,9 +126,9 @@ int libnewt_run(WORD_LIST * list) {
   /* case FORM: */
   /*   return libnewt_form(list->next); */
   /*   break; */
-  /* case GETSCREENSIZE: */
-  /*   return libnewt_getScreenSize(list->next); */
-  /*   break; */
+  case GETSCREENSIZE:
+    return libnewt_getScreenSize(list->next);
+    break;
   /* case GRID: */
   /*   return libnewt_grid(list->next); */
   /*   break; */
@@ -239,6 +240,20 @@ int libnewt_draw(WORD_LIST * list) {
 
 int libnewt_finished(WORD_LIST * list) {
   return newtFinished();
+}
+
+
+int libnewt_getScreenSize(WORD_LIST *list) {
+  int cols;
+  int rows;
+  char scols[15];
+  char srows[15];
+  newtGetScreenSize(&cols, &rows);
+  sprintf(scols,"%d",cols);
+  bind_variable("NEWT_COLS", scols, 0);
+  sprintf(srows,"%d",rows);
+  bind_variable("NEWT_ROWS", srows, 0);
+  return 0;
 }
 
 int libnewt_init(WORD_LIST * list) {
