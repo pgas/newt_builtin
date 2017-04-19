@@ -57,6 +57,7 @@ unsigned long long hash(unsigned char *str) {
 }
 
 /* forward declarations */
+int libnewt_clearKeyBuffer(WORD_LIST *);
 int libnewt_cls(WORD_LIST *);
 int libnewt_draw(WORD_LIST *);
 int libnewt_finished(WORD_LIST *);
@@ -64,6 +65,7 @@ int libnewt_init(WORD_LIST *);
 int libnewt_pop(WORD_LIST *);
 int libnewt_push(WORD_LIST *);
 int libnewt_refresh(WORD_LIST *);
+int libnewt_waitForKey(WORD_LIST *);
 
 
 /* 
@@ -86,9 +88,9 @@ int libnewt_run(WORD_LIST * list) {
   /* case CHECKBOX: */
   /*   return libnewt_checkbox(list->next); */
   /*   break; */
-  /* case CLEARKEYBUFFER: */
-  /*   return libnewt_clearKeyBuffer(list->next); */
-  /*   break; */
+  case CLEARKEYBUFFER:
+    return libnewt_clearKeyBuffer(list->next);
+    break;
   case CLS:
     return libnewt_cls(list->next);
     break;
@@ -176,9 +178,9 @@ int libnewt_run(WORD_LIST * list) {
   /* case TEXTBOX: */
   /*   return libnewt_textbox(list->next); */
   /*   break; */
-  /* case WAITFORKEY: */
-  /*   return libnewt_waitForKey(list->next); */
-  /*   break; */
+  case WAITFORKEY:
+    return libnewt_waitForKey(list->next);
+    break;
   /* case WINMESSAGE: */
   /*   return libnewt_winMessage(list->next); */
   /*   break; */
@@ -204,6 +206,11 @@ int next(WORD_LIST ** plist) {
       return 127;            \
  }                           \
 } while(0) 
+
+int libnewt_clearKeyBuffer(WORD_LIST *list){
+  newtClearKeyBuffer();
+  return 0;
+}
 
 int libnewt_cls(WORD_LIST * list) {
   newtCls();
@@ -289,5 +296,10 @@ int libnewt_push(WORD_LIST * list) {
 
 int libnewt_refresh(WORD_LIST * list) {
   newtRefresh();
+  return 0;
+}
+
+int libnewt_waitForKey(WORD_LIST * list) {
+  newtWaitForKey();
   return 0;
 }
