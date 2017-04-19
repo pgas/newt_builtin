@@ -30,6 +30,7 @@
 #define LABEL              210719225253ull              /* newtLabel */
 #define LISTBOX            229473570076266ull           /* newtListbox */
 #define LISTITEM           7572627812773264ull          /* newtListitem */
+#define OPENWINDOW         8246740163551776335ull       /* newtOpenWindow */
 #define POP                193502740ull                 /* newtPop */
 #define PUSH               6385597157ull                /* newtPush */
 #define RADIO              210726343092ull              /* newtRadio */
@@ -65,6 +66,7 @@ int libnewt_draw(WORD_LIST *);
 int libnewt_finished(WORD_LIST *);
 int libnewt_getScreenSize(WORD_LIST *);
 int libnewt_init(WORD_LIST *);
+int libnewt_OpenWindow(WORD_LIST *);
 int libnewt_pop(WORD_LIST *);
 int libnewt_push(WORD_LIST *);
 int libnewt_refresh(WORD_LIST *);
@@ -145,6 +147,9 @@ int libnewt_run(WORD_LIST * list) {
   /* case LISTITEM: */
   /*   return libnewt_listitem(list->next); */
   /*   break; */
+  case OPENWINDOW:
+    return libnewt_OpenWindow(list->next);
+    break;
   case POP:
     return libnewt_pop(list->next);
     break;
@@ -280,6 +285,29 @@ int libnewt_init(WORD_LIST * list) {
   return newtInit();
 }
 
+static const char * OPENWINDOW_USAGE =      \
+  "argument missing\n"				\
+  "usage:\n"					\
+  "\tnewt openWindow left top  width height [title]\n";	
+
+int libnewt_OpenWindow(WORD_LIST *list) {
+  int left, top, width, height;
+
+  NOT_NULL(list, CENTEREDWINDOW_USAGE);
+  left = (int) strtol(list->word->word, NULL, 10);    
+  NEXT(list, CENTEREDWINDOW_USAGE);
+  top = (int) strtol(list->word->word, NULL, 10);    
+  NEXT(list, CENTEREDWINDOW_USAGE);
+  width = (int) strtol(list->word->word, NULL, 10);    
+  NEXT(list, CENTEREDWINDOW_USAGE);
+  height = (int) strtol(list->word->word, NULL, 10);
+
+  if (list->next == NULL) {
+    return newtOpenWindow(left, top, width, height, NULL);
+  } else {
+    return newtOpenWindow(left, top, width, height, list->next->word->word);
+  }
+}
 
 static const char * POP_USAGE =                \
   "argument missing\n"				\

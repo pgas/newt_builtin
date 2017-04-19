@@ -23,6 +23,14 @@ if newt init;then
     newt waitForKey # also redraw
     newt centeredwindow 40 10 "hello, world!"
     newt waitForKey
+    newt openwindow 1 1 10 5 
+    newt waitForKey
+    newt openwindow 20 20 20 10 "hello, world!" 
+    newt waitForKey
+    newt pop window
+    newt waitForKey
+    newt pop window
+    newt waitForKey
     newt pop window
     newt waitForKey
     newt pop window

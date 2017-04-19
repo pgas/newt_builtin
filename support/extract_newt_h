@@ -10,6 +10,11 @@ fi
 
 readarray -t fnames < <(awk -F\( 'NF>1 && /;/ && !/^typedef/{sub(/.*newt/,"",$1);print $1}' "$1" )
 
+
+
+
+
+
 declare -A first_words
 for f in  "${fnames[@]}";do
     f=${f,}
@@ -31,8 +36,9 @@ done
 #for consistency
 unset "first_words[pushHelpLine]"
 first_words[push]=""
-declare -p first_words
 
+#my filter miss this one...
+first_words[OpenWindow]=""
 
 # hashing using djb2...bash version
 # unsigned long
@@ -57,7 +63,7 @@ for k in "${!first_words[@]}";do
     printf -v hs " %ul" $hash 
     printf "#define %-18s%-30s/* %s */\n"  "${k^^}" "${hs%l}ull" "newt${k^}"
 done | sort
-exit
+
 #case statements
 printf '%s\n' "${!first_words[@]}" | sort | while read -r k; do
     printf "case %s:\n    return libnewt_%s(list->next);\n    break;\n" ${k^^} $k
