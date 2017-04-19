@@ -3,48 +3,47 @@
 #if defined (HAVE_UNISTD_H)
 #  include <unistd.h>
 #endif
-
 #include <stdio.h>
-
 
 #include <newt.h>
 
-#define BELL 6385076388ull
-#define BUTTON 6953367461249ull
-#define CENTEREDWINDOW 2410708038688732711ull
-#define CHECKBOX 7572242387314956ull
-#define CLEARKEYBUFFER 13602504209690105039ull
-#define CLS 193488487ull
-#define COMPACTBUTTON 14551555468575447720ull
-#define COMPONENT 249884307956162072ull
-#define CREATEGRID 8246186021643569407ull
-#define CURSOR 6953406523683ull
-#define DELAY 210709892404ull
-#define DRAW 6385162067ull
-#define ENTRY 210711411031ull
-#define FINISHED 7572371893739599ull
-#define FORM 6385231225ull
-#define GETSCREENSIZE 2280326943471863648ull
-#define GRID 6385270123ull
-#define INIT 6385337657ull
-#define LABEL 210719225253ull
-#define LISTBOX 229473570076266ull
-#define LISTITEM 7572627812773264ull
-#define POP 193502740ull
-#define PUSH 6385597157ull
-#define RADIO 210726343092ull
-#define REDRAWHELPLINE 15850614626379253499ull
-#define REFRESH 229481146857044ull
-#define RESIZESCREEN 15717840086115858263ull
-#define RESUME 6953974617878ull
-#define RUNFORM 229481780940334ull
-#define SCALE 210727597709ull
-#define SCROLLBAR 249906305487309321ull
-#define SET 193505681ull
-#define SUSPEND 229483079836231ull
-#define TEXTBOX 229483751208051ull
-#define WAITFORKEY 8247090535609895530ull
-#define WINMESSAGE 8247101950821806360ull
+
+#define BELL               6385076388ull                /* newtBell */
+#define BUTTON             6953367461249ull             /* newtButton */
+#define CENTEREDWINDOW     2410708039941065287ull       /* newtCenteredWindow */
+#define CHECKBOX           7572242387314956ull          /* newtCheckbox */
+#define CLEARKEYBUFFER     13602549216018221327ull      /* newtClearKeyBuffer */
+#define CLS                193488487ull                 /* newtCls */
+#define COMPACTBUTTON      14551555469827780296ull      /* newtCompactButton */
+#define COMPONENT          249884307956162072ull        /* newtComponent */
+#define CREATEGRID         8246186021644719391ull       /* newtCreateGrid */
+#define CURSOR             6953406523683ull             /* newtCursor */
+#define DELAY              210709892404ull              /* newtDelay */
+#define DRAW               6385162067ull                /* newtDraw */
+#define ENTRY              210711411031ull              /* newtEntry */
+#define FINISHED           7572371893739599ull          /* newtFinished */
+#define FORM               6385231225ull                /* newtForm */
+#define GETSCREENSIZE      2281812110973876128ull       /* newtGetScreenSize */
+#define GRID               6385270123ull                /* newtGrid */
+#define INIT               6385337657ull                /* newtInit */
+#define LABEL              210719225253ull              /* newtLabel */
+#define LISTBOX            229473570076266ull           /* newtListbox */
+#define LISTITEM           7572627812773264ull          /* newtListitem */
+#define POP                193502740ull                 /* newtPop */
+#define PUSH               6385597157ull                /* newtPush */
+#define RADIO              210726343092ull              /* newtRadio */
+#define REDRAWHELPLINE     15850615990170578747ull      /* newtRedrawHelpLine */
+#define REFRESH            229481146857044ull           /* newtRefresh */
+#define RESIZESCREEN       15717840087368190839ull      /* newtResizeScreen */
+#define RESUME             6953974617878ull             /* newtResume */
+#define RUNFORM            229481782090318ull           /* newtRunForm */
+#define SCALE              210727597709ull              /* newtScale */
+#define SCROLLBAR          249906305487309321ull        /* newtScrollbar */
+#define SET                193505681ull                 /* newtSet */
+#define SUSPEND            229483079836231ull           /* newtSuspend */
+#define TEXTBOX            229483751208051ull           /* newtTextbox */
+#define WAITFORKEY         8247090536862262954ull       /* newtWaitForKey */
+#define WINMESSAGE         8247101992148781368ull       /* newtWinMessage */
 
 
 /* hashing using djb2...gives unique hashes for the above commands*/
@@ -75,6 +74,9 @@ int libnewt_waitForKey(WORD_LIST *);
 */ 
   
 int libnewt_run(WORD_LIST * list) {
+  /*   lowercase the word */
+  char *command = list->word->word;
+  for ( ; *command; ++command) *command = tolower(*command);
   switch (hash(list->word->word)) {
   /* case BELL: */
   /*   return libnewt_bell(list->next); */

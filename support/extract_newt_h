@@ -49,14 +49,15 @@ declare -p first_words
 # list of defines
 for k in "${!first_words[@]}";do
     hash=5381
-    for ((i=0;i<${#k};i+=1)); do
-	LC_CTYPE=C printf -v c %d "'${k:i:1}"
+    l=${k,,} # lowercase the words
+    for ((i=0;i<${#l};i+=1)); do
+	LC_CTYPE=C printf -v c %d "'${l:i:1}"
 	(( hash = ((hash '<<' 5) + hash)+c ))
     done
-    printf -v def "#define %s %ul" ${k^^} $hash
-    printf "%sull\n" "${def%l}"
+    printf -v hs " %ul" $hash 
+    printf "#define %-18s%-30s/* %s */\n"  "${k^^}" "${hs%l}ull" "newt${k^}"
 done | sort
-
+exit
 #case statements
 printf '%s\n' "${!first_words[@]}" | sort | while read -r k; do
     printf "case %s:\n    return libnewt_%s(list->next);\n    break;\n" ${k^^} $k
