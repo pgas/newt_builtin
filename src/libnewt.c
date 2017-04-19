@@ -202,7 +202,7 @@ int next(WORD_LIST ** plist) {
 #define NEXT(L, M)           \
   do {                       \
   if (!next(&L)) {           \
-      fprintf(stderr, M);    \
+      fprintf(stderr, "%s",  M);    \
       return 127;            \
  }                           \
 } while(0) 
@@ -225,7 +225,7 @@ static const char * DRAW_USAGE =                \
 
 int libnewt_draw(WORD_LIST * list) {
   if (list == NULL) {
-    fprintf(stderr, DRAW_USAGE);
+    fprintf(stderr, "%s",  DRAW_USAGE);
     return 127;
   }
   if (strncmp(list->word->word,"roottext",8)==0) {
@@ -238,7 +238,7 @@ int libnewt_draw(WORD_LIST * list) {
     newtDrawRootText(col, row, list->word->word);
     return 0;
   } else {
-    fprintf(stderr, DRAW_USAGE);
+    fprintf(stderr, "%s",  DRAW_USAGE);
     return 127;
   }
   return 0;
@@ -262,13 +262,13 @@ static const char * POP_USAGE =                \
 
 int libnewt_pop(WORD_LIST * list) {
   if (list == NULL) {
-    fprintf(stderr, POP_USAGE);
+    fprintf(stderr, "%s",  POP_USAGE);
     return 127;
   }
   if (strncmp(list->word->word,"helpline",8)==0) {
     newtPopHelpLine();
   } else {
-    fprintf(stderr, POP_USAGE);
+    fprintf(stderr, "%s",  POP_USAGE);
     return 127;
   }
   return 0;
@@ -288,7 +288,7 @@ int libnewt_push(WORD_LIST * list) {
       newtPushHelpLine(NULL);
     }
   } else {
-    fprintf(stderr, PUSH_USAGE);
+    fprintf(stderr, "%s",  PUSH_USAGE);
     return 127;
   }
   return 0;
