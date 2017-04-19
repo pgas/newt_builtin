@@ -1,9 +1,8 @@
 #ifndef __LIBNEWT_H_
 #define __LIBNEWT_H_
 
-#include <config.h>
-#include <builtins.h>
-#include <shell.h>
+
+#include "bash_includes.h"
 
 
 /* 

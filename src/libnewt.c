@@ -7,6 +7,7 @@
 
 #include <newt.h>
 
+#include "utils.h"
 
 #define BELL               6385076388ull                /* newtBell */
 #define BUTTON             6953367461249ull             /* newtButton */
@@ -75,8 +76,8 @@ int libnewt_waitForKey(WORD_LIST *);
   
 int libnewt_run(WORD_LIST * list) {
   /*   lowercase the word */
-  char *command = list->word->word;
-  for ( ; *command; ++command) *command = tolower(*command);
+  lower(&list->word->word);
+
   switch (hash(list->word->word)) {
   /* case BELL: */
   /*   return libnewt_bell(list->next); */
@@ -191,23 +192,6 @@ int libnewt_run(WORD_LIST * list) {
   } 
 }
 
-int next(WORD_LIST ** plist) {
-  if ((*plist)->next != NULL){
-    *plist=((*plist)->next);
-    return 1;
-  } else {
-    return 0;
-  }
-}
-
-// just a macros to advance conditionnally in the list
-#define NEXT(L, M)           \
-  do {                       \
-  if (!next(&L)) {           \
-      fprintf(stderr, "%s",  M);    \
-      return 127;            \
- }                           \
-} while(0) 
 
 int libnewt_clearKeyBuffer(WORD_LIST *list){
   newtClearKeyBuffer();
