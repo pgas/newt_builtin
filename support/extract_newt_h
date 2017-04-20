@@ -52,23 +52,22 @@ first_words[OpenWindow]=""
 #     }
 
 
-# list of defines
-for k in "${!first_words[@]}";do
-    hash=5381
-    l=${k,,} # lowercase the words
-    for ((i=0;i<${#l};i+=1)); do
-	LC_CTYPE=C printf -v c %d "'${l:i:1}"
-	(( hash = ((hash '<<' 5) + hash)+c ))
-    done
-    printf -v hs " %ul" $hash 
-    printf "#define %-18s%-30s/* %s */\n"  "${k^^}" "${hs%l}ull" "newt${k^}"
-done | sort
+# # list of defines
+# for k in "${!first_words[@]}";do
+#     hash=5381
+#     l=${k,,} # lowercase the words
+#     for ((i=0;i<${#l};i+=1)); do
+# 	LC_CTYPE=C printf -v c %d "'${l:i:1}"
+# 	(( hash = ((hash '<<' 5) + hash)+c ))
+#     done
+#     printf -v hs " %ul" $hash 
+#     printf "#define %-18s%-30s/* %s */\n"  "${k^^}" "${hs%l}ull" "newt${k^}"
+# done | sort
 
-#case statements
-printf '%s\n' "${!first_words[@]}" | sort | while read -r k; do
-    printf "case %s:\n    return libnewt_%s(list->next);\n    break;\n" ${k^^} $k
-done 
-
+# #case statements
+# printf '%s\n' "${!first_words[@]}" | sort | while read -r k; do
+#     printf "case %s:\n    return libnewt_%s(list->next);\n    break;\n" ${k^^} $k
+# done 
 
 
 #list of sub commands
@@ -77,3 +76,43 @@ for k in "${!first_words[@]}";do
 	printf "%s:%s\n" "$k" "${first_words[$k]}"
     fi
 done | sort
+
+
+#forms
+# list of defines
+for k in ${first_words[form]};do
+    hash=5381
+    l=${k,,} # lowercase the words
+    for ((i=0;i<${#l};i+=1)); do
+	LC_CTYPE=C printf -v c %d "'${l:i:1}"
+	(( hash = ((hash '<<' 5) + hash)+c ))
+    done
+    printf -v hs " %ul" $hash 
+    printf "#define %-18s%-30s/* %s */\n"  "${k^^}" "${hs%l}ull" "newtForm${k^}"
+done | sort
+
+#forward decls
+printf '%s\n' ${first_words[form]} | sort | while read -r k; do
+    printf "int %s(WORD_LIST *);\n" "form_${k^}"
+done    
+echo
+echo 'int libnewt_form(WORD_LIST * list) {
+  /*   lowercase the word */
+  lower(&list->word->word);
+
+  switch (hash(list->word->word)) {
+'
+
+#case statements
+printf '%s\n' ${first_words[form]} | sort | while read -r k; do
+    printf "    case %s:\n      return form_%s(list->next);\n      break;\n" ${k^^} $k
+done 
+echo '    default:
+      return 127;
+  } 
+}'
+
+#functemplates
+printf '%s\n' ${first_words[form]} | sort | while read -r k; do
+    printf "\nint %s(WORD_LIST * list){\n   return 0;\n}\n" "form_${k^}"
+done    

@@ -48,14 +48,8 @@
 #define WINMESSAGE         8247101992148781368ull       /* newtWinMessage */
 
 
-/* hashing using djb2...gives unique hashes for the above commands*/
-unsigned long long hash(unsigned char *str) {
-  unsigned long long hash = 5381;
-  int c;
-  while (c = *str++)
-    hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-  return hash;
-}
+
+
 
 /* forward declarations */
 int libnewt_bell(WORD_LIST *);
@@ -64,6 +58,7 @@ int libnewt_clearKeyBuffer(WORD_LIST *);
 int libnewt_cls(WORD_LIST *);
 int libnewt_draw(WORD_LIST *);
 int libnewt_finished(WORD_LIST *);
+extern int libnewt_form(WORD_LIST *);
 int libnewt_getScreenSize(WORD_LIST *);
 int libnewt_init(WORD_LIST *);
 int libnewt_OpenWindow(WORD_LIST *);
@@ -83,7 +78,7 @@ int libnewt_run(WORD_LIST * list) {
   /*   lowercase the word */
   lower(&list->word->word);
 
-  switch (hash(list->word->word)) {
+  switch (djb2_hash(list->word->word)) {
   case BELL:
     return libnewt_bell(list->next);
     break;
@@ -126,9 +121,9 @@ int libnewt_run(WORD_LIST * list) {
   case FINISHED:
     return libnewt_finished(list->next);
     break;
-  /* case FORM: */
-  /*   return libnewt_form(list->next); */
-  /*   break; */
+  case FORM:
+    return libnewt_form(list->next);
+    break;
   case GETSCREENSIZE:
     return libnewt_getScreenSize(list->next);
     break;
