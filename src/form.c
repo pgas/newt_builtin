@@ -152,7 +152,11 @@ int form_AddHotKey(WORD_LIST * list){
 }
 
 int form_Destroy(WORD_LIST * list){
-   return 0;
+  NOT_NULL(list, ADDCOMPONENT_USAGE);
+  newtComponent form;
+  READ_COMPONENT(list->word->word, form, "Invalid component");
+  newtFormDestroy(form);
+  return 0;
 }
 
 int form_GetCurrent(WORD_LIST * list){
@@ -164,6 +168,13 @@ int form_GetScrollPosition(WORD_LIST * list){
 }
 
 int form_Run(WORD_LIST * list){
+  /* TODO: Return value */
+  NOT_NULL(list, ADDCOMPONENT_USAGE);
+  newtComponent form;
+  READ_COMPONENT(list->word->word, form, "Invalid component");
+  struct newtExitStruct  es;
+  newtFormRun(form, &es);
+
    return 0;
 }
 

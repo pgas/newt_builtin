@@ -54,9 +54,11 @@
 
 /* forward declarations */
 int libnewt_bell(WORD_LIST *);
+int libnewt_button(WORD_LIST *);
 int libnewt_centeredWindow(WORD_LIST *);
 int libnewt_clearKeyBuffer(WORD_LIST *);
 int libnewt_cls(WORD_LIST *);
+int libnewt_compactButton(WORD_LIST *);
 int libnewt_draw(WORD_LIST *);
 int libnewt_finished(WORD_LIST *);
 extern int libnewt_form(WORD_LIST *);
@@ -66,6 +68,7 @@ int libnewt_OpenWindow(WORD_LIST *);
 int libnewt_pop(WORD_LIST *);
 int libnewt_push(WORD_LIST *);
 int libnewt_refresh(WORD_LIST *);
+int libnewt_runForm(WORD_LIST *);
 int libnewt_waitForKey(WORD_LIST *);
 
 
@@ -83,9 +86,9 @@ int libnewt_run(WORD_LIST * list) {
   case BELL:
     return libnewt_bell(list->next);
     break;
-  /* case BUTTON: */
-  /*   return libnewt_button(list->next); */
-  /*   break; */
+  case BUTTON:
+    return libnewt_button(list->next);
+    break;
   case CENTEREDWINDOW:
     return libnewt_centeredWindow(list->next);
     break;
@@ -98,9 +101,9 @@ int libnewt_run(WORD_LIST * list) {
   case CLS:
     return libnewt_cls(list->next);
     break;
-  /* case COMPACTBUTTON: */
-  /*   return libnewt_compactButton(list->next); */
-  /*   break; */
+  case COMPACTBUTTON:
+    return libnewt_compactButton(list->next);
+    break;
   /* case COMPONENT: */
   /*   return libnewt_component(list->next); */
   /*   break; */
@@ -167,9 +170,9 @@ int libnewt_run(WORD_LIST * list) {
   /* case RESUME: */
   /*   return libnewt_resume(list->next); */
   /*   break; */
-  /* case RUNFORM: */
-  /*   return libnewt_runForm(list->next); */
-  /*   break; */
+  case RUNFORM:
+    return libnewt_runForm(list->next);
+    break;
   /* case SCALE: */
   /*   return libnewt_scale(list->next); */
   /*   break; */
@@ -202,6 +205,42 @@ int libnewt_bell(WORD_LIST *list){
   return 0;
 }
 
+static const char * BUTTON_USAGE =      \
+  "argument missing\n"				\
+  "usage:\n"					\
+  "\tnewt button -v var left top [text]";	
+
+
+int libnewt_button(WORD_LIST *list){
+  char* vname;
+  if (!check_for_v(&list, &vname)) {
+     builtin_error( "%s", _(BUTTON_USAGE));	\
+    return EX_USAGE;					\
+  }
+  NOT_NULL(vname, BUTTON_USAGE);
+  
+  int left, top;
+  char *text = "";
+  NOT_NULL(list, BUTTON_USAGE);
+  left = (int) strtol(list->word->word, NULL, 10);    
+  NEXT(list, BUTTON_USAGE);
+  top = (int) strtol(list->word->word, NULL, 10);    
+  if (list->next != NULL) {
+    text = list->next->word->word;
+  }
+  newtComponent button;
+  char sbutton[30];
+
+  button = newtButton(left, top, text);
+  snprintf(sbutton, 30, "%p", button);
+  
+  newt_bind_variable (vname, sbutton, 0);
+  stupidly_hack_special_variables (vname);
+
+  return 0;
+}
+
+
 static const char * CENTEREDWINDOW_USAGE =      \
   "argument missing\n"				\
   "usage:\n"					\
@@ -232,6 +271,43 @@ int libnewt_cls(WORD_LIST * list) {
   newtCls();
   return 0;
 }
+
+
+static const char * COMPACTBUTTON_USAGE =      \
+  "argument missing\n"				\
+  "usage:\n"					\
+  "\tnewt compactbutton -v var left top [text]";	
+
+
+int libnewt_compactButton(WORD_LIST *list){
+  char* vname;
+  if (!check_for_v(&list, &vname)) {
+     builtin_error( "%s", _(COMPACTBUTTON_USAGE));	\
+    return EX_USAGE;					\
+  }
+  NOT_NULL(vname, COMPACTBUTTON_USAGE);
+  
+  int left, top;
+  char *text = "";
+  NOT_NULL(list, COMPACTBUTTON_USAGE);
+  left = (int) strtol(list->word->word, NULL, 10);    
+  NEXT(list, COMPACTBUTTON_USAGE);
+  top = (int) strtol(list->word->word, NULL, 10);    
+  if (list->next != NULL) {
+    text = list->next->word->word;
+  }
+  newtComponent compactbutton;
+  char scompactbutton[30];
+
+  compactbutton = newtCompactButton(left, top, text);
+  snprintf(scompactbutton, 30, "%p", compactbutton);
+  
+  newt_bind_variable (vname, scompactbutton, 0);
+  stupidly_hack_special_variables (vname);
+
+  return 0;
+}
+
 
 static const char * DRAW_USAGE =                \
   "argument missing\n"				\
@@ -345,6 +421,20 @@ int libnewt_push(WORD_LIST * list) {
 
 int libnewt_refresh(WORD_LIST * list) {
   newtRefresh();
+  return 0;
+}
+
+static const char * RUNFORM_USAGE =      \
+  "argument missing\n"				\
+  "usage:\n"					\
+  "\tnewt runform form";	
+
+int libnewt_runForm(WORD_LIST *list) {
+  /* TODO: Return value */
+  NOT_NULL(list, RUNFORM_USAGE);
+  newtComponent form;
+  READ_COMPONENT(list->word->word, form, "Invalid component");
+  newtRunForm(form);
   return 0;
 }
 
