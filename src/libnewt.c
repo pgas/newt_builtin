@@ -8,6 +8,7 @@
 #include <newt.h>
 
 #include "utils.h"
+#include "libnewt.h"
 
 #define BELL               6385076388ull                /* newtBell */
 #define BUTTON             6953367461249ull             /* newtButton */
@@ -70,7 +71,7 @@ int libnewt_waitForKey(WORD_LIST *);
 
 /* 
   parse the commands and execute accordingly
-  returns 127 in case of unknown command,
+  returns EX_USAGE in case of unknown command,
   
 */ 
   
@@ -191,7 +192,7 @@ int libnewt_run(WORD_LIST * list) {
   /*   return libnewt_winMessage(list->next); */
   /*   break; */
     default:
-      return 127;
+      return EX_USAGE;
   } 
 }
 
@@ -204,7 +205,7 @@ int libnewt_bell(WORD_LIST *list){
 static const char * CENTEREDWINDOW_USAGE =      \
   "argument missing\n"				\
   "usage:\n"					\
-  "\tnewt centeredWindow width height [title]\n";	
+  "\tnewt centeredWindow width height [title]";	
 
 int libnewt_centeredWindow(WORD_LIST * list) {
   int width, height;
@@ -236,7 +237,7 @@ static const char * DRAW_USAGE =                \
   "argument missing\n"				\
   "usage:\n"					\
   "\tnewt draw roottext col row text\n"		\
-  "\tnewt draw form component\n";
+  "\tnewt draw form component";
 
 int libnewt_draw(WORD_LIST * list) {
   NOT_NULL(list, DRAW_USAGE);
@@ -250,8 +251,8 @@ int libnewt_draw(WORD_LIST * list) {
     newtDrawRootText(col, row, list->word->word);
     return 0;
   } else {
-    fprintf(stderr, "%s",  DRAW_USAGE);
-    return 127;
+    builtin_error( "%s",  _(DRAW_USAGE));
+    return EX_USAGE;
   }
   return 0;
 }
@@ -283,7 +284,7 @@ int libnewt_init(WORD_LIST * list) {
 static const char * OPENWINDOW_USAGE =      \
   "argument missing\n"				\
   "usage:\n"					\
-  "\tnewt openWindow left top  width height [title]\n";	
+  "\tnewt openWindow left top  width height [title]";	
 
 int libnewt_OpenWindow(WORD_LIST *list) {
   int left, top, width, height;
@@ -307,7 +308,7 @@ int libnewt_OpenWindow(WORD_LIST *list) {
 static const char * POP_USAGE =                \
   "argument missing\n"				\
   "usage:\n"					\
-  "\tnewt pop window|windownorefresh|helpline\n";
+  "\tnewt pop window|windownorefresh|helpline";
 
 int libnewt_pop(WORD_LIST * list) {
   NOT_NULL(list, POP_USAGE);
@@ -316,8 +317,8 @@ int libnewt_pop(WORD_LIST * list) {
   } else if (strncmp(list->word->word,"window",6)==0) {
     newtPopWindow();
   } else {
-    fprintf(stderr, "%s",  POP_USAGE);
-    return 127;
+    builtin_error( "%s",  _(POP_USAGE));
+    return EX_USAGE;
   }
   return 0;
 }
@@ -325,7 +326,7 @@ int libnewt_pop(WORD_LIST * list) {
 static const char * PUSH_USAGE =                \
   "argument missing\n"				\
   "usage:\n"					\
-  "\tnewt push helpline [message]\n";
+  "\tnewt push helpline [message]";
 
 int libnewt_push(WORD_LIST * list) {
   if ((list != NULL)
@@ -336,8 +337,8 @@ int libnewt_push(WORD_LIST * list) {
       newtPushHelpLine(NULL);
     }
   } else {
-    fprintf(stderr, "%s",  PUSH_USAGE);
-    return 127;
+    builtin_error( "%s",  "%s",  _(PUSH_USAGE));
+    return EX_USAGE;
   }
   return 0;
 }

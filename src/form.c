@@ -46,16 +46,15 @@ static const char * FORM_USAGE =      \
   "\tnewt form -v var [vertBar [helpTag [flags]]]\n"	\
   "\tnewt form SetTimer|WatchFd|SetSize|GetCurrent|SetBackground\n" \
   "\tnewt form SetCurrent|AddComponent|AddComponents|SetHeight|SetWidth\n"\
-  "\tnewt form Run|AddHotKey|GetScrollPosition|SetScrollPosition|Destroy\n";
-
+  "\tnewt form Run|AddHotKey|GetScrollPosition|SetScrollPosition|Destroy";
 
 
 int libnewt_form(WORD_LIST * list) {
   /* check for -v */
   char* vname;
   if (!check_for_v(&list, &vname)) {
-    fprintf(stderr, "%s", FORM_USAGE);			\
-    return 127;					\
+     builtin_error( "%s", _(FORM_USAGE));	\
+    return EX_USAGE;					\
   }
 
   /*   lowercase the word */

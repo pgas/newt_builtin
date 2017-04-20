@@ -76,7 +76,7 @@ int check_for_v(WORD_LIST** plist, char **pvname) {
 	  pvname = &w;
 	  return 1;
 	} else {
-	sh_invalidid (vname);
+	sh_invalidid (*pvname);
 	return 0;
       }
   }

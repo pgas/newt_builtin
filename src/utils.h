@@ -11,8 +11,8 @@ int next(WORD_LIST ** plist);
 #define NEXT(L, M)           \
   do {                       \
   if (!next(&L)) {           \
-      fprintf(stderr, "%s",  M);    \
-      return 127;            \
+      builtin_error( "%s",  _(M));		\
+      return EX_USAGE;            \
  }                           \
 } while(0) 
 
@@ -20,8 +20,8 @@ int next(WORD_LIST ** plist);
 #define NOT_NULL(L, M)           \
   do {                       \
   if (L == NULL) {           \
-      fprintf(stderr, "%s",  M);    \
-      return 127;            \
+      builtin_error( "%s",  _(M));		\
+      return EX_USAGE;            \
  }                           \
 } while(0) 
 

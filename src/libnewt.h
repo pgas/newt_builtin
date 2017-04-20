@@ -7,7 +7,7 @@
 
 /* 
   parse the commands and execute accordingly
-  returns 127 in case of unknown command,
+  returns EX_USAGE in case of unknown command,
   
 */ 
   

@@ -1,12 +1,3 @@
-/* Sample builtin to be dynamically loaded with enable -f and create a new
-   builtin. */
-
-/* Except for the included headers from "loadables.h" that have been
-   inline manually (loadables.h is part of the examples and is not
-   installe by bash, this is the same builtin example from the
-   loadables examples that is found in the bash sources
- */
-
 /*
    Copyright (C) 1999-2009 Free Software Foundation, Inc.
 
@@ -32,10 +23,7 @@
 
 #include <stdio.h>
 
-#include "builtins.h"
-#include "shell.h"
-#include "bashgetopt.h"
-#include "common.h"
+#include "bash_includes.h"
 
 /* A builtin `xxx' is normally implemented with an `xxx_builtin' function.
    If you're converting a command that uses the normal Unix argc/argv
@@ -86,7 +74,7 @@ newt_builtin (list)
 
   int exit = libnewt_run(list);
 
-  if (exit != 127)
+  if (exit != EX_USAGE)
     {
       return exit;
     }

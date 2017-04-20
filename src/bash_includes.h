@@ -12,5 +12,7 @@
 #include "bashgetopt.h"
 #include "common.h"
 
+/* maybe in the future use gettext */
+#define _(msgid) msgid
 
 #endif
