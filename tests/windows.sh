@@ -19,9 +19,9 @@ fi
 if newt init;then 
     trap 'newt finished' EXIT
     newt cls
-    newt centeredwindow 60 20 
+    newt centeredwindow 30 20 
     newt waitForKey # also redraw
-    newt centeredwindow 40 10 "hello, world!"
+    newt centeredwindow 25 10 "hello, world!"
     newt waitForKey
     newt openwindow 1 1 10 5 
     newt waitForKey

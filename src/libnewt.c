@@ -218,7 +218,7 @@ int libnewt_button(WORD_LIST *list){
     return EX_USAGE;					\
   }
   NOT_NULL(vname, BUTTON_USAGE);
-  
+
   int left, top;
   char *text = "";
   NOT_NULL(list, BUTTON_USAGE);
@@ -228,6 +228,7 @@ int libnewt_button(WORD_LIST *list){
   if (list->next != NULL) {
     text = list->next->word->word;
   }
+  fprintf(stderr, "left: %d top: %d text: %s\n", left, top, text);
   newtComponent button;
   char sbutton[30];
 
@@ -286,7 +287,6 @@ int libnewt_compactButton(WORD_LIST *list){
     return EX_USAGE;					\
   }
   NOT_NULL(vname, COMPACTBUTTON_USAGE);
-  
   int left, top;
   char *text = "";
   NOT_NULL(list, COMPACTBUTTON_USAGE);

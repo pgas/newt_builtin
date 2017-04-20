@@ -50,12 +50,17 @@ static const char * FORM_USAGE =      \
 
 
 int libnewt_form(WORD_LIST * list) {
+  NOT_NULL(list, FORM_USAGE);
   /* check for -v */
-  char* vname;
+
+  char* vname = NULL;
   if (!check_for_v(&list, &vname)) {
      builtin_error( "%s", _(FORM_USAGE));	\
     return EX_USAGE;					\
   }
+  fprintf(stderr, "vname %p\n",  vname);
+  fflush(stderr);
+
   /*   lowercase the word */
   lower(&list->word->word);
   switch (djb2_hash(list->word->word)) {
@@ -151,10 +156,16 @@ int form_AddHotKey(WORD_LIST * list){
    return 0;
 }
 
+
+static const char * FORMDESTROY_USAGE =      \
+  "argument missing or invalid\n"				\
+  "usage:\n"					\
+  "\tnewt form destroy form ";
+
 int form_Destroy(WORD_LIST * list){
-  NOT_NULL(list, ADDCOMPONENT_USAGE);
+  NOT_NULL(list, FORMDESTROY_USAGE);
   newtComponent form;
-  READ_COMPONENT(list->word->word, form, "Invalid component");
+  READ_COMPONENT(list->word->word, form, _("Invalid component"));
   newtFormDestroy(form);
   return 0;
 }

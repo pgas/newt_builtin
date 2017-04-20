@@ -1,5 +1,5 @@
 #include "utils.h"
-
+#include <stdio.h>
 
 /* hashing using djb2*/
 unsigned long long djb2_hash(unsigned char *str) {
@@ -58,19 +58,21 @@ newt_bind_variable (name, value, flags)
 int check_for_v(WORD_LIST** plist, char **pvname) {
   char* w = (*plist)->word->word;
   if ((w[0] == '-') && (w[1] == 'v')) {
-    if (w[0] != '\0') {
+    if (w[2] == '\0') {
       if (next(plist)) {
 	w = (*plist)->word->word;
+	next(plist);
       } else {
 	return 0;
       }
     } else {
       w = &w[2];
+      next(plist);
     }
 #if defined (ARRAY_VARS)
-    if (legal_identifier (w) || valid_array_reference (w, 0)) 
+    if (legal_identifier (w) || valid_array_reference (w, 0))
 #else
-      if (legal_identifier (w)) 
+      if (legal_identifier (w))
 #endif
 	{
 	  *pvname = w;
@@ -80,6 +82,9 @@ int check_for_v(WORD_LIST** plist, char **pvname) {
 	return 0;
       }
   }
+
+  fflush(stderr);
   *pvname = NULL;
+    fprintf(stderr, "vname %p\n", *pvname);
   return 1;
 }

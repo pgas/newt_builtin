@@ -25,6 +25,8 @@
 
 #include "bash_includes.h"
 
+#include "libnewt.h"
+
 /* A builtin `xxx' is normally implemented with an `xxx_builtin' function.
    If you're converting a command that uses the normal Unix argc/argv
    calling convention, use argv = make_builtin_argv (list, &argc) and call

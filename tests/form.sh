@@ -16,11 +16,15 @@ fi
 # newt centeredwindow 1
 # set +x
 
+
+
 if newt init;then 
-#    trap 'newt finished' EXIT
+    #    trap 'newt finished' EXIT
     newt cls
     newt centeredwindow 60 20
     newt form -v myform
+    newt waitForKey # also redraw
+    newt form destroy
     newt waitForKey # also redraw
     newt finished
 fi

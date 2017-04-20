@@ -28,7 +28,7 @@ int next(WORD_LIST ** plist);
 
 #define READ_COMPONENT(S, C, M)			\
   do {                       \
-  if (sscanf(S, "%p", C) != 1)  {           \
+  if (sscanf(S, "%p", &C) != 1)  {           \
       builtin_error( "%s",  _(M));		\
       return EX_USAGE;            \
  }                           \
