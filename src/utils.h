@@ -26,6 +26,15 @@ int next(WORD_LIST ** plist);
 } while(0) 
 
 
+#define READ_COMPONENT(S, C, M)			\
+  do {                       \
+  if (sscanf(S, "%p", C) != 1)  {           \
+      builtin_error( "%s",  _(M));		\
+      return EX_USAGE;            \
+ }                           \
+} while(0) 
+
+
 void lower(char **ps);
 
 /* borrowed from printf.def */

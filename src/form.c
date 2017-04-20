@@ -56,13 +56,10 @@ int libnewt_form(WORD_LIST * list) {
      builtin_error( "%s", _(FORM_USAGE));	\
     return EX_USAGE;					\
   }
-
   /*   lowercase the word */
   lower(&list->word->word);
   switch (djb2_hash(list->word->word)) {
     case ADDCOMPONENT:
-      return form_AddComponent(list->next);
-      break;
     case ADDCOMPONENTS:
       return form_AddComponents(list->next);
       break;
@@ -113,19 +110,41 @@ int libnewt_form(WORD_LIST * list) {
 
 
 int form(WORD_LIST* list, char *vname) {
-
-
-  newt_bind_variable (vname, "", 0);
+  newtComponent form;
+  char sform[30];
+  
+  if (list == NULL) {
+    form = newtForm(NULL, NULL, 0);
+  }
+  
+  snprintf(sform, 30, "%p", form);
+  
+  newt_bind_variable (vname, sform, 0);
   stupidly_hack_special_variables (vname);
 
+  return 0;
 }
 
-int form_AddComponent(WORD_LIST * list){
-   return 0;
-}
+/* int form_AddComponent(WORD_LIST * list){ */
+/*    return 0; */
+/* } */
+
+static const char * ADDCOMPONENT_USAGE =      \
+  "argument missing or invalid\n"				\
+  "usage:\n"					\
+  "\tnewt form addcomponents form component1 [components]";
 
 int form_AddComponents(WORD_LIST * list){
-   return 0;
+  NOT_NULL(list, ADDCOMPONENT_USAGE);
+  newtComponent form;
+  READ_COMPONENT(list->word->word, form, "Invalid component");
+  NEXT(list, ADDCOMPONENT_USAGE);
+  do {
+    newtComponent c;
+    READ_COMPONENT(list->word->word, c, "Invalid component");
+    newtFormAddComponent(form, c);
+  } while (next(&list));
+  return 0;
 }
 
 int form_AddHotKey(WORD_LIST * list){

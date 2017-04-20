@@ -58,7 +58,7 @@ newt_bind_variable (name, value, flags)
 int check_for_v(WORD_LIST** plist, char **pvname) {
   char* w = (*plist)->word->word;
   if ((w[0] == '-') && (w[1] == 'v')) {
-    if (w[0] = '\0') {
+    if (w[0] != '\0') {
       if (next(plist)) {
 	w = (*plist)->word->word;
       } else {
@@ -73,13 +73,13 @@ int check_for_v(WORD_LIST** plist, char **pvname) {
       if (legal_identifier (w)) 
 #endif
 	{
-	  pvname = &w;
+	  *pvname = w;
 	  return 1;
 	} else {
-	sh_invalidid (*pvname);
+	sh_invalidid (w);
 	return 0;
       }
   }
-  pvname = NULL;
+  *pvname = NULL;
   return 1;
 }
