@@ -62,13 +62,13 @@ int check_for_v(WORD_LIST** plist, char **pvname) {
     if (w[2] == '\0') {
       if (next(plist)) {
 	w = (*plist)->word->word;
-	next(plist);
+	*plist=((*plist)->next);
       } else {
 	return 0;
       }
     } else {
       w = &w[2];
-      next(plist);
+   *plist=((*plist)->next);
     }
 #if defined (ARRAY_VARS)
     if (legal_identifier (w) || valid_array_reference (w, 0))

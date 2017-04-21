@@ -24,7 +24,7 @@ if newt init;then
     newt centeredwindow 60 20
     newt form -v myform
     newt waitForKey # also redraw
-    newt form destroy
+    newt form destroy $myform
     newt waitForKey # also redraw
     newt finished
 fi

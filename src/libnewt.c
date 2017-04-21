@@ -60,6 +60,7 @@ int libnewt_clearKeyBuffer(WORD_LIST *);
 int libnewt_cls(WORD_LIST *);
 int libnewt_compactButton(WORD_LIST *);
 int libnewt_draw(WORD_LIST *);
+extern int libnewt_entry(WORD_LIST *);
 int libnewt_finished(WORD_LIST *);
 extern int libnewt_form(WORD_LIST *);
 int libnewt_getScreenSize(WORD_LIST *);
@@ -120,9 +121,9 @@ int libnewt_run(WORD_LIST * list) {
   case DRAW:
     return libnewt_draw(list->next);
     break;
-  /* case ENTRY: */
-  /*   return libnewt_entry(list->next); */
-  /*   break; */
+  case ENTRY:
+    return libnewt_entry(list->next);
+    break;
   case FINISHED:
     return libnewt_finished(list->next);
     break;

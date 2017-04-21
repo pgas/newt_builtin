@@ -59,6 +59,11 @@ int libnewt_form(WORD_LIST * list) {
     return EX_USAGE;					\
   }
 
+  if (list == NULL) {
+    NOT_NULL(vname, FORM_USAGE);
+    return form(list, vname);
+  }
+  
   /*   lowercase the word */
   lower(&list->word->word);
   switch (djb2_hash(list->word->word)) {
@@ -107,18 +112,22 @@ int libnewt_form(WORD_LIST * list) {
       break;
     default:
       NOT_NULL(vname, FORM_USAGE);
-      return form(list->next, vname);
+      return form(list, vname);
   } 
 }
 
 
 int form(WORD_LIST* list, char *vname) {
-  newtComponent form;
+
+  newtComponent form = NULL;
   char sform[30];
-  
+
   if (list == NULL) {
     form = newtForm(NULL, NULL, 0);
+  } else {
+    return EX_USAGE;
   }
+   
   
   snprintf(sform, 30, "%p", form);
   

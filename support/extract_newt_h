@@ -71,6 +71,8 @@ first_words[OpenWindow]=""
 
 
 #list of sub commands
+sub_command () {
+    
 for k in "${!first_words[@]}";do
     if [[ ${first_words[$k]} == *[a-z]* ]];then 
 	printf "%s:%s\n" "$k" "${first_words[$k]}"
@@ -78,9 +80,9 @@ for k in "${!first_words[@]}";do
 done | sort
 
 
-#forms
+#$1s
 # list of defines
-for k in ${first_words[form]};do
+for k in ${first_words[$1]};do
     hash=5381
     l=${k,,} # lowercase the words
     for ((i=0;i<${#l};i+=1)); do
@@ -88,31 +90,34 @@ for k in ${first_words[form]};do
 	(( hash = ((hash '<<' 5) + hash)+c ))
     done
     printf -v hs " %ul" $hash 
-    printf "#define %-18s%-30s/* %s */\n"  "${k^^}" "${hs%l}ull" "newtForm${k^}"
+    printf "#define %-18s%-30s/* %s */\n"  "${k^^}" "${hs%l}ull" "newt${1^}${k^}"
 done | sort
 
 #forward decls
-printf '%s\n' ${first_words[form]} | sort | while read -r k; do
-    printf "int %s(WORD_LIST *);\n" "form_${k^}"
+printf '%s\n' ${first_words[$1]} | sort | while read -r k; do
+    printf "int %s(WORD_LIST *);\n" "$1_${k^}"
 done    
 echo
-echo 'int libnewt_form(WORD_LIST * list) {
+echo 'int libnewt_'"$1"'(WORD_LIST * list) {
   /*   lowercase the word */
   lower(&list->word->word);
 
-  switch (hash(list->word->word)) {
+  switch (djb2_hash(list->word->word)) {
 '
 
 #case statements
-printf '%s\n' ${first_words[form]} | sort | while read -r k; do
-    printf "    case %s:\n      return form_%s(list->next);\n      break;\n" ${k^^} $k
+printf '%s\n' ${first_words[$1]} | sort | while read -r k; do
+    printf "    case %s:\n      return $1_%s(list->next);\n      break;\n" ${k^^} $k
 done 
 echo '    default:
-      return 127;
+      return EX_USAGE;
   } 
 }'
 
 #functemplates
-printf '%s\n' ${first_words[form]} | sort | while read -r k; do
-    printf "\nint %s(WORD_LIST * list){\n   return 0;\n}\n" "form_${k^}"
+printf '%s\n' ${first_words[$1]} | sort | while read -r k; do
+    printf "\nint %s(WORD_LIST * list){\n   return 0;\n}\n" "$1_${k^}"
 done    
+
+}
+sub_command entry
