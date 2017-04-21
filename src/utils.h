@@ -5,7 +5,7 @@
 
 unsigned long long djb2_hash(unsigned char *str);
 
-int next(WORD_LIST ** plist);
+WORD_LIST * next(WORD_LIST ** plist);
 
 // just a macros to advance conditionnally in the list
 #define NEXT(L, M)           \

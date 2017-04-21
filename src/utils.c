@@ -11,13 +11,11 @@ unsigned long long djb2_hash(unsigned char *str) {
 }
 
 
-int next(WORD_LIST ** plist) {
-  if ((*plist)->next != NULL){
-    *plist=((*plist)->next);
-    return 1;
-  } else {
-    return 0;
-  }
+WORD_LIST * next(WORD_LIST ** plist) {
+
+  *plist=((*plist)->next);
+  return *plist;
+
 }
 
 char * lower(char **ps) {
@@ -62,13 +60,13 @@ int check_for_v(WORD_LIST** plist, char **pvname) {
     if (w[2] == '\0') {
       if (next(plist)) {
 	w = (*plist)->word->word;
-	*plist=((*plist)->next);
+	next(plist);
       } else {
 	return 0;
       }
     } else {
       w = &w[2];
-   *plist=((*plist)->next);
+      	next(plist);
     }
 #if defined (ARRAY_VARS)
     if (legal_identifier (w) || valid_array_reference (w, 0))
