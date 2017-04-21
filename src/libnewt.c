@@ -64,6 +64,7 @@ int libnewt_finished(WORD_LIST *);
 extern int libnewt_form(WORD_LIST *);
 int libnewt_getScreenSize(WORD_LIST *);
 int libnewt_init(WORD_LIST *);
+int libnewt_label(WORD_LIST *);
 int libnewt_OpenWindow(WORD_LIST *);
 int libnewt_pop(WORD_LIST *);
 int libnewt_push(WORD_LIST *);
@@ -137,9 +138,9 @@ int libnewt_run(WORD_LIST * list) {
   case INIT:
     return libnewt_init(list->next);
     break;
-  /* case LABEL: */
-  /*   return libnewt_label(list->next); */
-  /*   break; */
+  case LABEL:
+    return libnewt_label(list->next);
+    break;
   /* case LISTBOX: */
   /*   return libnewt_listbox(list->next); */
   /*   break; */
@@ -228,7 +229,7 @@ int libnewt_button(WORD_LIST *list){
   if (list->next != NULL) {
     text = list->next->word->word;
   }
-  fprintf(stderr, "left: %d top: %d text: %s\n", left, top, text);
+
   newtComponent button;
   char sbutton[30];
 
@@ -355,6 +356,50 @@ int libnewt_getScreenSize(WORD_LIST *list) {
 
 int libnewt_init(WORD_LIST * list) {
   return newtInit();
+}
+
+
+static const char * LABEL_USAGE =      \
+  "argument missing\n"				\
+  "usage:\n"					\
+  "\tnewt label left top  [text]\n" \
+  "\tnewt settext label [text]";  
+
+int libnewt_label(WORD_LIST *list) {
+  NOT_NULL(list, LABEL_USAGE);
+  if (strncmp(lower(&list->word->word), "settext", 7) == 0) {
+    NEXT(list, LABEL_USAGE);
+    newtComponent label;
+    READ_COMPONENT(list->word->word, label, "Invalid component");
+    char *w = "";
+    if (list->next != NULL) {
+      w = list->next->word->word;
+    }
+    newtLabelSetText(label, w);
+  } else {
+    char* vname = NULL;
+    if (!check_for_v(&list, &vname) || (vname == NULL)) {
+      builtin_error( "%s", _(LABEL_USAGE));		\
+      return EX_USAGE;					\
+    }
+    
+    int left, top;
+    NOT_NULL(list, LABEL_USAGE);
+    left = (int) strtol(list->word->word, NULL, 10);    
+    NEXT(list, LABEL_USAGE);
+    top = (int) strtol(list->word->word, NULL, 10);
+    char *w = "";
+    if (list->next != NULL) {
+      w = list->next->word->word;
+    }
+    newtComponent label = newtLabel(left, top, w);
+    char slabel[30];
+    snprintf(slabel, 30, "%p", label);
+  
+    newt_bind_variable (vname, slabel, 0);
+    stupidly_hack_special_variables (vname);
+  }
+  return 0;
 }
 
 static const char * OPENWINDOW_USAGE =      \
