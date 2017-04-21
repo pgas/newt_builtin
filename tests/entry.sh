@@ -14,19 +14,21 @@ if ! type newt &>/dev/null;then
 fi
 
 if newt init;then 
-    trap 'newt finished' EXIT
+
     newt cls
     newt openwindow 10 7 40 7 "Button Sample"
 
-    newt entry -v l1  10 1 "Hello, world!" 20 0
+    newt entry -v ent1  10 1 "Hello, world!" 20 $((NEWT_FLAG_RETURNEXIT|NEWT_ENTRY_SCROLL))
 
     newt button -v b1 10 3 "Ok"
 
     
     newt form -v form 
-    newt form addcomponents "$form" "$l1" "$b1"
+    newt form addcomponents "$form" "$ent1" "$b1"
     
     newt runform "$form"
-
+    newt entry -v message getvalue "$ent1"
     newt form destroy "$form"
+    newt finished
 fi
+echo $message

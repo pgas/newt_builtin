@@ -16,7 +16,7 @@
 #define SETFLAGS           7572920998621918ull          /* newtEntrySetFlags */
 
 int entry_GetCursorPosition(WORD_LIST *);
-int entry_GetValue(WORD_LIST *);
+int entry_GetValue(WORD_LIST *, char * );
 int entry_Set(WORD_LIST *);
 int entry_SetColors(WORD_LIST *);
 int entry_SetCursorPosition(WORD_LIST *);
@@ -27,7 +27,9 @@ int entry(WORD_LIST* list, char *vname);
 static const char * ENTRY_USAGE =		\
   "argument missing\n"				\
   "usage:\n"					\
-  "\tnewt entry -v var left top text width flags";	
+  "\tnewt entry -v var left top text width flags" \
+  "\tnewt entry getvalue -v var entry"; 
+
 
 
 int libnewt_entry(WORD_LIST * list) {
@@ -51,7 +53,7 @@ int libnewt_entry(WORD_LIST * list) {
       return entry_GetCursorPosition(list->next);
       break;
     case GETVALUE:
-      return entry_GetValue(list->next);
+      return entry_GetValue(list->next, vname);
       break;
     case SET:
       return entry_Set(list->next);
@@ -110,8 +112,17 @@ int entry_GetCursorPosition(WORD_LIST * list){
    return 0;
 }
 
-int entry_GetValue(WORD_LIST * list){
-   return 0;
+int entry_GetValue(WORD_LIST * list, char *vname){
+  NOT_NULL(list, ENTRY_USAGE);
+
+  newtComponent entry;
+  READ_COMPONENT(list->word->word, entry, "Invalid component");
+  char * value = newtEntryGetValue(entry);
+
+  newt_bind_variable (vname, value, 0);
+  stupidly_hack_special_variables (vname);
+  
+  return 0;
 }
 
 int entry_Set(WORD_LIST * list){
