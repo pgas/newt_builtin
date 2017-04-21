@@ -26,7 +26,7 @@ if newt init;then
     newt form addcomponents "$form" "$l1" "$b1"
     
     newt runform "$form"
-        newt label settext "$l1" "Bye, world!"
+    newt label settext "$l1" "Bye, world!"
     newt refresh
     sleep 1
     newt label settext "$l1" "The end, world!"

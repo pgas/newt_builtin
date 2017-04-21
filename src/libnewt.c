@@ -355,6 +355,58 @@ int libnewt_getScreenSize(WORD_LIST *list) {
 }
 
 int libnewt_init(WORD_LIST * list) {
+  newt_bind_variable ("NEWT_COLORSET_ROOT", "2", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_BORDER", "3", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_WINDOW", "4", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_SHADOW", "5", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_TITLE", "6", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_BUTTON", "7", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_ACTBUTTON", "8", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_CHECKBOX", "9", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_ACTCHECKBOX", "10", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_ENTRY", "11", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_LABEL", "12", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_LISTBOX", "13", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_ACTLISTBOX", "14", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_TEXTBOX", "15", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_ACTTEXTBOX", "16", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_HELPLINE", "17", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_ROOTTEXT", "18", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_EMPTYSCALE", "19", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_FULLSCALE", "20", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_DISENTRY", "21", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_COMPACTBUTTON", "22", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_ACTSELLISTBOX", "23", 0x0000002);
+  newt_bind_variable ("NEWT_COLORSET_SELLISTBOX", "24", 0x0000002);
+  newt_bind_variable ("NEWT_FLAG_RETURNEXIT", "1", 0x0000002);
+  newt_bind_variable ("NEWT_FLAG_HIDDEN", "2", 0x0000002);
+  newt_bind_variable ("NEWT_FLAG_SCROLL", "4", 0x0000002);
+  newt_bind_variable ("NEWT_FLAG_DISABLED", "8", 0x0000002);
+  newt_bind_variable ("NEWT_FLAG_BORDER", "32", 0x0000002);
+  newt_bind_variable ("NEWT_FLAG_WRAP", "64", 0x0000002);
+  newt_bind_variable ("NEWT_FLAG_NOF12", "128", 0x0000002);
+  newt_bind_variable ("NEWT_FLAG_MULTIPLE", "256", 0x0000002);
+  newt_bind_variable ("NEWT_FLAG_SELECTED", "512", 0x0000002);
+  newt_bind_variable ("NEWT_FLAG_CHECKBOX", "1024", 0x0000002);
+  newt_bind_variable ("NEWT_FLAG_PASSWORD", "2048", 0x0000002);
+  newt_bind_variable ("NEWT_FLAG_SHOWCURSOR", "4096", 0x0000002);
+  newt_bind_variable ("NEWT_LISTBOX_RETURNEXIT", "1", 0x0000002);
+  newt_bind_variable ("NEWT_ENTRY_SCROLL", "4", 0x0000002);
+  newt_bind_variable ("NEWT_ENTRY_HIDDEN", "2", 0x0000002);
+  newt_bind_variable ("NEWT_ENTRY_RETURNEXIT", "1", 0x0000002);
+  newt_bind_variable ("NEWT_ENTRY_DISABLED", "8", 0x0000002);
+  newt_bind_variable ("NEWT_TEXTBOX_WRAP", "64", 0x0000002);
+  newt_bind_variable ("NEWT_TEXTBOX_SCROLL", "4", 0x0000002);
+  newt_bind_variable ("NEWT_FORM_NOF12", "128", 0x0000002);
+  newt_bind_variable ("NEWT_FLAGS_SENSE_SET", "0", 0x0000002);
+  newt_bind_variable ("NEWT_FLAGS_SENSE_RESET", "1", 0x0000002);
+  newt_bind_variable ("NEWT_FLAGS_SENSE_TOGGLE", "2", 0x0000002);
+  newt_bind_variable ("NEWT_CHECKBOXTREE_UNSELECTABLE", "4096", 0x0000002);
+  newt_bind_variable ("NEWT_CHECKBOXTREE_HIDE_BOX", "8192", 0x0000002);
+  newt_bind_variable ("NEWT_CHECKBOXTREE_COLLAPSED", "", 0x0000002);
+  newt_bind_variable ("NEWT_CHECKBOXTREE_EXPANDED", "\x01", 0x0000002);
+  newt_bind_variable ("NEWT_CHECKBOXTREE_UNSELECTED", "\x20", 0x0000002);
+  newt_bind_variable ("NEWT_CHECKBOXTREE_SELECTED", "\x2A", 0x0000002);
   return newtInit();
 }
 

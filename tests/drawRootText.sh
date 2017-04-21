@@ -19,7 +19,8 @@ newt draw roottext 4
 
 set +x
 
-if newt init;then 
+if newt init;then
+    echo  "NEWT_TEXTBOX_WRAP $NEWT_TEXTBOX_WRAP"
     trap 'newt finished' EXIT
     newt cls
     newt draw roottext 10 10 "some root text"
