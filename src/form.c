@@ -58,8 +58,6 @@ int libnewt_form(WORD_LIST * list) {
      builtin_error( "%s", _(FORM_USAGE));	\
     return EX_USAGE;					\
   }
-  fprintf(stderr, "vname %p\n",  vname);
-  fflush(stderr);
 
   /*   lowercase the word */
   lower(&list->word->word);

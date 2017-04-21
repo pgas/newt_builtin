@@ -35,7 +35,7 @@ int next(WORD_LIST ** plist);
 } while(0) 
 
 
-void lower(char **ps);
+char* lower(char **ps);
 
 /* borrowed from printf.def */
 SHELL_VAR * newt_bind_variable(char *name, char *value, int flags);

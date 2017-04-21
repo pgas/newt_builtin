@@ -20,9 +20,10 @@ int next(WORD_LIST ** plist) {
   }
 }
 
-void lower(char **ps) {
+char * lower(char **ps) {
   char *s = *ps;
   for ( ; *s; ++s) *s = tolower(*s);
+  return *ps; 
 }
 
 /* borrowed from printf.def */
@@ -85,6 +86,6 @@ int check_for_v(WORD_LIST** plist, char **pvname) {
 
   fflush(stderr);
   *pvname = NULL;
-    fprintf(stderr, "vname %p\n", *pvname);
+
   return 1;
 }
