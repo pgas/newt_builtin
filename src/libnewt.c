@@ -5,7 +5,6 @@
 #endif
 #include <stdio.h>
 
-#include <newt.h>
 
 #include "utils.h"
 #include "libnewt.h"
@@ -73,6 +72,25 @@ int libnewt_refresh(WORD_LIST *);
 int libnewt_runForm(WORD_LIST *);
 int libnewt_waitForKey(WORD_LIST *);
 
+
+void newt_bash_component_callback(newtComponent co, void *data) {
+  bash_component bash_co = (bash_component)data;
+  if (bash_co->filter) free(bash_co->filter);
+  if (bash_co->callback) free(bash_co->callback);
+  free(bash_co);
+}
+
+bash_component new_bash_component(newtComponent co) {
+  bash_component bash_co =
+    (bash_component)malloc(sizeof(struct bash_component_struct));
+  if (bash_co) {
+    bash_co->co = co;
+    bash_co->filter = NULL;
+    bash_co->callback = NULL;
+    newtComponentAddDestroyCallback(co, newt_bash_component_callback, bash_co);
+  }
+  return bash_co;
+}
 
 /* 
   parse the commands and execute accordingly
@@ -231,10 +249,10 @@ int libnewt_button(WORD_LIST *list){
     text = list->next->word->word;
   }
 
-  newtComponent button;
+  bash_component button;
   char sbutton[30];
 
-  button = newtButton(left, top, text);
+  button = new_bash_component(newtButton(left, top, text));
   snprintf(sbutton, 30, "%p", button);
   
   newt_bind_variable (vname, sbutton, 0);
@@ -298,10 +316,10 @@ int libnewt_compactButton(WORD_LIST *list){
   if (list->next != NULL) {
     text = list->next->word->word;
   }
-  newtComponent compactbutton;
+  bash_component compactbutton;
   char scompactbutton[30];
 
-  compactbutton = newtCompactButton(left, top, text);
+  compactbutton = new_bash_component(newtCompactButton(left, top, text));
   snprintf(scompactbutton, 30, "%p", compactbutton);
   
   newt_bind_variable (vname, scompactbutton, 0);
@@ -422,13 +440,13 @@ int libnewt_label(WORD_LIST *list) {
   NOT_NULL(list, LABEL_USAGE);
   if (strncmp(lower(&list->word->word), "settext", 7) == 0) {
     NEXT(list, LABEL_USAGE);
-    newtComponent label;
+    bash_component label;
     READ_COMPONENT(list->word->word, label, "Invalid component");
     char *w = "";
     if (list->next != NULL) {
       w = list->next->word->word;
     }
-    newtLabelSetText(label, w);
+    newtLabelSetText(label->co, w);
   } else {
     char* vname = NULL;
     if (!check_for_v(&list, &vname) || (vname == NULL)) {
@@ -445,7 +463,7 @@ int libnewt_label(WORD_LIST *list) {
     if (list->next != NULL) {
       w = list->next->word->word;
     }
-    newtComponent label = newtLabel(left, top, w);
+    bash_component label = new_bash_component(newtLabel(left, top, w));
     char slabel[30];
     snprintf(slabel, 30, "%p", label);
   
@@ -530,9 +548,9 @@ static const char * RUNFORM_USAGE =      \
 int libnewt_runForm(WORD_LIST *list) {
   /* TODO: Return value */
   NOT_NULL(list, RUNFORM_USAGE);
-  newtComponent form;
+  bash_component form;
   READ_COMPONENT(list->word->word, form, "Invalid component");
-  newtRunForm(form);
+  newtRunForm(form->co);
   return 0;
 }
 

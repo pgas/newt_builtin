@@ -3,6 +3,8 @@
 
 #include "bash_includes.h"
 
+
+
 unsigned long long djb2_hash(unsigned char *str);
 
 WORD_LIST * next(WORD_LIST ** plist);

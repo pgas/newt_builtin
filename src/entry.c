@@ -5,7 +5,9 @@
 
 #include <newt.h>
 
+#include "bash_includes.h"
 #include "utils.h"
+#include "libnewt.h"
 
 #define GETCURSORPOSITION  1727051917995085400ull       /* newtEntryGetCursorPosition */
 #define GETVALUE           7572409595898050ull          /* newtEntryGetValue */
@@ -24,13 +26,16 @@ int entry_SetFilter(WORD_LIST *);
 int entry_SetFlags(WORD_LIST *);
 int entry(WORD_LIST* list, char *vname);
 
+
+
+
+
+
 static const char * ENTRY_USAGE =		\
   "argument missing\n"				\
   "usage:\n"					\
   "\tnewt entry -v var left top text width flags" \
   "\tnewt entry getvalue -v var entry"; 
-
-
 
 int libnewt_entry(WORD_LIST * list) {
   NOT_NULL(list, ENTRY_USAGE);
@@ -79,7 +84,7 @@ int libnewt_entry(WORD_LIST * list) {
 
 
 int entry(WORD_LIST* list, char *vname) {
-  newtComponent entry;
+
   char sentry[30];
 
   int left, top, width, flags;
@@ -95,8 +100,7 @@ int entry(WORD_LIST* list, char *vname) {
   NEXT(list, ENTRY_USAGE);
   flags = (int) strtol(list->word->word, NULL, 10);    
 
-  /* no magic result string for now */
-  entry = newtEntry(left, top, text, width, NULL, flags);
+  bash_component entry = new_bash_component(newtEntry(left, top, text, width, NULL, flags));
 
   snprintf(sentry, 30, "%p", entry);
   
@@ -115,9 +119,10 @@ int entry_GetCursorPosition(WORD_LIST * list){
 int entry_GetValue(WORD_LIST * list, char *vname){
   NOT_NULL(list, ENTRY_USAGE);
 
-  newtComponent entry;
+  bash_component entry;
+
   READ_COMPONENT(list->word->word, entry, "Invalid component");
-  char * value = newtEntryGetValue(entry);
+  char * value = newtEntryGetValue(entry->co);
 
   newt_bind_variable (vname, value, 0);
   stupidly_hack_special_variables (vname);

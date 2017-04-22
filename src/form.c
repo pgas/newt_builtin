@@ -5,6 +5,7 @@
 
 #include <newt.h>
 
+#include "libnewt.h"
 #include "utils.h"
 
 #define ADDCOMPONENT       14856387628357384193ull      /* newtFormAddComponent */
@@ -119,11 +120,11 @@ int libnewt_form(WORD_LIST * list) {
 
 int form(WORD_LIST* list, char *vname) {
 
-  newtComponent form = NULL;
+  bash_component form = NULL;
   char sform[30];
 
   if (list == NULL) {
-    form = newtForm(NULL, NULL, 0);
+    form = new_bash_component(newtForm(NULL, NULL, 0));
   } else {
     return EX_USAGE;
   }
@@ -148,13 +149,13 @@ static const char * ADDCOMPONENT_USAGE =      \
 
 int form_AddComponents(WORD_LIST * list){
   NOT_NULL(list, ADDCOMPONENT_USAGE);
-  newtComponent form;
+  bash_component form;
   READ_COMPONENT(list->word->word, form, "Invalid component");
   NEXT(list, ADDCOMPONENT_USAGE);
   do {
-    newtComponent c;
+    bash_component c;
     READ_COMPONENT(list->word->word, c, "Invalid component");
-    newtFormAddComponent(form, c);
+    newtFormAddComponent(form->co, c->co);
   } while (next(&list));
   return 0;
 }
@@ -171,9 +172,9 @@ static const char * FORMDESTROY_USAGE =      \
 
 int form_Destroy(WORD_LIST * list){
   NOT_NULL(list, FORMDESTROY_USAGE);
-  newtComponent form;
+  bash_component form;
   READ_COMPONENT(list->word->word, form, _("Invalid component"));
-  newtFormDestroy(form);
+  newtFormDestroy(form->co);
   return 0;
 }
 
@@ -188,10 +189,10 @@ int form_GetScrollPosition(WORD_LIST * list){
 int form_Run(WORD_LIST * list){
   /* TODO: Return value */
   NOT_NULL(list, ADDCOMPONENT_USAGE);
-  newtComponent form;
+  bash_component form;
   READ_COMPONENT(list->word->word, form, "Invalid component");
   struct newtExitStruct  es;
-  newtFormRun(form, &es);
+  newtFormRun(form->co, &es);
 
    return 0;
 }
