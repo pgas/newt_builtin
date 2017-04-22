@@ -27,10 +27,15 @@ WORD_LIST * next(WORD_LIST ** plist);
  }                           \
 } while(0) 
 
-
+/* 
+ Checking for 0x at the beginning makes it non portable
+ but it's so easy to pass something that crashes bash and not
+ so easy to spot the error (eg passing "button" instead of "$button"
+ that I'll leave it there until someones wants more portability
+ */
 #define READ_COMPONENT(S, C, M)			\
   do {                       \
-  if (sscanf(S, "%p", &C) != 1)  {           \
+  if (S[0] != '0' || S[1] != 'x'|| sscanf(S, "%p", &C) != 1)  {			\
       builtin_error( "%s",  _(M));		\
       return EX_USAGE;            \
  }                           \
