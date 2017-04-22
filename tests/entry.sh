@@ -19,7 +19,7 @@ if newt init;then
     newt openwindow 10 7 40 7 "Button Sample"
 
     newt entry -v ent1  10 1 "Hello, world!" 20 $((NEWT_FLAG_RETURNEXIT|NEWT_ENTRY_SCROLL))
-
+    newt entry setfilter "$ent1" 'printf "ent:%s ch:%q cu:%s\n" $NEWT_ENTRY "$NEWT_CH" $NEWT_CURSOR >&2;[[ $NEWT_CH != e ]]'
     newt button -v b1 10 3 "Ok"
 
     
@@ -28,6 +28,7 @@ if newt init;then
     
     newt runform "$form"
     newt entry -v message getvalue "$ent1"
+
     newt form destroy "$form"
     newt finished
 fi

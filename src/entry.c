@@ -26,8 +26,22 @@ int entry_SetFilter(WORD_LIST *);
 int entry_SetFlags(WORD_LIST *);
 int entry(WORD_LIST* list, char *vname);
 
-
-
+int entry_filter(newtComponent entry, void * data, int ch,
+		 int cursor) {
+  char sentry[30];
+  snprintf(sentry, 30, "%p", entry);
+  newt_bind_variable ("NEWT_ENTRY", sentry, 0);
+  char sch[2] = { 0 };
+  sch[0]=ch;
+  newt_bind_variable ("NEWT_CH", sch, 0);
+  char scursor[30];
+  snprintf(scursor, 30, "%i", cursor);
+  newt_bind_variable ("NEWT_CURSOR", scursor, 0);
+  
+  int flags =  SEVAL_NOHIST;
+  int ret =  evalstring (savestring((char *)data), NULL, flags);
+  return ret==0?ch:0;
+}
 
 
 
@@ -143,7 +157,14 @@ int entry_SetCursorPosition(WORD_LIST * list){
 }
 
 int entry_SetFilter(WORD_LIST * list){
-   return 0;
+
+  NOT_NULL(list, ENTRY_USAGE);
+  bash_component entry;
+  READ_COMPONENT(list->word->word, entry, "Invalid component");
+  NEXT(list, ENTRY_USAGE);
+
+  newtEntrySetFilter(entry->co, entry_filter, (void *) savestring(list->word->word));
+  return 0;
 }
 
 int entry_SetFlags(WORD_LIST * list){
