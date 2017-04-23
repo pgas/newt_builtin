@@ -16,15 +16,31 @@ fi
 if newt init;then 
 
     newt cls
-    newt openwindow 10 7 40 7 "Button Sample"
+    newt openwindow 10 7 40 10 "Button Sample"
 
-    newt entry -v ent1  10 1 "Hello, world!" 20 $((NEWT_FLAG_RETURNEXIT|NEWT_ENTRY_SCROLL))
-    newt entry setfilter "$ent1" 'printf "ent:%s ch:%q cu:%s\n" $NEWT_ENTRY "$NEWT_CH" $NEWT_CURSOR >&2;[[ $NEWT_CH != e ]]'
-    newt button -v b1 10 3 "Ok"
+
+    function pos_filter {
+	newt entry -v pos getcursorposition "$ent1"
+	 newt entry set "$ent2" "filter $NEWT_CURSOR get $pos"
+	 return 0
+     }
+    
+    newt entry -v ent1  10 1 "move here" 20
+    newt entry setfilter "$ent1" pos_filter
+
+    newt entry -v pos getcursorposition "$ent1"
+    echo >&2 "$ent1 $POS"
+    newt entry -v ent2  10 2 "" 20 
+    newt entry set "$ent2" "Cursor Position"
+    
+    newt entry -v ent3  10 4 "Hello, world!" 20 $((NEWT_FLAG_RETURNEXIT|NEWT_ENTRY_SCROLL))
+    newt entry setfilter "$ent3" 'printf "ent:%s ch:%q cu:%s\n" $NEWT_ENTRY "$NEWT_CH" $NEWT_CURSOR >&2;[[ $NEWT_CH != e ]]'
+
+    newt button -v b1 10 6 "Ok"
 
     
     newt form -v form 
-    newt form addcomponents "$form" "$ent1" "$b1"
+    newt form addcomponents "$form" "$ent1" "$ent2" "$ent3" "$b1"
     
     newt runform "$form"
     newt entry -v message getvalue "$ent1"
