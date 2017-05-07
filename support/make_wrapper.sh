@@ -27,29 +27,60 @@ parse_fn () {
     paren_pos=0
     until [[ ${def[paren_pos]} =  "(" ]];do ((paren_pos+=1));done
     fname=${def[paren_pos-1]}
-
-    echo >&2 "fname: $fname"
+    fret=${def[*]:0:paren_pos-2+1}
+#    echo >&2 "fname: $fname"
     break_fn_name "$fname"
     fdecls+=("int $R(WORD_LIST * list);")
 
     fdef=()
-    fdef+=("int $R(WORD_LIST * list); {")
-    
+    fdef+=("int $R(WORD_LIST * list); {" )
+    args=()
     cur_pos=paren_pos
     while [[ ${def[cur_pos]} !=  ")" ]];do
 	end_arg=$((cur_pos+1))
 	until [[ ${def[end_arg]} = [,\)] ]]; do ((end_arg+=1));done
 	argtype=${def[@]:cur_pos+1:end_arg-cur_pos-2}
 	argname=${def[end_arg-1]}
-	echo  >&2 "argtype: $argtype, argname: $argname"
-	fdef+=("NEXT(list, ENTRY_USAGE);")
-	case argtype in
-	    int)
-		fdef+=("int $argname;")
-	 	fdef+=("int $argname;")
+	args+="$argname, "
+	#	echo  >&2 "argtype: $argtype, argname: $argname"
+	
+	case $argtype in
+	    int|unsigned\ int)
+		fdef+=("    READ_INT(list, $argname, ENTRY_USAGE);");;
+	    *char*\*)
+		fdef+=("    READ_STRING(list, $argname, ENTRY_USAGE);");;
+	    newtComponent)
+		fdef+=("    READ_COMPONENT(list, $argname, ENTRY_USAGE);");;
+	    '')
+		args=
+		;;
+	    *)
+		fdef+=("    /* TODO: read $argname of $argtype */") ;;
+	esac
 	cur_pos=$end_arg
-
     done
+    printf "%s\n" "${fdef[@]}" ""
+    case $fret in
+	int)
+	    echo "    WRITE_INT(vname, $fname(${args%, });"
+	    ;;
+	*char*\*)
+	    echo "    WRITE_STRING(vname, $fname(${args%, });"
+	    ;;
+	newtComponent)
+	    echo "    WRITE_COMPONENT(vname, $fname(${args%, });"
+	    ;;
+	void)
+	    echo "    $fname(${args%, });"
+	    ;;
+	*)
+	    echo "/* TODO: returns $fret */"
+	;;
+    esac
+    echo "    return 0;"
+    echo "}"
+    #echo >&2 "Fret: $fret"
+
 }
 
 
@@ -59,16 +90,18 @@ while read -a def; do
     if [[ ${def[*]} = *\)* ]]; then
 	parse_fn
     fi
-done <<EOF 
-void newtCheckboxSetFlags ( newtComponent co , int flags , enum newtFlagsSense sense ) ;
-newtComponent newtCompactButton ( int left ,  int top ,  const char * text ) ;
-newtComponent newtButton ( int left ,  int top ,  const char * text ) ;
-newtComponent newtCheckbox ( int left ,  int top ,  const char * text ,  char defValue , 			   const char * seq ,  char * result ) ;
-char newtCheckboxGetValue ( newtComponent co ) ;
-void newtCheckboxSetValue ( newtComponent co ,  char value ) ;
-void newtCheckboxSetFlags ( newtComponent co ,  int flags ,  enum newtFlagsSense sense ) ;
+done < <(extract_fn /usr/include/newt.h)
 
-EOF
+# <<EOF 
+# void newtCheckboxSetFlags ( newtComponent co , int flags , enum newtFlagsSense sense ) ;
+# newtComponent newtCompactButton ( int left ,  int top ,  const char * text ) ;
+# newtComponent newtButton ( int left ,  int top ,  const char * text ) ;
+# newtComponent newtCheckbox ( int left ,  int top ,  const char * text ,  char defValue , 			   const char * seq ,  char * result ) ;
+# char newtCheckboxGetValue ( newtComponent co ) ;
+# void newtCheckboxSetValue ( newtComponent co ,  char value ) ;
+# void newtCheckboxSetFlags ( newtComponent co ,  int flags ,  enum newtFlagsSense sense ) ;
+
+# EOF
 
 printf "%s\n" "${fdecls[@]}"
 

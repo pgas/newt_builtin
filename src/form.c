@@ -73,43 +73,43 @@ int libnewt_form(WORD_LIST * list) {
       return form_AddComponents(list);
       break;
     case ADDHOTKEY:
-      return form_AddHotKey(list->next);
+      return form_AddHotKey(list);
       break;
     case DESTROY:
       return form_Destroy(list);
       break;
     case GETCURRENT:
-      return form_GetCurrent(list->next);
+      return form_GetCurrent(list);
       break;
     case GETSCROLLPOSITION:
-      return form_GetScrollPosition(list->next);
+      return form_GetScrollPosition(list);
       break;
     case RUN:
       return form_Run(list);
       break;
     case SETBACKGROUND:
-      return form_SetBackground(list->next);
+      return form_SetBackground(list);
       break;
     case SETCURRENT:
-      return form_SetCurrent(list->next);
+      return form_SetCurrent(list);
       break;
     case SETHEIGHT:
-      return form_SetHeight(list->next);
+      return form_SetHeight(list);
       break;
     case SETSCROLLPOSITION:
-      return form_SetScrollPosition(list->next);
+      return form_SetScrollPosition(list);
       break;
     case SETSIZE:
-      return form_SetSize(list->next);
+      return form_SetSize(list);
       break;
     case SETTIMER:
-      return form_SetTimer(list->next);
+      return form_SetTimer(list);
       break;
     case SETWIDTH:
-      return form_SetWidth(list->next);
+      return form_SetWidth(list);
       break;
     case WATCHFD:
-      return form_WatchFd(list->next);
+      return form_WatchFd(list);
       break;
     default:
       NOT_NULL(vname, FORM_USAGE);
