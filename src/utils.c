@@ -82,8 +82,23 @@ int check_for_v(WORD_LIST** plist, char **pvname) {
       }
   }
 
-  fflush(stderr);
   *pvname = NULL;
 
   return 1;
 }
+
+
+int valid_variable(char* v) {
+#if defined (ARRAY_VARS)
+    if (legal_identifier (v) || valid_array_reference (v, 0))
+#else
+      if (legal_identifier (v))
+#endif
+	{
+	  return 1;
+	} else {
+	sh_invalidid (v);
+	return 0;
+      }
+}
+

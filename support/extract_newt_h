@@ -13,8 +13,6 @@ readarray -t fnames < <(awk -F\( 'NF>1 && /;/ && !/^typedef/{sub(/.*newt/,"",$1)
 
 
 
-
-
 declare -A first_words
 for f in  "${fnames[@]}";do
     f=${f,}
