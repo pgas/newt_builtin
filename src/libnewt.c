@@ -439,9 +439,7 @@ static const char * LABEL_USAGE =      \
 int libnewt_label(WORD_LIST *list) {
   NOT_NULL(list, LABEL_USAGE);
   if (strncmp(lower(&list->word->word), "settext", 7) == 0) {
-    NEXT(list, LABEL_USAGE);
-    bash_component label;
-    READ_COMPONENT(list->word->word, label, "Invalid component");
+    READ_COMPONENT(list, label, "Invalid component");
     char *w = "";
     if (list->next != NULL) {
       w = list->next->word->word;
@@ -547,9 +545,12 @@ static const char * RUNFORM_USAGE =      \
 
 int libnewt_runForm(WORD_LIST *list) {
   /* TODO: Return value */
-  NOT_NULL(list, RUNFORM_USAGE);
-  bash_component form;
-  READ_COMPONENT(list->word->word, form, "Invalid component");
+
+  /* headguard just so that it works like the other commands */
+  WORD_LIST dummy = { list,  NULL };
+  list = &dummy;
+
+  READ_COMPONENT(list, form, "Invalid component");
   newtRunForm(form->co);
   return 0;
 }

@@ -29,17 +29,12 @@ int entry(WORD_LIST* list, char *vname);
 int entry_filter(newtComponent entry, void * data, int ch,
 		 int cursor) {
   bash_component bash_entry = (bash_component) data;
-  char sentry[30];
-  snprintf(sentry, 30, "%p", bash_entry);
-  newt_bind_variable ("NEWT_ENTRY", sentry, 0);
-  char sch[2] = { 0 };
-  sch[0]=ch;
-  newt_bind_variable ("NEWT_CH", sch, 0);
-  char scursor[30];
-  snprintf(scursor, 30, "%i", cursor);
-  newt_bind_variable ("NEWT_CURSOR", scursor, 0);
+
+  WRITE_POINTER("NEWT_ENTRY", bash_entry);
+  WRITE_CHAR("NEWT_CH", ch);
+  WRITE_INT("NEWT_CURSOR", cursor);
   
-  int flags =  SEVAL_NOHIST;
+   int flags =  SEVAL_NOHIST;
   int ret =  evalstring (savestring(bash_entry->filter), NULL, flags);
   return ret==0?ch:0;
 }
@@ -110,7 +105,7 @@ int libnewt_entry(WORD_LIST * list) {
 }
 
 int entry(WORD_LIST* list, char *vname) {
-  /* just so that it works like the other commands */
+  /* headguard just so that it works like the other commands */
   WORD_LIST dummy = { list,  NULL };
   list = &dummy;
   
@@ -118,7 +113,7 @@ int entry(WORD_LIST* list, char *vname) {
   READ_INT(list, top, ENTRY_USAGE);
   READ_STRING(list, text, ENTRY_USAGE);
   READ_INT(list, width, ENTRY_USAGE);
-  READ_INT_OPT(list, flags, ENTRY_USAGE);
+  READ_INT_OPT(list, flags, 0, ENTRY_USAGE);
 
   WRITE_POINTER(vname, new_bash_component(newtEntry(left, top, text, width, NULL, flags)));
 
@@ -126,42 +121,21 @@ int entry(WORD_LIST* list, char *vname) {
 }
 
 int entry_GetCursorPosition(WORD_LIST * list, char *vname){
-  NEXT(list, ENTRY_USAGE);
-  bash_component entry;
-  READ_COMPONENT(list->word->word, entry, "Invalid component");
-
-  int value = newtEntryGetCursorPosition(entry->co);
-  fprintf(stderr, "cursor pos %d\n", value);
-  char svalue[30];
-  snprintf(svalue, 30, "%d", value);
-  newt_bind_variable (vname, svalue, 0);
-  stupidly_hack_special_variables (vname);
-  
+  READ_COMPONENT(list, entry, "Invalid component");
+  WRITE_INT(vname, newtEntryGetCursorPosition(entry->co));  
   return 0;
 }
 
 int entry_GetValue(WORD_LIST * list, char *vname){
-  NEXT(list, ENTRY_USAGE);
-  bash_component entry;
-  READ_COMPONENT(list->word->word, entry, "Invalid component");
-  char * value = newtEntryGetValue(entry->co);
-
-  newt_bind_variable (vname, value, 0);
-  stupidly_hack_special_variables (vname);
-  
+  READ_COMPONENT(list, entry, "Invalid component");
+  WRITE_STRING(vname, newtEntryGetValue(entry->co));
   return 0;
 }
 
 int entry_Set(WORD_LIST * list){
-  NEXT(list, ENTRY_USAGE);
-  bash_component entry;
-  READ_COMPONENT(list->word->word, entry, "Invalid component");
-  NEXT(list, ENTRY_USAGE);
-  char * value = list->word->word;
-  int cursorAtEnd = 1;
-  if (next(&list)) {
-    cursorAtEnd = (int) strtol(list->word->word, NULL, 10);
-  }
+  READ_COMPONENT(list, entry, "Invalid component");
+  READ_STRING(list, value, ENTRY_USAGE);
+  READ_INT_OPT(list, cursorAtEnd, 1, ENTRY_USAGE);
   newtEntrySet(entry->co, value, cursorAtEnd);
   return 0;
 }
@@ -177,12 +151,10 @@ int entry_SetCursorPosition(WORD_LIST * list){
 }
 
 int entry_SetFilter(WORD_LIST * list){
+  READ_COMPONENT(list, entry, "Invalid component");
+  READ_STRING(list, filter, ENTRY_USAGE);
 
-  NEXT(list, ENTRY_USAGE);
-  bash_component entry;
-  READ_COMPONENT(list->word->word, entry, "Invalid component");
-  NEXT(list, ENTRY_USAGE);
-  entry->filter = savestring(list->word->word);
+  entry->filter = savestring(filter);
   newtEntrySetFilter(entry->co, entry_filter, (void *) entry );
   return 0;
 }

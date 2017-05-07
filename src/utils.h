@@ -53,9 +53,11 @@ WORD_LIST * next(WORD_LIST ** plist);
  so easy to spot the error (eg passing "button" instead of "$button"
  that I'll leave it there until someones wants more portability
  */
-#define READ_COMPONENT(S, C, M)			\
+#define READ_COMPONENT(L, C, M)			\
+  NEXT(L, M); \
+  bash_component C; \
   do {                       \
-  if (S[0] != '0' || S[1] != 'x'|| sscanf(S, "%p", &C) != 1)  {			\
+  if (L->word->word[0] != '0' || L->word->word[1] != 'x'|| sscanf(L->word->word, "%p", &C) != 1)  {			\
       builtin_error( "%s",  _(M));		\
       return EX_USAGE;            \
  }                           \
@@ -68,11 +70,11 @@ WORD_LIST * next(WORD_LIST ** plist);
   I = (int) strtol(L->word->word, NULL, 10);	\
 } while(0) 
 
-#define READ_INT_OPT(L, I, M) \
-  int I = 0; \
+#define READ_INT_OPT(L, I, D, M)		\
+  int I = D; \
   do { \
   if (next(&L)) { \
-      flags = (int) strtol(L->word->word, NULL, 10); \
+      I = (int) strtol(L->word->word, NULL, 10); \
   } \
 } while(0) 
 
@@ -93,6 +95,31 @@ WORD_LIST * next(WORD_LIST ** plist);
   newt_bind_variable (V, pointer_string, 0); \
   stupidly_hack_special_variables (V); \
 } while(0)
+
+#define WRITE_INT(V, F) \
+  do { \
+  char value_string[30]; \
+  int value  = (int) F;			       \
+  snprintf(value_string, 30, "%d", value); \
+  newt_bind_variable (V, value_string, 0); \
+  stupidly_hack_special_variables (V); \
+} while(0)
+
+#define WRITE_STRING(V, F) \
+  do { \
+  char * value = F;			       \
+  newt_bind_variable (V, value, 0); \
+  stupidly_hack_special_variables (V); \
+} while(0)
+
+#define WRITE_CHAR(V, F) \
+  do { \
+  char * ch = F;			       \
+  char value[2] = { ch,  0 }; \
+  newt_bind_variable (V, value, 0); \
+  stupidly_hack_special_variables (V); \
+} while(0)
+
 
 
 

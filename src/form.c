@@ -70,13 +70,13 @@ int libnewt_form(WORD_LIST * list) {
   switch (djb2_hash(list->word->word)) {
     case ADDCOMPONENT:
     case ADDCOMPONENTS:
-      return form_AddComponents(list->next);
+      return form_AddComponents(list);
       break;
     case ADDHOTKEY:
       return form_AddHotKey(list->next);
       break;
     case DESTROY:
-      return form_Destroy(list->next);
+      return form_Destroy(list);
       break;
     case GETCURRENT:
       return form_GetCurrent(list->next);
@@ -85,7 +85,7 @@ int libnewt_form(WORD_LIST * list) {
       return form_GetScrollPosition(list->next);
       break;
     case RUN:
-      return form_Run(list->next);
+      return form_Run(list);
       break;
     case SETBACKGROUND:
       return form_SetBackground(list->next);
@@ -148,15 +148,11 @@ static const char * ADDCOMPONENT_USAGE =      \
   "\tnewt form addcomponents form component1 [components]";
 
 int form_AddComponents(WORD_LIST * list){
-  NOT_NULL(list, ADDCOMPONENT_USAGE);
-  bash_component form;
-  READ_COMPONENT(list->word->word, form, "Invalid component");
-  NEXT(list, ADDCOMPONENT_USAGE);
-  do {
-    bash_component c;
-    READ_COMPONENT(list->word->word, c, "Invalid component");
+  READ_COMPONENT(list, form, "Invalid component");
+  while (list->next != NULL) {
+    READ_COMPONENT(list, c, "Invalid component");
     newtFormAddComponent(form->co, c->co);
-  } while (next(&list));
+  }
   return 0;
 }
 
@@ -171,9 +167,7 @@ static const char * FORMDESTROY_USAGE =      \
   "\tnewt form destroy form ";
 
 int form_Destroy(WORD_LIST * list){
-  NOT_NULL(list, FORMDESTROY_USAGE);
-  bash_component form;
-  READ_COMPONENT(list->word->word, form, _("Invalid component"));
+  READ_COMPONENT(list, form, _("Invalid component"));
   newtFormDestroy(form->co);
   return 0;
 }
@@ -188,9 +182,7 @@ int form_GetScrollPosition(WORD_LIST * list){
 
 int form_Run(WORD_LIST * list){
   /* TODO: Return value */
-  NOT_NULL(list, ADDCOMPONENT_USAGE);
-  bash_component form;
-  READ_COMPONENT(list->word->word, form, "Invalid component");
+  READ_COMPONENT(list, form, "Invalid component");
   struct newtExitStruct  es;
   newtFormRun(form->co, &es);
 
