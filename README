@@ -19,6 +19,20 @@ Tutorial
 http://gnewt.sourceforge.net/tutorial.html
 (copy in ./html/)
 
+Code Generator
+-------------
+
+# create virutal env:
+virturalenv ENV && source ENV/bin/activate
+
+# install the requirements
+pip install -r requirements.txt
+
+# generate the preprocessed header (pycparser wants preprocessed source)
+gcc -nostdinc -E  -I ./utils/fake_libc_include/ -E /path/to/newt/newt.h > pre_processed_newt.h
+
+
+
 Thoughts
 ------
 

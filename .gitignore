@@ -19,5 +19,5 @@ src/.deps
 src/.libs
 src/*.la
 src/*.lo
-
-
+ENV
+*.pyc
