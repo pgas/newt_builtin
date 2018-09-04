@@ -21,3 +21,4 @@ src/*.la
 src/*.lo
 ENV
 *.pyc
+/pre_processed_newt.h
