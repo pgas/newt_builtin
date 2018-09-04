@@ -1,7 +1,11 @@
 import unittest
-from . import WrapperGenerator
+
 from pycparser import CParser
+from jinja2 import Template
+
+from . import WrapperGenerator
 from .wrapper_generator import DeclVisitor
+
 
 class TestDeclVisitor(unittest.TestCase):
 
@@ -19,10 +23,13 @@ class TestDeclVisitor(unittest.TestCase):
 
 class TestWrapperGenerator(unittest.TestCase):
 
-    def testFunctionDefinitionTranslation(self):
-        gen = WrapperGenerator("int newtInit(void);", "aname")
+    def testHeaderFromTemplate(self):
+        gen = WrapperGenerator("int newtInit(void);",
+                               "aname",
+                           Template("{% for name in names %}int bash_{{ name }}(WORD_LIST *args);{% endfor %}"))
         self.assertEqual("int bash_newtInit(WORD_LIST *args);",
-                    gen.definitions())
+                    gen.render_header())
+    
     
 if __name__ == '__main__':
     unittest.main()

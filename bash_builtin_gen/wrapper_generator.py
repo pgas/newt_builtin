@@ -1,6 +1,7 @@
 
 from pycparser import CParser
 from pycparser import c_parser, c_ast, parse_file
+from jinja2 import Environment, PackageLoader, select_autoescape
 
 class DeclVisitor(c_ast.NodeVisitor):
     def __init__(self):
@@ -12,15 +13,14 @@ class DeclVisitor(c_ast.NodeVisitor):
 
 class WrapperGenerator(object):
 
-    def __init__(self, text, filename):
+    def __init__(self, text, filename, header_template):
         self.text = text
         parser = CParser()
         self.ast = parser.parse(text, filename)
-        
+        self.header_template = header_template
 
-    def definitions(self):
+    def render_header(self):
         visitor = DeclVisitor()
         visitor.visit(self.ast)
-        definitions = ["int bash_%s(WORD_LIST *args);" % f
-                       for f in visitor.functions]
-        return '\n'.join(definitions)
+        return self.header_template.render(names=visitor.functions)
+
