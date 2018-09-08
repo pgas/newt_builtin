@@ -47,7 +47,12 @@ if test x"$bashfound" = x
 	AC_MSG_ERROR([unable to find the bash headers please use --with-bash=/path/to/headers/])
 fi		     
 
-AC_CHECK_HEADERS([newt.h],[],[])
+AC_CHECK_HEADERS([newt.h],[newtfound=yes],[])
+if test x"$newtfound" = x
+ then
+	AC_MSG_ERROR([unable to find the newt headers])
+fi		     
+
 AC_CHECK_LIB([newt],[newtInit],[])
 
 
