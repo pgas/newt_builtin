@@ -6,8 +6,8 @@ AC_INIT(newt, 0.1)
 # classic AC_CONFIG_HEADERS([config.h]) choose another name
 # if needed ... (the provided config.h already has a a lot)
 
-AM_INIT_AUTOMAKE
-
+AM_INIT_AUTOMAKE([subdir-objects -Wall -Werror no-define])
+AM_PROG_AR
 # we only want to build a shared library
 LT_INIT([dlopen disable-static])
 
@@ -22,6 +22,8 @@ AC_CONFIG_SRCDIR([src/newt.c])
 
 AC_PROG_CC
 AC_PROG_INSTALL
+
+
 
 # an option to tell configure where the bash headers are
 AC_ARG_WITH([bash],
@@ -56,7 +58,7 @@ fi
 AC_CHECK_LIB([newt],[newtInit],[])
 
 
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
 
 
