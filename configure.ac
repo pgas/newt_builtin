@@ -23,7 +23,7 @@ AC_CONFIG_SRCDIR([src/newt.c])
 AC_PROG_CC
 AC_PROG_INSTALL
 
-# an option to tell configure where the bash sources are
+x# an option to tell configure where the bash sources are
 # compiled bash is used to link the unittests
 AC_ARG_WITH([bash-sources],
               [AC_HELP_STRING([--with-bash-sources],
@@ -93,7 +93,7 @@ if test x"$newtfound" = x
 fi		     
 
 AC_CHECK_LIB([newt],[newtInit],[])
-
+: ${CFLAGS="-O3 -Wall -Wextra -Wpedantic -std=c11"}
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

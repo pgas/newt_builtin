@@ -11,6 +11,7 @@
 #include "shell.h"
 #include "bashgetopt.h"
 #include "common.h"
+#include "hashlib.h"
 
 /* maybe in the future use gettext */
 #define _(msgid) msgid
