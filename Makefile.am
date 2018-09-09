@@ -12,6 +12,6 @@ TESTS = test/dispatch
 
 test_dispatch_CFLAGS =  $(BASH_CFLAGS) -I$(top_srcdir)/src
 test_dispatch_LDFLAGS =  -L$(top_srcdir)/.libs $(BASH_LDFLAGS) 
-test_dispatch_LDADD =  $(BASH_LIBS) -l:newt.so -lcmocka
+test_dispatch_LDADD =   -l:newt.so -lcmocka $(BASH_LIBS)
 
 

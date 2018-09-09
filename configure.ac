@@ -49,10 +49,16 @@ if test -e $with_bash_sources/hashlib.h
    LIBS="$LIBS $BASH_LIBS "
    AC_CHECK_LIB([bash],[hash_create],
       [sourcefound=yes],[CPPFLAGS=$OCPP LDFLAGS=$OLDFLAGS])
+   CPPFLAGS=$OCPP
+   LDFLAGS=$OLDFLAGS
+   LIBS=$OLIBS
 fi
 
 if test x"$sourcefound" = xyes
 then
+   AC_SUBST([BASH_CFLAGS])
+   AC_SUBST([BASH_LDFLAGS])
+   AC_SUBST([BASH_LIBS])
    bash_headers=$with_bash_sources
 else
    bash_headers=/usr/include
