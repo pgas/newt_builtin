@@ -23,30 +23,61 @@ AC_CONFIG_SRCDIR([src/newt.c])
 AC_PROG_CC
 AC_PROG_INSTALL
 
+# an option to tell configure where the bash sources are
+# compiled bash is used to link the unittests
+AC_ARG_WITH([bash-sources],
+              [AC_HELP_STRING([--with-bash-sources],
+              [The prefix where the compiled bash sources resides (default is ../bash)])],
+              [with_bash_sources=$withval],
+              [with_bash_sources="../bash"])
 
+if test -e $with_bash_sources/hashlib.h
+   then
+   BASH_CFLAGS="-I$with_bash_sources -I$with_bash_sources/include -I$with_bash_sources/builtins"
+   BASH_LDFLAGS="-L./ -L$with_bash_sources/builtins -L$with_bash_sources/lib/readline -L$with_bash_sources/lib/readline -L$with_bash_sources/lib/glob -L$with_bash_sources/lib/tilde -L$with_bash_sources/lib/malloc -L$with_bash_sources/lib/sh -L$with_bash_sources/lib/termcap -rdynamic"
+   BASH_LIBS="-lbash -lbuiltins -lglob -lsh -lreadline -lhistory $with_bash_sources/lib/termcap/libtermcap.a -ltilde -lmalloc -ldl" 
+   # until I figure a better way to do that
+   # I assume ar, running test in the same dir as
+   # we don't want main in our lib
+   objcopy --redefine-sym main=shell_main $with_bash_sources/shell.o
+   ar rvs libbash.a $with_bash_sources/*.o
+   OCPPFLAGS=$CPPFLAGS
+   CPPFLAGS="$CPPFLAGS $BASH_CPPFLAGS"
+   OLDFLAGS=$LDFLAGS
+   LDFLAGS="$LDFLAGS $BASH_LDFLAGS"
+   OLIBS=$LIBS
+   LIBS="$LIBS $BASH_LIBS "
+   AC_CHECK_LIB([bash],[hash_create],
+      [sourcefound=yes],[CPPFLAGS=$OCPP LDFLAGS=$OLDFLAGS])
+fi
+
+if test x"$sourcefound" = xyes
+then
+   bash_headers=$with_bash_sources
+else
+   bash_headers=/usr/include
+fi
 
 # an option to tell configure where the bash headers are
-AC_ARG_WITH([bash],
-              [AC_HELP_STRING([--with-bash],
+AC_ARG_WITH([bash-headers],
+              [AC_HELP_STRING([--with-bash-headers],
               [The prefix where the bash headers are installed (default is /usr/include)])],
-              [with_bash=$withval],
-              [with_bash="/usr/include"])
-
+              [with_bash_headers=$withval],
+              [with_bash_headers="$bash_headers"])
 
 # try with the bash subdir created when installing headers (bash>=4.4)
 # or without if someone tries to link against the sources directly
-if test -e $with_bash/bash/builtins.h
+if test -e $with_bash_headers/bash/builtins.h
   then
-   CPPFLAGS="$CPPFLAGS -I$with_bash/bash -I$with_bash/bash/include -I$with_bash/bash/builtins"
+   CPPFLAGS="$CPPFLAGS -I$with_bash_headers/bash -I$with_bash_headers/bash/include -I$with_bash_headers/bash/builtins"
   else
-CPPFLAGS="$CPPFLAGS -I$with_bash -I$with_bash/include -I$with_bash/builtins"
+CPPFLAGS="$CPPFLAGS -I$with_bash_headers -I$with_bash_headers/include -I$with_bash_headers/builtins"
 fi
 
 AC_CHECK_HEADERS([builtins.h],[bashfound=yes], [])
-
 if test x"$bashfound" = x
  then
-	AC_MSG_ERROR([unable to find the bash headers please use --with-bash=/path/to/headers/])
+	AC_MSG_ERROR([unable to find the bash headers please use --with-bash-headers=/path/to/headers/])
 fi		     
 
 AC_CHECK_HEADERS([newt.h],[newtfound=yes],[])

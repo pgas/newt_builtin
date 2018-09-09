@@ -29,3 +29,4 @@ ENV
 *.log
 .deps
 test/dispatch
+/libbash.a

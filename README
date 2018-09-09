@@ -32,6 +32,21 @@ pip install -r requirements.txt
 gcc -nostdinc -E  -I ./utils/fake_libc_include/ -E /path/to/newt/newt.h > pre_processed_newt.h
 
 
+Check
+-------------
+* not sure how I could workaround to not have to do:
+LD_LIBRARY_PATH=./libs make check
+(if tell automake that the test programs need to find the newt.so)
+
+* to be able to use the function defines in bash, the configure script
+creates a "libbash". The current solution is not very elegant but
+as it is used only for development this will do for now
+
+Bugs:
+
+1) it only works in the top source dir
+2) it is probably not that robust against different version of bash
+3) feels hackish renaming "name"  in the object
 
 Thoughts
 ------
@@ -40,17 +55,7 @@ Thoughts
   could be a good idea to verify that calls that assign/destroy
   components are called in the same pid as newtInit
 
-* I choose "-v var" to return values like printf, but I'm not too
-  found of it.
 
-* The interface could be done in a more idiomatic way eg: use options
-  instead of passing flags, eg instead of
-  $((NEWT_FLAG_RETURNEXIT|NEWT_ENTRY_SCROLL)) passing "-e -s"
-
-  Or instead of `newt compactbutton -v b2 22 2 "Cancel"' use
-  `newt button -c -v b2 22 2 "Cancel"'
-
-* I don't know if it's a good idea to keep arguments like "setfilter" as one word or use 2 words "set filter"....or allow both
 
 
   
