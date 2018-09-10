@@ -5,7 +5,7 @@ from . import WrapperGenerator
 
 
 def usage():
-    print """%s header_template source_header_file""" % __package__
+    print("""%s header_template source_header_file""" % __package__)
 
 if not len(sys.argv) == 3:
     usage()
@@ -21,7 +21,7 @@ env = Environment(
 try:
     header_template = env.get_template(header_template_name)
 except jinja2.exceptions.TemplateNotFound:
-    print "header_template not found: %s" % header_template_name
+    print("header_template not found: %s" % header_template_name)
     quit(2)
 
 try:
@@ -29,6 +29,6 @@ try:
         w = WrapperGenerator(f.read(),
                              source_header_file,
                              header_template)
-        print w.render_header()
+        print(w.render_header())
 except:
-    print "error generating header"
+    print("error generating header")

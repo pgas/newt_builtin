@@ -23,13 +23,22 @@ Code Generator
 -------------
 
 # create virutal env:
-virturalenv ENV && source ENV/bin/activate
+virtualenv ENV && source ENV/bin/activate
 
 # install the requirements
 pip install -r requirements.txt
 
+
+#configure inside the virtual env
+./configure --with-bash-sources=../bash 
+
+The following is done by the configure script (good idea?)
+
 # generate the preprocessed header (pycparser wants preprocessed source)
 gcc -nostdinc -E  -I ./utils/fake_libc_include/ -E /path/to/newt/newt.h > pre_processed_newt.h
+python -m bash_builtin_gen  bash_newt_h.tpl pre_processed_newt.h > src/bash_newt.h
+
+
 
 
 Check
@@ -55,6 +64,7 @@ Thoughts
   could be a good idea to verify that calls that assign/destroy
   components are called in the same pid as newtInit
 
+* what to do with return values?
 
 
 
