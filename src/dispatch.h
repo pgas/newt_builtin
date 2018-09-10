@@ -26,7 +26,7 @@ entry_point *dispatch_table_find(const char *name, HASH_TABLE *table);
 /**
  * Find and run the function of the entry by name
  * table is a array of entry_point terminated by an entry with a NULL name
- * return NULL if not found
+ * return -1 if not found, for now
  */
 int dispatch_table_run(const char *name, WORD_LIST* args, HASH_TABLE *htable);
 
