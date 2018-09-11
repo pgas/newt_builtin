@@ -32,3 +32,4 @@ test/dispatch
 /libbash.a
 /src/bash_newt.c
 /src/bash_newt.h
+/i.h

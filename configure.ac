@@ -93,6 +93,7 @@ if test x"$newtfound" = x
 fi		     
 
 #Generate the headers here ...again must run in root
+# use a fake header to let gcc actually find newt.h in the include path
 echo '#include <newt.h>' > i.h
 gcc  -I ./utils/fake_libc_include/  -E i.h > pre_processed_newt.h
 python -m bash_builtin_gen  bash_newt_h.tpl pre_processed_newt.h > src/bash_newt.h
