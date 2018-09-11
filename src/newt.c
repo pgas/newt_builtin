@@ -1,6 +1,15 @@
 #include <stdio.h>
 
 #include "bash_newt.h" 
+#include "dispatch.h"
+
+static HASH_TABLE * dispatch_table;
+
+
+int run(WORD_LIST *list) {
+  dispatch_table_run(list->word->word, NULL, dispatch_table); 
+}
+
 
 /* A builtin `xxx' is normally implemented with an `xxx_builtin' function.
    If you're converting a command that uses the normal Unix argc/argv
@@ -49,7 +58,7 @@ newt_builtin (list)
       add_unwind_protect (pop_scope, ( CMD_COMMAND_BUILTIN) ? 0 : "1");
     }
 
-  int exit = 0;
+  int exit = run(list);
 
   if (exit != EX_USAGE)
     {
@@ -69,6 +78,8 @@ int
 newt_builtin_load (s)
      char *s;
 {
+  dispatch_table = dispatch_table_create(entries_length,
+					  entries);
   printf ("newt builtin loaded\n");
   fflush (stdout);
   return (1);
@@ -78,6 +89,7 @@ void
 newt_builtin_unload (s)
      char *s;
 {
+  dispatch_table_dispose(dispatch_table);
   printf ("newt builtin unloaded\n");
   fflush (stdout);
 }

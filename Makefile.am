@@ -2,7 +2,7 @@
 ACLOCAL_AMFLAGS = -I m4
 
 lib_LTLIBRARIES = newt.la
-newt_la_SOURCES =  src/dispatch.c src/newt.c
+newt_la_SOURCES = src/bash_newt.c src/dispatch.c src/newt.c
 # this is required to build .so with a nonstandard name, also avoid
 # the numbering
 newt_la_LDFLAGS= -module -avoid-version

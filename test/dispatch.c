@@ -27,7 +27,7 @@ static int setup(void **state) {
 }
 static int teardown(void **state) {
   HASH_TABLE * dispatch_table = *state;
-  hash_dispose(dispatch_table);
+  dispatch_table_dispose(dispatch_table);
   return 0;
 }
 

@@ -21,4 +21,6 @@ class WrapperGenerator(object):
     def render_header(self):
         visitor = DeclVisitor()
         visitor.visit(self.ast)
-        return self.header_template.render(names=visitor.functions)
+        return self.header_template.render(names=visitor.functions,
+                                           lstrip_blocks=True,
+        )

@@ -15,6 +15,7 @@ typedef struct entry_point_struct {
  */
 HASH_TABLE *dispatch_table_create(size_t n, entry_point table[]);
 
+void dispatch_table_dispose(HASH_TABLE *htable);
 
 /**
  * Find and return the entry point by name

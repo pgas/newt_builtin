@@ -10,6 +10,9 @@ HASH_TABLE *dispatch_table_create(size_t n, entry_point table[]){
   return htable;
 }
 
+void dispatch_table_dispose(HASH_TABLE *htable){
+    hash_dispose(htable);
+}
 
 entry_point *dispatch_table_find(const char *name, HASH_TABLE *htable){
   BUCKET_CONTENTS * bucket = hash_search(name, htable, 0);
