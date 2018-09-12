@@ -33,7 +33,7 @@ AC_ARG_WITH([bash-sources],
 
 if test -e $with_bash_sources/hashlib.h
    then
-   BASH_CFLAGS="-I$with_bash_sources -I$with_bash_sources/include -I$with_bash_sources/builtins"
+   BASH_CPPFLAGS="-I$with_bash_sources -I$with_bash_sources/include -I$with_bash_sources/builtins"
    BASH_LDFLAGS="-L./ -L$with_bash_sources/builtins -L$with_bash_sources/lib/readline -L$with_bash_sources/lib/readline -L$with_bash_sources/lib/glob -L$with_bash_sources/lib/tilde -L$with_bash_sources/lib/malloc -L$with_bash_sources/lib/sh -L$with_bash_sources/lib/termcap -rdynamic"
    BASH_LIBS="-lbash -lbuiltins -lglob -lsh -lreadline -lhistory $with_bash_sources/lib/termcap/libtermcap.a -ltilde -lmalloc -ldl" 
    # until I figure a better way to do that
@@ -56,9 +56,6 @@ fi
 
 if test x"$sourcefound" = xyes
 then
-   AC_SUBST([BASH_CFLAGS])
-   AC_SUBST([BASH_LDFLAGS])
-   AC_SUBST([BASH_LIBS])
    bash_headers=$with_bash_sources
 else
    bash_headers=/usr/include
@@ -91,6 +88,11 @@ if test x"$newtfound" = x
  then
 	AC_MSG_ERROR([unable to find the newt headers])
 fi		     
+
+AC_SUBST([BASH_CPPFLAGS])
+AC_SUBST([BASH_LDFLAGS])
+AC_SUBST([BASH_LIBS])
+
 
 #Generate the headers here ...again must run in root
 # use a fake header to let gcc actually find newt.h in the include path
