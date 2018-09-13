@@ -30,19 +30,19 @@ struct builtin newt_struct = {
 
 /* dispatch table */
 entry_point entries[] = {
- {%- for name in names %}
- { .name = "{{ name | replace("newt","") }}",
-   .function = bash_{{ name }} } {% if loop.nextitem is defined %},{% endif %}
+ {%- for func in funcs %}
+ { .name = "{{ func.name | replace("newt","") }}",
+   .function = bash_{{ func.name }} } {% if loop.nextitem is defined %},{% endif %}
  {%- endfor %}
 };
 
 
 /* function implementation */
-{%- for name in names %}
-int bash_{{ name }}(WORD_LIST *args) {
-  printf("function called %s\n", "{{ name }}");
+{%- for func in funcs %}
+int bash_{{ func.name }}(WORD_LIST *args) {
+  printf("function called %s\n", "{{ func.name }}");
   return 0;
 }
 {% endfor %}
 
-size_t entries_length = {{ names | count }};
+size_t entries_length = {{ funcs | count }};

@@ -19,17 +19,42 @@ class TestDeclVisitor(unittest.TestCase):
         v = DeclVisitor()
         ast = CParser().parse("int newtInit(void);", "aname")
         v.visit(ast)
-        self.assertEqual('newtInit', v.functions[0])
+        self.assertEqual('newtInit', v.functions[0].name)
 
+    def testDeclVisitorReturnEmptyParam(self):
+        v = DeclVisitor()
+        ast = CParser().parse("int newtInit(void);", "aname")
+        v.visit(ast)
+        self.assertEqual([], v.functions[0].args)
+
+    def testDeclVisitorReturnOneParam(self):
+        v = DeclVisitor()
+        ast = CParser().parse("int newtInit(int i);", "aname")
+        v.visit(ast)
+        self.assertEqual(1, len(v.functions[0].args))
+        name, type = v.functions[0].args[0]
+        self.assertEqual('i', name)
+
+        
 class TestWrapperGenerator(unittest.TestCase):
 
     def testHeaderFromTemplate(self):
         gen = WrapperGenerator("int newtInit(void);",
                                "aname",
-                           Template("{% for name in names %}int bash_{{ name }}(WORD_LIST *args);{% endfor %}"))
+                           Template("{% for func in funcs %}int bash_{{ func.name }}(WORD_LIST *args);{% endfor %}"))
         self.assertEqual("int bash_newtInit(WORD_LIST *args);",
                     gen.render_header())
     
-    
+    def testArgsFromTemplate(self):
+        gen = WrapperGenerator("int newtInit(int i);",
+                               "aname",
+                               Template("""{%- for func in funcs %}
+{%- for argname, argtype in func.args %}
+{{ argtype }} {{ argname }};
+{%- endfor %}
+{%- endfor %}"""))
+        self.assertIn("int i;",
+                         gen.render_header())
+
 if __name__ == '__main__':
     unittest.main()

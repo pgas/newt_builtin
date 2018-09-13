@@ -11,8 +11,8 @@ extern char *newt_doc[];
 extern struct builtin newt_struct;
 
 /* forward declaration */
-{%- for name in names %}
-int bash_{{ name }}(WORD_LIST *args);
+{%- for func in funcs %}
+int bash_{{ func.name }}(WORD_LIST *args);
 {%- endfor %}
 
 /* dispatch table */
