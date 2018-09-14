@@ -14,15 +14,23 @@ class DeclVisitor(c_ast.NodeVisitor):
         if type(node.type) is c_ast.FuncDecl:
             args = []
             for param in node.type.args.params:
-                stars = ""
-                while type(param.type) is c_ast.PtrDecl:
-                    stars += "*"
+                if type(param) is c_ast.EllipsisParam:
+                    args.append(('...',  "ellipsis"))
+                else:
                     param = param.type
-                if param.type.declname:
-                    typename = " ".join(param.type.type.names)
-                    if len(stars) > 0:
-                        typename += " " + stars
-                    args.append((param.type.declname, typename))
+                    stars = ""
+                    while type(param) is c_ast.PtrDecl:
+                        stars += "*"
+                        param = param.type
+                    if param.declname:
+                        typename = ""
+                        if type(param.type) is c_ast.IdentifierType:
+                            typename = " ".join(param.type.names)
+                        elif type(param.type) is c_ast.Enum:
+                            typename = "enum " + param.type.name
+                        if len(stars) > 0:
+                            typename += " " + stars
+                        args.append((param.declname, typename))
             f = Function(node.name, args, '')
             self.functions.append(f)
 

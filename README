@@ -28,17 +28,14 @@ virtualenv ENV && source ENV/bin/activate
 # install the requirements
 pip install -r requirements.txt
 
-
 #configure inside the virtual env
-./configure --with-bash-sources=../bash 
+./configure 
 
-The following is done by the configure script (good idea?)
+# generate the source code from the newt heard
+make wrapper
 
-# generate the preprocessed header (pycparser wants preprocessed source)
-gcc -nostdinc -E  -I ./utils/fake_libc_include/ -E /path/to/newt/newt.h > pre_processed_newt.h
-python -m bash_builtin_gen  bash_newt_h.tpl pre_processed_newt.h > src/bash_newt.h
-
-
+# compile the builtin
+make
 
 
 Check

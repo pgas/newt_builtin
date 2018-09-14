@@ -30,5 +30,5 @@ try:
                              source_header_file,
                              header_template)
         print(w.render_header())
-except:
-    print("error generating header")
+except Exception as e:
+    print("error generating header %s" % e)

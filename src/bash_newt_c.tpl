@@ -40,8 +40,9 @@ entry_point entries[] = {
 /* function implementation */
 {%- for func in funcs %}
 int bash_{{ func.name }}(WORD_LIST *args) {
+    
   printf("function called %s\n", "{{ func.name }}");
-  return 0;
+  return 1;
 }
 {% endfor %}
 
