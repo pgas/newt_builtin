@@ -14,9 +14,15 @@ class DeclVisitor(c_ast.NodeVisitor):
         if type(node.type) is c_ast.FuncDecl:
             args = []
             for param in node.type.args.params:
+                stars = ""
+                while type(param.type) is c_ast.PtrDecl:
+                    stars += "*"
+                    param = param.type
                 if param.type.declname:
-                    args.append((param.type.declname,
-                                 " ".join(param.type.type.names)))
+                    typename = " ".join(param.type.type.names)
+                    if len(stars) > 0:
+                        typename += " " + stars
+                    args.append((param.type.declname, typename))
             f = Function(node.name, args, '')
             self.functions.append(f)
 
