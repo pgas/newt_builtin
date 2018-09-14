@@ -17,11 +17,12 @@ test_bash_to_c_CPPFLAGS =  $(BASH_CPPFLAGS) -I$(top_srcdir)/src
 test_bash_to_c_LDFLAGS =  -L$(top_srcdir)/.libs $(BASH_LDFLAGS) 
 test_bash_to_c_LDADD =   -l:newt.so -lcmocka $(BASH_LIBS)
 
-
 # Generate the headers here ...again must run in root
 # use a fake header to let gcc actually find newt.h in the include path
-wrapper:
-	echo '#include <newt.h>' > i.h
-	gcc  -I ./utils/fake_libc_include/  -E i.h > pre_processed_newt.h
+
+src/bash_newt.h: src/bash_newt_h.tpl
 	python -m bash_builtin_gen  bash_newt_h.tpl pre_processed_newt.h > src/bash_newt.h
+
+src/bash_newt.c: src/bash_newt_c.tpl src/bash_newt.h
 	python -m bash_builtin_gen  bash_newt_c.tpl pre_processed_newt.h > src/bash_newt.c
+

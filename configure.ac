@@ -92,6 +92,9 @@ fi
 AC_SUBST([BASH_CPPFLAGS])
 AC_SUBST([BASH_LDFLAGS])
 AC_SUBST([BASH_LIBS])
+	
+echo '#include <newt.h>' > i.h
+gcc  -I $srcdir/utils/fake_libc_include/  -E i.h > $srcdir/pre_processed_newt.h
 
 
 AC_CHECK_LIB([newt],[newtInit],[])
