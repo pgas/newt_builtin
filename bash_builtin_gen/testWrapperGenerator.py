@@ -1,7 +1,7 @@
 import unittest
 
 from pycparser import CParser
-from jinja2 import Template
+
 
 from . import WrapperGenerator
 from .wrapper_generator import DeclVisitor
@@ -93,21 +93,21 @@ class TestWrapperGenerator(unittest.TestCase):
     def testHeaderFromTemplate(self):
         gen = WrapperGenerator("int newtInit(void);",
                                "aname")
-        template = Template("""\
+        template = """\
  {%- for func in funcs %}\
 int bash_{{ func.name }}(WORD_LIST *args);\
-{%- endfor %}""")
+{%- endfor %}"""
         self.assertEqual("int bash_newtInit(WORD_LIST *args);",
                          gen.render(template))
 
     def testArgsFromTemplate(self):
         gen = WrapperGenerator("int newtInit(int i);",
                                "aname")
-        template = Template("""{%- for func in funcs %}
+        template = """{%- for func in funcs %}
 {%- for  argtype, argname in func.args %}
 {{ argtype }} {{ argname }};
 {%- endfor %}
-{%- endfor %}""")
+{%- endfor %}"""
         self.assertIn("int i;",
                       gen.render(template))
 

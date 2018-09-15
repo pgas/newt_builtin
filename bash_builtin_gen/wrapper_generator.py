@@ -1,8 +1,7 @@
 from pycparser import CParser, c_ast
 from collections import namedtuple
-import pprint
+from jinja2 import Template
 
-pp = pprint.PrettyPrinter(indent=4)
 
 Function = namedtuple('Function', 'name args return_type')
 
@@ -38,6 +37,10 @@ class DeclVisitor(c_ast.NodeVisitor):
             self.functions.append(f)
 
 
+def without_variadic(func_list):
+    return [func for func in func_list if ('ellipsis', '...') not in func.args]
+
+
 class WrapperGenerator(object):
 
     def __init__(self, text, filename):
@@ -45,7 +48,8 @@ class WrapperGenerator(object):
         parser = CParser()
         self.ast = parser.parse(text, filename)
 
-    def render(self, template):
+    def render(self, template_string):
+        template = Template(template_string)
         visitor = DeclVisitor()
         visitor.visit(self.ast)
         return template.render(funcs=visitor.functions,
