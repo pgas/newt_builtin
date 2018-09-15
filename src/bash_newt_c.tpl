@@ -12,8 +12,6 @@ char *newt_doc[] = {
 	(char *)NULL
 };
 
-
-
 /* The standard structure describing a builtin command.  bash keeps an array
    of these structures.  The flags must include BUILTIN_ENABLED so the
    builtin can be used. */
@@ -26,24 +24,29 @@ struct builtin newt_struct = {
 	0			/* reserved for internal use */
 };
 
-
-
 /* dispatch table */
 entry_point entries[] = {
  {%- for func in funcs %}
+ {%- if ('ellipsis', '...') not in func.args %}
  { .name = "{{ func.name | replace("newt","") }}",
    .function = bash_{{ func.name }} } {% if loop.nextitem is defined %},{% endif %}
+ {%- endif %}
  {%- endfor %}
 };
 
+size_t entries_length = {{ funcs | count }};
 
-/* function implementation */
-{%- for func in funcs %}
+/* implementation of the wrappers */
+{%- for func in funcs %}	 
+{%- if ('ellipsis', '...') not in func.args %}
 int bash_{{ func.name }}(WORD_LIST *args) {
-    
+  {%- for (type, name) in func.args %}
+  {#- avoid shadowing the param of our function #}
+  {%- if name == 'args' %}{%- set name = 'local_args' %}{%- endif %}
+  {{ type }} {{ name }};
+  {%- endfor %}
   printf("function called %s\n", "{{ func.name }}");
   return 1;
 }
-{% endfor %}
-
-size_t entries_length = {{ funcs | count }};
+{%-endif %}
+{%- endfor %}

@@ -2,6 +2,8 @@
 #define __BASH_NEWT_H_
 {#  jinja2 template for the header  #}
 
+#include <newt.h>
+
 #include "bash_includes.h"
 #include "dispatch.h"
 
@@ -12,7 +14,11 @@ extern struct builtin newt_struct;
 
 /* forward declaration */
 {%- for func in funcs %}
+{#- skip variadic function for now, they are tricky to call (libffi..)
+    and I suspect they are just convenience function #}	 
+{%- if ('ellipsis', '...') not in func.args %}
 int bash_{{ func.name }}(WORD_LIST *args);
+{%- endif %}
 {%- endfor %}
 
 /* dispatch table */
