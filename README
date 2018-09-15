@@ -22,22 +22,26 @@ Installation
 -------------
 
 * create  a python virutal env:
+
 `virtualenv ENV && source ENV/bin/activate`
 
 * install the requirements
+
 `pip install -r requirements.txt`
 
 * configure inside the virtual env
-`. ENV/bin/activate
-./configure 
-`
+
+`. ENV/bin/activate`
+`./configure`
+
 * compile the builtin
+
 `make`
 
 * enable the builtin
-`enable -ff ./.libs/newt.sh  newt
-newt init
-`
+
+`enable -ff ./.libs/newt.sh  newt`
+`newt init`
 
 Tests
 -------------
@@ -54,9 +58,8 @@ as it is used only for development this will do for now
 What is does is first to rename "main" so that we don't have a
 conflict and then link all the .o in the top source dir
 
-`   objcopy --redefine-sym main=shell_main $with_bash_sources/shell.o
-   ar rvs libbash.a $with_bash_sources/*.o
-`
+`   objcopy --redefine-sym main=shell_main $with_bash_sources/shell.o`
+`   ar rvs libbash.a $with_bash_sources/*.o`
 The other objects are linked using the same .a bash is using
 
 **Bugs**:

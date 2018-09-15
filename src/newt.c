@@ -79,7 +79,7 @@ newt_builtin_load (s)
      char *s;
 {
   dispatch_table = dispatch_table_create(entries_length,
-					  entries);
+  					  entries);
   printf ("newt builtin loaded\n");
   fflush (stdout);
   return (1);

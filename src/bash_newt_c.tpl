@@ -34,7 +34,7 @@ entry_point entries[] = {
  {%- endfor %}
 };
 
-size_t entries_length = {{ funcs | count }};
+size_t entries_length = sizeof(entries)/sizeof(entries[0]);
 
 /* implementation of the wrappers */
 {%- for func in funcs %}	 
