@@ -44,13 +44,11 @@ def without_variadic(func_list):
 class WrapperGenerator(object):
 
     def __init__(self, text, filename):
-        self.text = text
-        parser = CParser()
-        self.ast = parser.parse(text, filename)
+        ast = CParser().parse(text, filename)
+        self.visitor = DeclVisitor()
+        self.visitor.visit(ast)
 
     def render(self, template_string):
         template = Template(template_string)
-        visitor = DeclVisitor()
-        visitor.visit(self.ast)
-        return template.render(funcs=visitor.functions,
+        return template.render(funcs=self.visitor.functions,
                                lstrip_blocks=True)
