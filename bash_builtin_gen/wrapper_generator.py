@@ -5,7 +5,8 @@ import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
 Function = namedtuple('Function', 'name args return_type')
- 
+
+
 class DeclVisitor(c_ast.NodeVisitor):
     def __init__(self):
         self.functions = []
@@ -28,6 +29,8 @@ class DeclVisitor(c_ast.NodeVisitor):
                             typename = " ".join(param.type.names)
                         elif type(param.type) is c_ast.Enum:
                             typename = "enum " + param.type.name
+                        elif type(param.type) is c_ast.Struct:
+                            typename = "struct " + param.type.name
                         if len(stars) > 0:
                             typename += " " + stars
                         args.append((typename, param.declname))
