@@ -21,21 +21,20 @@ http://gnewt.sourceforge.net/tutorial.html
 Installation
 -------------
 
-# create  a python virutal env:
+* create  a python virutal env:
 `virtualenv ENV && source ENV/bin/activate`
 
-# install the requirements
+* install the requirements
 `pip install -r requirements.txt`
 
-# configure inside the virtual env
+* configure inside the virtual env
 `. ENV/bin/activate
 ./configure 
 `
-
-# compile the builtin
+* compile the builtin
 `make`
 
-# enable the builtin
+* enable the builtin
 `enable -ff ./.libs/newt.sh  newt
 newt init
 `
@@ -60,7 +59,7 @@ conflict and then link all the .o in the top source dir
 `
 The other objects are linked using the same .a bash is using
 
-Bugs:
+**Bugs**:
 
 1) it is perhaps not that robust against different version of bash
 2) feels hackish renaming "name"  in the object
