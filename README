@@ -13,46 +13,57 @@ library.
 Homepage:
     https://pagure.io/newt
 
-
-Tutorial
+Newt Tutorial
 ----
 http://gnewt.sourceforge.net/tutorial.html
 (copy in ./html/)
 
-Code Generator
+Installation
 -------------
 
-# create virutal env:
-virtualenv ENV && source ENV/bin/activate
+# create  a python virutal env:
+`virtualenv ENV && source ENV/bin/activate`
 
 # install the requirements
-pip install -r requirements.txt
+`pip install -r requirements.txt`
 
-#configure inside the virtual env
+# configure inside the virtual env
+`. ENV/bin/activate
 ./configure 
-
-# generate the source code from the newt heard
-make wrapper
+`
 
 # compile the builtin
-make
+`make`
 
+# enable the builtin
+`enable -ff ./.libs/newt.sh  newt
+newt init
+`
 
-Check
+Tests
 -------------
-* not sure how I could workaround to not have to do:
-LD_LIBRARY_PATH=./libs make check
-(if tell automake that the test programs need to find the newt.so)
+To be able to run the tests, you will need a fully compiled bash source tree.
+by default it looks for this in ../bash, you can also use the option --with-bash-sources.
 
-* to be able to use the function defines in bash, the configure script
+
+"libbash"
+-------------
+To be able to use the functions defined in bash, the configure script
 creates a "libbash". The current solution is not very elegant but
 as it is used only for development this will do for now
 
+What is does is first to rename "main" so that we don't have a
+conflict and then link all the .o in the top source dir
+
+`   objcopy --redefine-sym main=shell_main $with_bash_sources/shell.o
+   ar rvs libbash.a $with_bash_sources/*.o
+`
+The other objects are linked using the same .a bash is using
+
 Bugs:
 
-1) it only works in the top source dir
-2) it is probably not that robust against different version of bash
-3) feels hackish renaming "name"  in the object
+1) it is perhaps not that robust against different version of bash
+2) feels hackish renaming "name"  in the object
 
 Thoughts
 ------

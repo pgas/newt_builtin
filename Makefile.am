@@ -29,7 +29,9 @@ pysources = bash_builtin_gen/wrapper_generator.py \
 pythontests:  $(pysources)
 	python -m unittest discover -s $(top_srcdir)
 
-src/bash_newt.h: src/bash_newt_h.tpl pythontests
+test: pythontests check
+
+src/bash_newt.h: src/bash_newt_h.tpl 
 	python -m bash_builtin_gen  bash_newt_h.tpl pre_processed_newt.h > src/bash_newt.h
 
 src/bash_newt.c: src/bash_newt_c.tpl src/bash_newt.h 
