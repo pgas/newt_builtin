@@ -89,8 +89,13 @@ class TestDeclVisitor(unittest.TestCase):
 class TestFilters(unittest.TestCase):
 
     def testWithoutVariadic(self):
-        funcs = [('int', 'a'), ('ellipsis', '...')]
-        assertEqual(1, len(without_variadic(funcs))
+        funcs = []
+        args = [('int', 'a'), ('ellipsis', '...')]
+        funcs.append(Function('a', args, ''))
+        args = [('int', 'a')]
+        funcs.append(Function('b', args, ''))
+        filtered = without_variadic(funcs)
+        self.assertEqual(1, len(filtered))
 
 
 class TestWrapperGenerator(unittest.TestCase):
@@ -115,6 +120,19 @@ int bash_{{ func.name }}(WORD_LIST *args);\
 {%- endfor %}"""
         self.assertIn("int i;",
                       gen.render(template))
+
+    def testFilteringVariadicFunction(self):
+        gen = WrapperGenerator("""
+int newtInit(int i);
+int newtVariadic(int i, ...);
+""",
+                               "aname")
+        template = """{%- for func in funcs | without_variadic %}
+{%- for  argtype, argname in func.args %}{{ argtype }} {{ argname }};
+{%- endfor %}
+{%- endfor %}"""
+        self.assertEqual("int i;",
+                         gen.render(template))
 
 
 if __name__ == '__main__':

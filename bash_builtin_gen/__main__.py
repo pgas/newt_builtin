@@ -17,6 +17,6 @@ try:
     with open(source_header_file, "r") as source,\
          open(template_file, "r") as template:
         w = WrapperGenerator(source.read(), source_header_file)
-        w.render(template.read())
+        print(w.render(template.read()))
 except Exception as e:
     print("error generating header %s" % e)

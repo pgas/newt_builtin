@@ -26,19 +26,16 @@ struct builtin newt_struct = {
 
 /* dispatch table */
 entry_point entries[] = {
- {%- for func in funcs %}
- {%- if ('ellipsis', '...') not in func.args %}
- { .name = "{{ func.name | replace("newt","") }}",
-   .function = bash_{{ func.name }} } {% if loop.nextitem is defined %},{% endif %}
- {%- endif %}
+ {%- for func in funcs | without_variadic %}
+  { .name = "{{ func.name | replace("newt","") }}",
+    .function = bash_{{ func.name }} } {% if loop.nextitem is defined %},{%- endif %}
  {%- endfor %}
 };
 
 size_t entries_length = sizeof(entries)/sizeof(entries[0]);
 
 /* implementation of the wrappers */
-{%- for func in funcs %}	 
-{%- if ('ellipsis', '...') not in func.args %}
+{%- for func in funcs | without_variadic %}	 
 int bash_{{ func.name }}(WORD_LIST *args) {
   {%- for (type, name) in func.args %}
   {#- avoid shadowing the param of our function #}
@@ -48,5 +45,4 @@ int bash_{{ func.name }}(WORD_LIST *args) {
   printf("function called %s\n", "{{ func.name }}");
   return 1;
 }
-{%-endif %}
 {%- endfor %}

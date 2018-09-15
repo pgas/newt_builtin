@@ -32,10 +32,13 @@ pythontests:  $(pysources)
 test: pythontests check
 
 src/bash_newt.h: src/bash_newt_h.tpl 
-	python -m bash_builtin_gen pre_processed_newt.h bash_newt_h.tpl > src/bash_newt.h
+	python -m bash_builtin_gen pre_processed_newt.h $< > $@
 
 src/bash_newt.c: src/bash_newt_c.tpl src/bash_newt.h 
-	python -m bash_builtin_gen  pre_processed_newt.h bash_newt_c.tpl  > src/bash_newt.c
+	python -m bash_builtin_gen pre_processed_newt.h $<  > $@
+
+clean-local:
+	rm -f src/bash_newt.c src/bash_newt.h
 
 # just a convenience target
 template: src/bash_newt.c src/bash_newt.h

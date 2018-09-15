@@ -13,12 +13,10 @@ extern char *newt_doc[];
 extern struct builtin newt_struct;
 
 /* forward declaration */
-{%- for func in funcs %}
+{%- for func in funcs | without_variadic %}
 {#- skip variadic function for now, they are tricky to call (libffi..)
     and I suspect they are just convenience function #}	 
-{%- if ('ellipsis', '...') not in func.args %}
 int bash_{{ func.name }}(WORD_LIST *args);
-{%- endif %}
 {%- endfor %}
 
 /* dispatch table */
