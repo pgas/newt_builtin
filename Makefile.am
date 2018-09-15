@@ -22,7 +22,7 @@ test_bash_to_c_LDADD =   -l:newt.so -lcmocka $(BASH_LIBS)
 
 #python unittest
 pysources = bash_builtin_gen/wrapper_generator.py \
-	bash_builtin_gen/testWrapperGenerator.py \
+	bash_builtin_gen/test_wrapper_generator.py \
 	bash_builtin_gen/__init__.py \
 	bash_builtin_gen/__main__.py
 
