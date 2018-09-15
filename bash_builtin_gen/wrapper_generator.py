@@ -15,7 +15,7 @@ class DeclVisitor(c_ast.NodeVisitor):
             args = []
             for param in node.type.args.params:
                 if type(param) is c_ast.EllipsisParam:
-                    args.append(('...',  "ellipsis"))
+                    args.append(("ellipsis", '...'))
                 else:
                     param = param.type
                     stars = ""
@@ -30,7 +30,7 @@ class DeclVisitor(c_ast.NodeVisitor):
                             typename = "enum " + param.type.name
                         if len(stars) > 0:
                             typename += " " + stars
-                        args.append((param.declname, typename))
+                        args.append((typename, param.declname))
             f = Function(node.name, args, '')
             self.functions.append(f)
 

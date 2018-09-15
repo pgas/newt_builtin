@@ -37,10 +37,10 @@ class TestDeclVisitor(unittest.TestCase):
         v = DeclVisitor()
         v.visit(self.ast)
         self.assertEqual(2, len(v.functions[1].args))
-        name, argtype = v.functions[1].args[0]
+        argtype, name = v.functions[1].args[0]
         self.assertEqual('i', name)
         self.assertEqual('int', argtype)
-        name, argtype = v.functions[1].args[1]
+        argtype, name = v.functions[1].args[1]
         self.assertEqual('newtComponent', argtype)
 
     def testDeclVisitorReturnPointerParam(self):
@@ -48,10 +48,10 @@ class TestDeclVisitor(unittest.TestCase):
         ast = CParser().parse("int newtInit(char * foo, char ** bar);",
                               "aname")
         v.visit(ast)
-        name, argtype = v.functions[0].args[0]
+        argtype, name = v.functions[0].args[0]
         self.assertEqual('foo', name)
         self.assertEqual('char *', argtype)
-        name, argtype = v.functions[0].args[1]
+        argtype, name = v.functions[0].args[1]
         self.assertEqual('bar', name)
         self.assertEqual('char **', argtype)
 
@@ -63,7 +63,7 @@ class TestDeclVisitor(unittest.TestCase):
         """,
                               "aname")
         v.visit(ast)
-        name, argtype = v.functions[0].args[0]
+        argtype, name = v.functions[0].args[0]
         self.assertEqual('sense', name)
         self.assertEqual('enum newtFlagsSense', argtype)
 
@@ -94,7 +94,7 @@ int bash_{{ func.name }}(WORD_LIST *args);\
         gen = WrapperGenerator("int newtInit(int i);",
                                "aname",
                                Template("""{%- for func in funcs %}
-{%- for argname, argtype in func.args %}
+{%- for  argtype, argname in func.args %}
 {{ argtype }} {{ argname }};
 {%- endfor %}
 {%- endfor %}"""))
