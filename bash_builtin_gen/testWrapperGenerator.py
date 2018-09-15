@@ -92,24 +92,24 @@ class TestWrapperGenerator(unittest.TestCase):
 
     def testHeaderFromTemplate(self):
         gen = WrapperGenerator("int newtInit(void);",
-                               "aname",
-                               Template("""\
+                               "aname")
+        template = Template("""\
  {%- for func in funcs %}\
 int bash_{{ func.name }}(WORD_LIST *args);\
-{%- endfor %}"""))
+{%- endfor %}""")
         self.assertEqual("int bash_newtInit(WORD_LIST *args);",
-                         gen.render_header())
+                         gen.render(template))
 
     def testArgsFromTemplate(self):
         gen = WrapperGenerator("int newtInit(int i);",
-                               "aname",
-                               Template("""{%- for func in funcs %}
+                               "aname")
+        template = Template("""{%- for func in funcs %}
 {%- for  argtype, argname in func.args %}
 {{ argtype }} {{ argname }};
 {%- endfor %}
-{%- endfor %}"""))
+{%- endfor %}""")
         self.assertIn("int i;",
-                      gen.render_header())
+                      gen.render(template))
 
 
 if __name__ == '__main__':

@@ -40,15 +40,13 @@ class DeclVisitor(c_ast.NodeVisitor):
 
 class WrapperGenerator(object):
 
-    def __init__(self, text, filename, header_template):
+    def __init__(self, text, filename):
         self.text = text
         parser = CParser()
         self.ast = parser.parse(text, filename)
-        self.header_template = header_template
 
-    def render_header(self):
+    def render(self, template):
         visitor = DeclVisitor()
         visitor.visit(self.ast)
-        return self.header_template.render(funcs=visitor.functions,
-                                           lstrip_blocks=True,
-        )
+        return template.render(funcs=visitor.functions,
+                               lstrip_blocks=True)
