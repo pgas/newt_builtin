@@ -7,7 +7,7 @@ static HASH_TABLE * dispatch_table;
 
 
 int run(WORD_LIST *list) {
-  dispatch_table_run(list->word->word, NULL, dispatch_table); 
+  dispatch_table_run(list->word->word, list, dispatch_table); 
 }
 
 

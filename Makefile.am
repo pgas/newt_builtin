@@ -21,11 +21,11 @@ test_ldadd =   -l:newt.so -lcmocka $(BASH_LIBS)
 
 test_dispatch_CPPFLAGS =  $(test_cppflags)
 test_dispatch_LDFLAGS =  $(test_ldflags)
-test_dispatch_LDADD =   $(test_ld_add)
+test_dispatch_LDADD =   $(test_ldadd)
 
 test_type_conversion_CPPFLAGS =  $(test_cppflags)
 test_type_conversion_LDFLAGS =   $(test_ldflags)
-test_type_conversion_LDADD =    $(test_ld_add)
+test_type_conversion_LDADD =    $(test_ldadd)
 
 
 

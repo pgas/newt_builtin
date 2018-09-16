@@ -35,25 +35,32 @@ entry_point entries[] = {
 
 size_t entries_length = sizeof(entries)/sizeof(entries[0]);
 
-{% macro next(args) -%}
-   if ({{ args }}->next == NULL) goto usage;
-{%- endmacro %}
 
 
 /* implementation of the wrappers */
 {%- for func in funcs | without_variadic %}	 
 int bash_{{ func.name }}(WORD_LIST *args) {
   {%- for (type, name) in func.args %}
+  if ( args->next == NULL) goto usage;
+  args = args->next;
+
   {#- avoid shadowing the param of our function #}
   {%- if name == 'args' %}{%- set name = 'local_args' %}{%- endif %}
   {{ type }} {{ name }};
   if (! {{ type | convertion_fun }}(args->word->word, &{{ name }})) {    
      goto usage;
     }
+
   {%- endfor %}
-  printf("function called %s\n", "{{ func.name }}");
+
+  fprintf(stderr, "function called %s\n", "{{ func.name }}");
+  
+  {{ func.name | replace('bash_', '') }}({%- for (type, name) in func.args %}{{ name }}{%- if loop.nextitem is defined %}, {%endif %}{%- endfor %});
+
+  return 0;
 
   usage:
+  fprintf(stderr, "newt: usage: %s %s\n", "{{ func.name | replace('newt','newt ') }}", "{%- for (type, name) in func.args %}{{ name }}{%- if loop.nextitem is defined %} {%endif %}{%- endfor %}"); 
   return 1;
 }
-{%- endfor %}
+{% endfor %}
