@@ -22,7 +22,7 @@ void test_string_to_int_success(void **state) {
 }
 
 
-int main(void)
+int __wrap_main(void)
 {
   const struct CMUnitTest tests[] = {
    cmocka_unit_test_setup_teardown(test_string_to_int_success, setup, teardown),

@@ -39,7 +39,7 @@ if test -e $with_bash_sources/hashlib.h
    # until I figure a better way to do that
    # I assume ar, running test in the same dir as
    # we don't want main in our lib
-   objcopy --redefine-sym main=shell_main $with_bash_sources/shell.o
+   #objcopy --redefine-sym main=shell_main $with_bash_sources/shell.o
    ar rvs libbash.a $with_bash_sources/*.o
    OCPPFLAGS=$CPPFLAGS
    CPPFLAGS="$CPPFLAGS $BASH_CPPFLAGS"

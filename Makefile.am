@@ -16,7 +16,7 @@ TESTS = test/dispatch test/type_conversion test/bash_newt
 
 
 test_cppflags = $(BASH_CPPFLAGS) -I$(top_srcdir)/src
-test_ldflags =  -L$(top_srcdir)/.libs $(BASH_LDFLAGS)
+test_ldflags =  -L$(top_srcdir)/.libs $(BASH_LDFLAGS)  -Wl,--wrap=main
 test_ldadd =   -l:newt.a -lcmocka $(BASH_LIBS)
 
 test_dispatch_CPPFLAGS =  $(test_cppflags)
@@ -30,7 +30,6 @@ test_type_conversion_LDADD =    $(test_ldadd)
 test_bash_newt_CPPFLAGS =  $(test_cppflags) 
 test_bash_newt_LDFLAGS =   -Wl,--wrap=newtInit $(test_ldflags) 
 test_bash_newt_LDADD =    $(test_ldadd) 
-
 
 
 #python unittest

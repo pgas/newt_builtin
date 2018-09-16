@@ -53,7 +53,7 @@ void test_dispatch_runs_function(void **state) {
 
 
 
-int main(void)
+int __wrap_main(void)
 {
   const struct CMUnitTest tests[] = {
    cmocka_unit_test_setup_teardown(test_dispatch_init, setup, teardown),

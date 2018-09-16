@@ -56,14 +56,13 @@ by default it looks for this in ../bash, you can also use the option --with-bash
 "libbash"
 -------------
 To be able to use the functions defined in bash, the configure script
-creates a "libbash". The current solution is not very elegant but
-as it is used only for development this will do for now
+creates a "libbash". 
 
-What is does is first to rename "main" so that we don't have a
-conflict and then link all the .o in the top source dir
+To avoid conflict with the `main` of bash, the tests are using a `__wrap_main` instead
+
+the libbash is simply created with all the object in the top level directory
 
 ```
-objcopy --redefine-sym main=shell_main $with_bash_sources/shell.o`
 ar rvs libbash.a $with_bash_sources/*.o
 ```
 
@@ -72,7 +71,7 @@ The other objects are linked using the same .a bash is using
 **Bugs**:
 
 1) it is perhaps not that robust against different version of bash
-2) feels hackish renaming "name"  in the object
+
 
 Thoughts
 ------
