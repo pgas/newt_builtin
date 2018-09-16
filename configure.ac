@@ -9,7 +9,7 @@ AC_INIT(newt, 0.1)
 AM_INIT_AUTOMAKE([subdir-objects -Wall -Werror no-define])
 AM_PROG_AR
 # we only want to build a shared library
-LT_INIT([dlopen disable-static])
+LT_INIT([dlopen])
 
 # we don't need ldconfig after installing the .so
 AC_SUBST([finish_cmds], [""])

@@ -34,3 +34,4 @@ test/dispatch
 /src/bash_newt.h
 /i.h
 /test/bash_to_c
+test/type_conversion
