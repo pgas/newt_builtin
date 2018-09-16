@@ -41,6 +41,12 @@ def without_variadic(func_list):
     return [func for func in func_list if ('ellipsis', '...') not in func.args]
 
 
+def convertion_fun(type_name):
+    type_name = type_name.replace(' ', "_")
+    type_name = type_name.replace('*', "__ptr__")
+    return "string_to_" + type_name
+
+
 class WrapperGenerator(object):
 
     def __init__(self, text, filename):
@@ -49,6 +55,7 @@ class WrapperGenerator(object):
         self.visitor.visit(ast)
         self.env = Environment()
         self.env.filters['without_variadic'] = without_variadic
+        self.env.filters['convertion_fun'] = convertion_fun
 
     def render(self, template_string):
         template = self.env.from_string(template_string)

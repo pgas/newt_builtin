@@ -2,23 +2,32 @@
 ACLOCAL_AMFLAGS = -I m4
 
 lib_LTLIBRARIES = newt.la
-newt_la_SOURCES = src/bash_to_c.c src/bash_newt.c src/dispatch.c src/newt.c
+newt_la_SOURCES = src/bash_newt.c src/type_conversion.c  src/dispatch.c src/newt.c
 # this is required to build .so with a nonstandard name, also avoid
 # the numbering
 newt_la_LDFLAGS= -module -avoid-version
+newt_la_LADD= -lnewt
 
 AM_TESTS_ENVIRONMENT = \
 	LD_LIBRARY_PATH=$(top_srcdir)/.libs
 
-check_PROGRAMS = test/dispatch test/bash_to_c
-TESTS = test/dispatch test/bash_to_c
+check_PROGRAMS = test/dispatch test/type_conversion
+TESTS = test/dispatch test/type_conversion
 
-test_dispatch_CPPFLAGS =  $(BASH_CPPFLAGS) -I$(top_srcdir)/src
-test_dispatch_LDFLAGS =  -L$(top_srcdir)/.libs $(BASH_LDFLAGS) 
-test_dispatch_LDADD =   -l:newt.so -lcmocka $(BASH_LIBS)
-test_bash_to_c_CPPFLAGS =  $(BASH_CPPFLAGS) -I$(top_srcdir)/src
-test_bash_to_c_LDFLAGS =  -L$(top_srcdir)/.libs $(BASH_LDFLAGS) 
-test_bash_to_c_LDADD =   -l:newt.so -lcmocka $(BASH_LIBS)
+
+test_cppflags = $(BASH_CPPFLAGS) -I$(top_srcdir)/src
+test_ldflags =  -L$(top_srcdir)/.libs $(BASH_LDFLAGS)
+test_ldadd =   -l:newt.so -lcmocka $(BASH_LIBS)
+
+test_dispatch_CPPFLAGS =  $(test_cppflags)
+test_dispatch_LDFLAGS =  $(test_ldflags)
+test_dispatch_LDADD =   $(test_ld_add)
+
+test_type_conversion_CPPFLAGS =  $(test_cppflags)
+test_type_conversion_LDFLAGS =   $(test_ldflags)
+test_type_conversion_LDADD =    $(test_ld_add)
+
+
 
 #python unittest
 pysources = bash_builtin_gen/wrapper_generator.py \

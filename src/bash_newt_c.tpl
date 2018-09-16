@@ -1,6 +1,7 @@
 {#  jinja2 template for the implementation  #}
 #include <stdio.h>
 #include "bash_newt.h"
+#include "type_conversion.h"
 
 /* An array of strings forming the `long' documentation for a builtin xxx,
    which is printed by `help xxx'.  It must end with a NULL.  By convention,
@@ -34,6 +35,11 @@ entry_point entries[] = {
 
 size_t entries_length = sizeof(entries)/sizeof(entries[0]);
 
+{% macro next(args) -%}
+   if ({{ args }}->next == NULL) goto usage;
+{%- endmacro %}
+
+
 /* implementation of the wrappers */
 {%- for func in funcs | without_variadic %}	 
 int bash_{{ func.name }}(WORD_LIST *args) {
@@ -41,8 +47,13 @@ int bash_{{ func.name }}(WORD_LIST *args) {
   {#- avoid shadowing the param of our function #}
   {%- if name == 'args' %}{%- set name = 'local_args' %}{%- endif %}
   {{ type }} {{ name }};
+  if (! {{ type | convertion_fun }}(args->word->word, &{{ name }})) {    
+     goto usage;
+    }
   {%- endfor %}
   printf("function called %s\n", "{{ func.name }}");
+
+  usage:
   return 1;
 }
 {%- endfor %}

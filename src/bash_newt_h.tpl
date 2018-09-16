@@ -18,7 +18,6 @@ extern struct builtin newt_struct;
     and I suspect they are just convenience function #}	 
 int bash_{{ func.name }}(WORD_LIST *args);
 {%- endfor %}
-
 /* dispatch table */
 extern entry_point entries[];
 extern size_t entries_length;

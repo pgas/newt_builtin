@@ -1,8 +1,7 @@
 import unittest
 from pycparser import CParser
 
-from . import WrapperGenerator
-from .wrapper_generator import DeclVisitor, Function, without_variadic
+from . import WrapperGenerator, wrapper_generator
 
 
 class TestDeclVisitor(unittest.TestCase):
@@ -15,24 +14,24 @@ class TestDeclVisitor(unittest.TestCase):
         self.ast = CParser().parse(source, "aname")
 
     def testDeclVisitorReturnAllNames(self):
-        v = DeclVisitor()
+        v = wrapper_generator.DeclVisitor()
         v.visit(self.ast)
         self.assertEqual(2, len(v.functions))
 
     def testDeclVisitorReturnFuncName(self):
-        v = DeclVisitor()
+        v = wrapper_generator.DeclVisitor()
         ast = CParser().parse("int newtInit(void);", "aname")
         v.visit(ast)
         self.assertEqual('newtInit', v.functions[0].name)
 
     def testDeclVisitorReturnEmptyParam(self):
-        v = DeclVisitor()
+        v = wrapper_generator.DeclVisitor()
         ast = CParser().parse("int newtInit(void);", "aname")
         v.visit(ast)
         self.assertEqual([], v.functions[0].args)
 
     def testDeclVisitorReturnTwoParam(self):
-        v = DeclVisitor()
+        v = wrapper_generator.DeclVisitor()
         v.visit(self.ast)
         self.assertEqual(2, len(v.functions[1].args))
         argtype, name = v.functions[1].args[0]
@@ -42,7 +41,7 @@ class TestDeclVisitor(unittest.TestCase):
         self.assertEqual('newtComponent', argtype)
 
     def testDeclVisitorReturnPointerParam(self):
-        v = DeclVisitor()
+        v = wrapper_generator.DeclVisitor()
         ast = CParser().parse("int newtInit(char * foo, char ** bar);",
                               "aname")
         v.visit(ast)
@@ -54,7 +53,7 @@ class TestDeclVisitor(unittest.TestCase):
         self.assertEqual('char **', argtype)
 
     def testDeclVisitorReturnEnumParam(self):
-        v = DeclVisitor()
+        v = wrapper_generator.DeclVisitor()
         ast = CParser().parse("""
         void f(enum newtFlagsSense sense);
         """,
@@ -65,7 +64,7 @@ class TestDeclVisitor(unittest.TestCase):
         self.assertEqual('enum newtFlagsSense', argtype)
 
     def testDeclVisitorReturnStructParam(self):
-        v = DeclVisitor()
+        v = wrapper_generator.DeclVisitor()
         ast = CParser().parse("""
         void f(struct bar a);
         """,
@@ -76,7 +75,7 @@ class TestDeclVisitor(unittest.TestCase):
         self.assertEqual('struct bar', argtype)
 
     def testDeclVisitorReturnEllipsis(self):
-        v = DeclVisitor()
+        v = wrapper_generator.DeclVisitor()
         ast = CParser().parse("""
         void f(int foo, ...);
         """,
@@ -91,11 +90,19 @@ class TestFilters(unittest.TestCase):
     def testWithoutVariadic(self):
         funcs = []
         args = [('int', 'a'), ('ellipsis', '...')]
-        funcs.append(Function('a', args, ''))
+        funcs.append(wrapper_generator.Function('a', args, ''))
         args = [('int', 'a')]
-        funcs.append(Function('b', args, ''))
-        filtered = without_variadic(funcs)
+        funcs.append(wrapper_generator.Function('b', args, ''))
+        filtered = wrapper_generator.without_variadic(funcs)
         self.assertEqual(1, len(filtered))
+
+    def testTypeToConvertFuncName(self):
+        type_name = "int"
+        self.assertEqual("string_to_int",
+                         wrapper_generator.convertion_fun(type_name))
+        type_name = "char *"
+        self.assertEqual("string_to_char___ptr__",
+                         wrapper_generator.convertion_fun(type_name))
 
 
 class TestWrapperGenerator(unittest.TestCase):

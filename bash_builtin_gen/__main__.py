@@ -3,7 +3,7 @@ from . import WrapperGenerator
 
 
 def usage():
-    print("""%s  source_header_file template""" % __package__)
+    print("""%s  source_header_file template x""" % __package__)
 
 
 if not len(sys.argv) == 3:
@@ -19,4 +19,5 @@ try:
         w = WrapperGenerator(source.read(), source_header_file)
         print(w.render(template.read()))
 except Exception as e:
-    print("error generating header %s" % e)
+    sys.stderr.write("error generating header %s\n" % e)
+    quit(2)
