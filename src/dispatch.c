@@ -23,10 +23,10 @@ entry_point *dispatch_table_find(const char *name, HASH_TABLE *htable){
   }
 }
 
-int dispatch_table_run(const char *name, WORD_LIST* args, HASH_TABLE *htable){
+int dispatch_table_run(const char *name, const char* varname, WORD_LIST* args, HASH_TABLE *htable){
   entry_point * e = dispatch_table_find(name, htable);
   if (e != NULL)
-    return e->function(args);
+    return e->function(varname, args);
   else
     return -1;
 }

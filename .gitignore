@@ -35,3 +35,4 @@ test/dispatch
 /i.h
 /test/bash_to_c
 test/type_conversion
+/test/bash_newt

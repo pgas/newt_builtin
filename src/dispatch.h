@@ -3,7 +3,7 @@
 
 #include "bash_includes.h" 
 
-typedef  int (*entry_function)(WORD_LIST *);
+typedef  int (*entry_function)(const char* , WORD_LIST *);
 
 typedef struct entry_point_struct {
   char * name;
@@ -29,6 +29,6 @@ entry_point *dispatch_table_find(const char *name, HASH_TABLE *table);
  * table is a array of entry_point terminated by an entry with a NULL name
  * return -1 if not found, for now
  */
-int dispatch_table_run(const char *name, WORD_LIST* args, HASH_TABLE *htable);
+int dispatch_table_run(const char *name, const char* varname, WORD_LIST* args, HASH_TABLE *htable);
 
 #endif

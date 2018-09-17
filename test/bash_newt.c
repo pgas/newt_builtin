@@ -36,7 +36,7 @@ static int teardown(void **state) {
 
 void test_init_is_called(void **state) {
   expect_function_call(__wrap_newtInit); 
-  bash_newtInit(NULL); 
+  bash_newtInit(NULL, NULL); 
 }
 
 WORD_LIST * word(const char* string) {
@@ -72,7 +72,7 @@ void test_draw_root_text_arguments(void **state) {
   expect_value(__wrap_newtDrawRootText, row, 20);
   expect_string(__wrap_newtDrawRootText, text, msg);
 
-  bash_newtDrawRootText(args);
+  bash_newtDrawRootText(NULL, args);
 
   free_word(args->next->next->next);
   free_word(args->next->next);

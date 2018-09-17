@@ -6,8 +6,8 @@
 static HASH_TABLE * dispatch_table;
 
 
-int run(WORD_LIST *list) {
-  dispatch_table_run(list->word->word, list, dispatch_table); 
+int run(WORD_LIST *list, const char* varname) {
+  return dispatch_table_run(list->word->word, varname, list, dispatch_table); 
 }
 
 
@@ -31,11 +31,25 @@ int
 newt_builtin (list)
      WORD_LIST *list;
 {
+  char *vname;
   int c;
   reset_internal_getopt ();
   while ((c = internal_getopt (list, "")) != -1) {
     switch (c)
       {
+      case 'v':
+	vname = list_optarg;
+#if defined (ARRAY_VARS)
+	if (! legal_identifier (vname) && ! valid_array_reference (vname, 0))
+#else
+	  if (legal_identifier (vname))
+#endif
+	    {
+	      sh_invalidid (vname);
+	      return (EX_USAGE);
+	    }
+	break;
+
       case GETOPT_HELP:
 	builtin_help (); 
 	return (EX_USAGE);
@@ -58,11 +72,11 @@ newt_builtin (list)
       add_unwind_protect (pop_scope, ( CMD_COMMAND_BUILTIN) ? 0 : "1");
     }
 
-  int exit = run(list);
+  int exit = run(list, vname);
 
   if (exit != EX_USAGE)
     {
-      return exit;
+      return (unsigned short) exit;
     }
   else
     {

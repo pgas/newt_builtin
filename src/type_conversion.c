@@ -1,6 +1,9 @@
 #include "type_conversion.h" 
 
 
+/*
+ * silently truncate
+ */
 
 bool string_to_int(const char * value, int * result){
   intmax_t i;
@@ -37,7 +40,12 @@ bool string_to_newtGrid(const char* value, newtGrid *result){
 }
 
 bool string_to_unsigned_int(const char* value, unsigned int *result){
-    return false;
+  intmax_t i;
+  if (legal_number (value, &i)) {
+    *result = (unsigned int) i;
+    return true;
+  }
+  return false;
 }
 
 bool string_to_va_list(const char* value, va_list *result){
@@ -89,8 +97,16 @@ bool string_to_char___ptr__(const char* value, char *  *  result){
   return true;
 }
 
+/*
+ * probably not ok for large values
+ */
 bool string_to_unsigned_long_long(const char* value, unsigned long long *result){
-    return false;
+  intmax_t i;
+  if (legal_number (value, &i)) {
+    *result = (unsigned long long) i;
+    return true;
+  }
+  return false;
 }
 
   

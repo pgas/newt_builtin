@@ -13,10 +13,6 @@ if ! type newt &>/dev/null;then
 fi
 set -x       
 
-newt push
-newt push blah
-newt push helpline
-newt push helpline "foobar"
 
-newt pop
-newt pop helpline
+newt PushHelpLine "foobar"
+newt PopHelpLine

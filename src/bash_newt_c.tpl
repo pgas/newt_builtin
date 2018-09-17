@@ -39,7 +39,7 @@ size_t entries_length = sizeof(entries)/sizeof(entries[0]);
 
 /* implementation of the wrappers */
 {%- for func in funcs | without_variadic %}	 
-int bash_{{ func.name }}(WORD_LIST *args) {
+int bash_{{ func.name }}( const char* varname, WORD_LIST *args) {
   {%- for (type, name) in func.args %}
   if ( args->next == NULL) goto usage;
   args = args->next;

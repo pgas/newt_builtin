@@ -13,23 +13,24 @@ if ! type newt &>/dev/null;then
     echo >&2 unable to load the new builtin
 fi
 
-if newt init;then 
-    trap 'newt finished' EXIT
-    newt cls
+if newt Init;then 
+    trap 'newt Finished' EXIT
+    newt Cls
 
-    newt draw roottext 0 0 "some root text"
-    newt draw roottext -25 -2 "Root text in the other corner"
+    newt DrawRootText 0 0 "some root text"
+    help="Root text in the other corner"
+    newt DrawRootText -${#help} -2 "$help"
 
-    newt push helpline 
-    newt refresh
+    newt PushHelpLine ""
+    newt Refresh
     sleep 1
 
-    newt push helpline "A help line"
-    newt refresh
+    newt PushHelpLine "A help line"
+    newt Refresh
     sleep 1
 
-    newt pop helpline
-    newt refresh
+    newt PopHelpLine
+    newt Refresh
     sleep 1
 
 fi

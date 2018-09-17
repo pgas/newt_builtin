@@ -9,7 +9,7 @@
 
 
 
-static int hello(WORD_LIST *args){
+static int hello( const char* varname, WORD_LIST *args){
   function_called();
 }
 
@@ -48,7 +48,7 @@ void test_dispatch_succeeds(void **state) {
 void test_dispatch_runs_function(void **state) {  
   HASH_TABLE * dispatch_table = *state;
   expect_function_call(hello);
-  dispatch_table_run("hello", NULL, dispatch_table);
+  dispatch_table_run("hello", NULL, NULL, dispatch_table);
 }
 
 
