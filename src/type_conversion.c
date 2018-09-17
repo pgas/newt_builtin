@@ -84,9 +84,9 @@ bool string_to_char___ptr____ptr__(const char* value, char ** *result){
     return false;
 }
 
-bool string_to_char___ptr__(const char* value, char *  * const result){
+bool string_to_char___ptr__(const char* value, char *  *  result){
   *result = value;
-  return false;
+  return true;
 }
 
 bool string_to_unsigned_long_long(const char* value, unsigned long long *result){

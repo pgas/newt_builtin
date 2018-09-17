@@ -53,7 +53,7 @@ int bash_{{ func.name }}(WORD_LIST *args) {
 
   {%- endfor %}
 
-  fprintf(stderr, "function called %s\n", "{{ func.name }}");
+  
   
   {{ func.name | replace('bash_', '') }}({%- for (type, name) in func.args %}{{ name }}{%- if loop.nextitem is defined %}, {%endif %}{%- endfor %});
 

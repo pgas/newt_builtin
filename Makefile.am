@@ -28,7 +28,9 @@ test_type_conversion_LDFLAGS =   $(test_ldflags)
 test_type_conversion_LDADD =    $(test_ldadd)
 
 test_bash_newt_CPPFLAGS =  $(test_cppflags) 
-test_bash_newt_LDFLAGS =   -Wl,--wrap=newtInit $(test_ldflags) 
+test_bash_newt_LDFLAGS =   -Wl,--wrap=newtInit \
+			   -Wl,--wrap=newtDrawRootText\
+			   $(test_ldflags) 
 test_bash_newt_LDADD =    $(test_ldadd) 
 
 

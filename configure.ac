@@ -38,8 +38,6 @@ if test -e $with_bash_sources/hashlib.h
    BASH_LIBS="-lbash -lbuiltins -lglob -lsh -lreadline -lhistory $with_bash_sources/lib/termcap/libtermcap.a -ltilde -lmalloc -ldl" 
    # until I figure a better way to do that
    # I assume ar, running test in the same dir as
-   # we don't want main in our lib
-   #objcopy --redefine-sym main=shell_main $with_bash_sources/shell.o
    ar rvs libbash.a $with_bash_sources/*.o
    OCPPFLAGS=$CPPFLAGS
    CPPFLAGS="$CPPFLAGS $BASH_CPPFLAGS"

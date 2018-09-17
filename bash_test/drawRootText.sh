@@ -11,20 +11,12 @@ done
 if ! type newt &>/dev/null;then
     echo >&2 unable to load the new builtin
 fi
-set -x       
-newt draw
-newt draw roottext
-newt draw roottext 2
-newt draw roottext 4
 
-set +x
-
-if newt init;then
-    echo  "NEWT_TEXTBOX_WRAP $NEWT_TEXTBOX_WRAP"
-    trap 'newt finished' EXIT
-    newt cls
-    newt draw roottext 10 10 "some root text"
-    newt refresh
+if newt Init;then
+    trap 'newt Finished' EXIT
+    newt Cls
+    newt DrawRootText 10 10 "some root text"
+    newt Refresh
     sleep 2
 fi
 
