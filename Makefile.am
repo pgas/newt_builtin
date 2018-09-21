@@ -11,6 +11,7 @@ newt_la_SOURCES = \
 
 # this is required to build .so with a nonstandard name, also avoid
 # the numbering
+newt_la_CPPFLAGS = $(BASH_CPPFLAGS)
 newt_la_LDFLAGS= -module -avoid-version 
 newt_la_LADD= -lnewt 
 
@@ -20,6 +21,10 @@ AM_TESTS_ENVIRONMENT = \
 check_PROGRAMS = test/dispatch test/type_conversion test/bash_newt
 TESTS = test/dispatch test/type_conversion test/bash_newt
 
+if INCLUDE_LIBBASH
+# the - before include is 
+-include libbash.mk
+endif
 
 test_cppflags = $(BASH_CPPFLAGS) -I$(top_srcdir)/src
 test_ldflags =  -L$(top_srcdir)/.libs $(BASH_LDFLAGS)  -Wl,--wrap=main

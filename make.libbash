@@ -1,0 +1,12 @@
+# a small make file using bash source makefile to generate a "libbash"
+
+include $(BASH_PATH)/Makefile
+
+libbash.a:
+	echo '# this file is genreated by make.libbash' > libbash.mk
+	echo BASH_LDFLAGS=-L./ $(BUILTINS_LDFLAGS) $(LIBRARY_LDFLAGS) $(LDFLAGS) | sed "s,-L,-L$(BASH_PATH)/,g" >> libbash.mk
+	echo BASH_LIBS=-lbash $(LIBS)>> libbash.mk
+	cd $(BASH_PATH) && \
+	$(AR) $(ARFLAGS) libbash.a $(OBJECTS) && \
+	test -n "$(RANLIB)" && $(RANLIB) libbash.a
+

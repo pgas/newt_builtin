@@ -31,25 +31,14 @@ AC_ARG_WITH([bash-sources],
               [with_bash_sources=$withval],
               [with_bash_sources="../bash"])
 
-if test -e $with_bash_sources/hashlib.h
+if test -e "$with_bash_sources/hashlib.h" 
    then
-   BASH_CPPFLAGS="-I$with_bash_sources -I$with_bash_sources/include -I$with_bash_sources/builtins"
-   BASH_LDFLAGS="-L./ -L$with_bash_sources/builtins -L$with_bash_sources/lib/readline -L$with_bash_sources/lib/readline -L$with_bash_sources/lib/glob -L$with_bash_sources/lib/tilde -L$with_bash_sources/lib/malloc -L$with_bash_sources/lib/sh -L$with_bash_sources/lib/termcap -rdynamic"
-   BASH_LIBS="-lbash -lbuiltins -lglob -lsh -lreadline -lhistory $with_bash_sources/lib/termcap/libtermcap.a -ltilde -lmalloc -ldl" 
-   # until I figure a better way to do that
-   # I assume ar, running test in the same dir as
-   ar rvs libbash.a $with_bash_sources/*.o
-   OCPPFLAGS=$CPPFLAGS
-   CPPFLAGS="$CPPFLAGS $BASH_CPPFLAGS"
-   OLDFLAGS=$LDFLAGS
-   LDFLAGS="$LDFLAGS $BASH_LDFLAGS"
-   OLIBS=$LIBS
-   LIBS="$LIBS $BASH_LIBS "
-   AC_CHECK_LIB([bash],[hash_create],
-      [sourcefound=yes],[CPPFLAGS=$OCPP LDFLAGS=$OLDFLAGS])
-   CPPFLAGS=$OCPP
-   LDFLAGS=$OLDFLAGS
-   LIBS=$OLIBS
+   # include the generated Makefile from bash sources
+   # to generate libbash.a
+   if make -f $srcdir/make.libbash "BASH_PATH=$with_bash_sources" libbash.a
+      then
+      sourcefound=yes
+   fi   
 fi
 
 if test x"$sourcefound" = xyes
@@ -68,18 +57,22 @@ AC_ARG_WITH([bash-headers],
 
 # try with the bash subdir created when installing headers (bash>=4.4)
 # or without if someone tries to link against the sources directly
+
 if test -e $with_bash_headers/bash/builtins.h
   then
-   CPPFLAGS="$CPPFLAGS -I$with_bash_headers/bash -I$with_bash_headers/bash/include -I$with_bash_headers/bash/builtins"
+   BASH_CPPFLAGS="-I$with_bash_headers/bash -I$with_bash_headers/bash/include -I$with_bash_headers/bash/builtins"
   else
-CPPFLAGS="$CPPFLAGS -I$with_bash_headers -I$with_bash_headers/include -I$with_bash_headers/builtins"
+BASH_CPPFLAGS="-I$with_bash_headers -I$with_bash_headers/include -I$with_bash_headers/builtins"
 fi
+OCPPFLAGS=$CPPFLAGS
+CPPFLAGS="$CPPFLAGS $BASH_CPPFLAGS"
 
 AC_CHECK_HEADERS([builtins.h],[bashfound=yes], [])
 if test x"$bashfound" = x
  then
 	AC_MSG_ERROR([unable to find the bash headers please use --with-bash-headers=/path/to/headers/])
 fi		     
+CPPFLAGS=$OCPPFLAGS
 
 AC_CHECK_HEADERS([newt.h],[newtfound=yes],[])
 if test x"$newtfound" = x
@@ -87,16 +80,15 @@ if test x"$newtfound" = x
 	AC_MSG_ERROR([unable to find the newt headers])
 fi		     
 
-AC_SUBST([BASH_CPPFLAGS])
-AC_SUBST([BASH_LDFLAGS])
-AC_SUBST([BASH_LIBS])
-	
 echo '#include <newt.h>' > i.h
 gcc  -I $srcdir/utils/fake_libc_include/  -E i.h > $srcdir/pre_processed_newt.h
 
-
 AC_CHECK_LIB([newt],[newtInit],[])
 : ${CFLAGS="-O3 -Wall -Wextra -Wpedantic -std=c11"}
+
+AC_SUBST([BASH_CPPFLAGS])
+AM_CONDITIONAL([INCLUDE_LIBBASH], [test x$sourcefound = xyes])
+
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
