@@ -6,7 +6,7 @@ newt_la_SOURCES = \
 	src/bash_newt.c \
 	src/type_conversion.c \
 	src/dispatch.c \
-	src/utils.c \
+	src/bash_builtin_utils.c \
 	src/newt.c
 
 # this is required to build .so with a nonstandard name, also avoid
@@ -45,6 +45,7 @@ EXTRA_test_type_conversion_DEPENDENCIES = $(newt_la_SOURCES)
 test_bash_newt_CPPFLAGS =  $(test_cppflags) 
 test_bash_newt_LDFLAGS =   -Wl,--wrap=newtInit \
 			   -Wl,--wrap=newtDrawRootText\
+			   -Wl,--wrap=newtCompactButton \
 			   $(test_ldflags) 
 test_bash_newt_LDADD =    $(test_ldadd)
 EXTRA_test_bash_newt_DEPENDENCIES = $(newt_la_SOURCES)
