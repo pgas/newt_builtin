@@ -18,13 +18,15 @@ newt_la_LADD= -lnewt
 AM_TESTS_ENVIRONMENT = \
 	LD_LIBRARY_PATH=$(top_srcdir)/.libs
 
-check_PROGRAMS = test/dispatch test/type_conversion test/bash_newt
+check_PROGRAMS = test/dispatch test/type_conversion test/bash_newt 
 TESTS = test/dispatch test/type_conversion test/bash_newt
 
 if INCLUDE_LIBBASH
 # the - before include is 
 -include libbash.mk
 endif
+
+
 
 test_cppflags = $(BASH_CPPFLAGS) -I$(top_srcdir)/src
 test_ldflags =  -L$(top_srcdir)/.libs $(BASH_LDFLAGS)  -Wl,--wrap=main
@@ -33,17 +35,19 @@ test_ldadd =   -l:newt.a -lcmocka $(BASH_LIBS)
 test_dispatch_CPPFLAGS =  $(test_cppflags)
 test_dispatch_LDFLAGS =  $(test_ldflags)
 test_dispatch_LDADD =   $(test_ldadd)
+EXTRA_test_dispatch_DEPENDENCIES = $(newt_la_SOURCES)
 
 test_type_conversion_CPPFLAGS =  $(test_cppflags)
 test_type_conversion_LDFLAGS =   $(test_ldflags)
 test_type_conversion_LDADD =    $(test_ldadd)
+EXTRA_test_type_conversion_DEPENDENCIES = $(newt_la_SOURCES)
 
 test_bash_newt_CPPFLAGS =  $(test_cppflags) 
 test_bash_newt_LDFLAGS =   -Wl,--wrap=newtInit \
 			   -Wl,--wrap=newtDrawRootText\
 			   $(test_ldflags) 
-test_bash_newt_LDADD =    $(test_ldadd) 
-
+test_bash_newt_LDADD =    $(test_ldadd)
+EXTRA_test_bash_newt_DEPENDENCIES = $(newt_la_SOURCES)
 
 #python unittest
 pysources = bash_builtin_gen/wrapper_generator.py \

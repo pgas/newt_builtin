@@ -1,6 +1,12 @@
 #include "utils.h"
 
 
+int compare_ptr (const void *a, const void *b) {
+  void ** da = (void **)a;
+  void ** db = (void **)b;
+  return (*da < *db);
+}
+
 /* borrowed from printf.def */
 SHELL_VAR * newt_bind_variable(char *name, char *value, int flags){
     SHELL_VAR *v;

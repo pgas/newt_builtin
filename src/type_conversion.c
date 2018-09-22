@@ -1,16 +1,20 @@
 #include "type_conversion.h" 
 
 #include <stdio.h>
+#include <search.h>
+
+#include "utils.h"
 
 /* TODO: configure could perhaps figure out  the value
 and store it in a configure.h
  */
 const size_t pointer_string_size = 30;
 
-
-
+/* store the pointers exported to bash in a tree*/
+void * newtComponents = NULL;
 
 bool newtComponent_to_string(newtComponent value, char* result){
+  tsearch(&value, &newtComponents, compare_ptr);
   return snprintf(result, pointer_string_size, "%p", value) > 0;
 }
 
@@ -27,9 +31,10 @@ bool string_to_int(const char * value, int * result){
   return false;
 }
 
-
+/* only allow pointers that have previously been exported*/
 bool string_to_newtComponent(const char* value, newtComponent *result){
-    return false;
+  return ((sscanf(value, "%p", result) == 1)
+	  && (tfind(result, &newtComponents, compare_ptr) != NULL));
 }
 
 bool string_to_enum_newtGridElement(const char* value, enum newtGridElement *result){
