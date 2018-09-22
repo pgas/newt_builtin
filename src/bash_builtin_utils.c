@@ -1,5 +1,5 @@
 #include "bash_builtin_utils.h"
-
+#include <stdarg.h>
 
 int bash_builtin_utils_compare_ptr (const void *a, const void *b) {
   void ** da = (void **)a;
@@ -26,7 +26,7 @@ SHELL_VAR *bash_builtin_utils_bind_variable(char *name, char *value, int flags){
   return v;
 }
 
-bool bash_builtin_utils_is_a_legal_name(const char* name){
+bool bash_builtin_utils_is_a_legal_name(char* name){
   #if defined (ARRAY_VARS)
     if (legal_identifier (name) || valid_array_reference (name, 0))
 #else
@@ -56,14 +56,22 @@ void  bash_builtin_utils_free_word(WORD_LIST * args) {
 }
 
 WORD_LIST * bash_builtin_utils_make_word_list(const char* arg0, ...){
-  /* va_list args; */
-  /* va_start(args, arg0); */
-  /* WORLD_LIST * list = word(arg0); */
-  /* WORLD_LIST * prev = list; */
-  /* char * next_word = va_arg(const char*); */
-  /* while (next_word != NULL) { */
-  /*   prev->next = word(next_word); */
-  /*   next_word = va_arg(const char*); */
-  /* } */
-  return NULL;
+  va_list args;
+  va_start(args, arg0);
+  WORD_LIST * list = bash_builtin_utils_word(arg0);
+  WORD_LIST * prev = list;
+  const char * next_word = va_arg(args, const char*);
+  while (next_word != NULL) {
+    prev->next = bash_builtin_utils_word(next_word);
+    next_word = va_arg(args, const char*);
+  }
+  return list;
+}
+
+void bash_builtin_utils_free_word_list(WORD_LIST *w){
+  while (w != NULL) {
+    WORD_LIST *next = w->next;
+    bash_builtin_utils_free_word(w);
+    w = next;
+  }
 }

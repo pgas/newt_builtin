@@ -1,5 +1,5 @@
-#ifndef __UTILS_H_
-#define __UTILS_H_
+#ifndef __BASH_BUILTIN_UTILS_H_
+#define __BASH_BUILTIN_UTILS_H_
 
 #include <stdbool.h>
 
@@ -19,7 +19,7 @@ SHELL_VAR * bash_builtin_utils_bind_variable(char *name, char *value, int flags)
 /*
  * true is name is a legal variable name
  */
-bool bash_builtin_utils_is_a_legal_name(const char* name);
+bool bash_builtin_utils_is_a_legal_name(char* name);
 
 /* helpers to generate word lists */
 
@@ -38,3 +38,8 @@ void  bash_builtin_utils_free_word(WORD_LIST * arg);
  */
 WORD_LIST * bash_builtin_utils_make_word_list(const char* arg0, ...);
 #endif
+
+/*
+ * allocate a list of words, the list must end with NULL
+ */
+void bash_builtin_utils_free_word_list(WORD_LIST *w);
