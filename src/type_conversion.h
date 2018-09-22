@@ -6,9 +6,22 @@
 
 #include "bash_includes.h"
 
+
+/* size of a string holding the pointer 
+ representation.
+*/
+extern const size_t pointer_string_size;
+
 /**
- * try to convert args->next to int and store the conversion in result
- * return true if successfull
+ * conversions from the types used by libnewt to string
+ * the caller must allocate enough space.
+ */
+
+bool newtComponent_to_string(newtComponent value, char* result);
+
+
+/**
+ *conversions from strings to types used by libnewt
  */
 
 bool string_to_int(const char *, int * result);
@@ -30,7 +43,7 @@ bool string_to_struct_newtExitStruct___ptr__(const char* value, struct newtExitS
 bool string_to_void___ptr__(const char* value, void * *result);
 bool string_to_enum_newtFlagsSense(const char* value, enum newtFlagsSense *result);
 bool string_to_char___ptr____ptr__(const char* value, char ** *result);
-bool string_to_char___ptr__(const char* value, char * *const result);
+bool string_to_char___ptr__(const char* value, char * * result);
 bool string_to_unsigned_long_long(const char* value, unsigned long long *result);
 
 #endif

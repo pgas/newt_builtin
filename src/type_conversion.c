@@ -1,5 +1,18 @@
 #include "type_conversion.h" 
 
+#include <stdio.h>
+
+/* TODO: configure could perhaps figure out  the value
+and store it in a configure.h
+ */
+const size_t pointer_string_size = 30;
+
+
+
+
+bool newtComponent_to_string(newtComponent value, char* result){
+  return snprintf(result, pointer_string_size, "%p", value) > 0;
+}
 
 /*
  * silently truncate
@@ -92,7 +105,7 @@ bool string_to_char___ptr____ptr__(const char* value, char ** *result){
     return false;
 }
 
-bool string_to_char___ptr__(const char* value, char *  *  result){
+bool string_to_char___ptr__(const char* value, char **  result){
   *result = value;
   return true;
 }
