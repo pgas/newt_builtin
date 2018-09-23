@@ -1,4 +1,5 @@
 #include "bash_builtin_utils.h"
+#include <stdio.h>
 #include <stdarg.h>
 
 int bash_builtin_utils_compare_ptr (const void *a, const void *b) {
@@ -63,6 +64,7 @@ WORD_LIST * bash_builtin_utils_make_word_list(const char* arg0, ...){
   const char * next_word = va_arg(args, const char*);
   while (next_word != NULL) {
     prev->next = bash_builtin_utils_word(next_word);
+    prev = prev->next;
     next_word = va_arg(args, const char*);
   }
   return list;
@@ -72,6 +74,14 @@ void bash_builtin_utils_free_word_list(WORD_LIST *w){
   while (w != NULL) {
     WORD_LIST *next = w->next;
     bash_builtin_utils_free_word(w);
+    w = next;
+  }
+}
+
+void bash_builtin_utils_print_word_list(WORD_LIST *w){
+  while (w != NULL) {
+    WORD_LIST *next = w->next;
+    fprintf(stderr, "word: %s\n", w->word->word);
     w = next;
   }
 }

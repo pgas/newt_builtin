@@ -43,3 +43,5 @@ WORD_LIST * bash_builtin_utils_make_word_list(const char* arg0, ...);
  * allocate a list of words, the list must end with NULL
  */
 void bash_builtin_utils_free_word_list(WORD_LIST *w);
+
+void bash_builtin_utils_print_word_list(WORD_LIST *w);

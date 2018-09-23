@@ -22,10 +22,11 @@ void test_word(void **state) {
 }
 
 void test_make_word_list(void **state) {
-  WORD_LIST * w = bash_builtin_utils_make_word_list("hello", "world!", NULL);
-  assert_string_equal("hello", w->word->word);
-  assert_string_equal("world!", w->next->word->word);
-  assert_ptr_equal(NULL, w->next->next);
+  WORD_LIST * w = bash_builtin_utils_make_word_list("alist", "hello", "world!", NULL);
+  assert_string_equal("alist", w->word->word);
+  assert_string_equal("hello", w->next->word->word);
+  assert_string_equal("world!", w->next->next->word->word);
+  assert_ptr_equal(NULL, w->next->next->next);
   bash_builtin_utils_free_word_list(w);
 }
 
