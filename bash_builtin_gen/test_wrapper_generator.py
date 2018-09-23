@@ -84,6 +84,33 @@ class TestDeclVisitor(unittest.TestCase):
         self.assertEqual(2, len(v.functions[0].args))
         self.assertEqual(('ellipsis', '...'), v.functions[0].args[1])
 
+    def testDeclVisitorVoidReturnTypeWhenFunctionIsVoid(self):
+        v = wrapper_generator.DeclVisitor()
+        ast = CParser().parse("""
+        void f(int foo, ...);
+        """,
+                              "aname")
+        v.visit(ast)
+        self.assertEqual("void", v.functions[0].return_type)
+
+    def testDeclVisitorIntReturnTypeWhenFunctionIsInt(self):
+        v = wrapper_generator.DeclVisitor()
+        ast = CParser().parse("""
+        int f(int foo, ...);
+        """,
+                              "aname")
+        v.visit(ast)
+        self.assertEqual("int", v.functions[0].return_type)
+
+    def testDeclVisitorCharStarReturnTypeWhenFunctionIsString(self):
+        v = wrapper_generator.DeclVisitor()
+        ast = CParser().parse("""
+        char * f(int foo, ...);
+        """,
+                              "aname")
+        v.visit(ast)
+        self.assertEqual("char *", v.functions[0].return_type)
+
 
 class TestFilters(unittest.TestCase):
 
@@ -128,6 +155,27 @@ int bash_{{ func.name }}(WORD_LIST *args);\
         self.assertIn("int i;",
                       gen.render(template))
 
+    def testCaptureReturnFromTemplateWhenTypeisVoid(self):
+        gen = WrapperGenerator("void newtInit(int i);",
+                               "aname")
+        template = """\
+ {%- for func in funcs %}\
+{%- if func.return_type == "void" %}bash_{{ func.name }}(WORD_LIST *args);{%- endif %}\
+{%- endfor %}"""
+        self.assertEqual("bash_newtInit(WORD_LIST *args);",
+                         gen.render(template))
+
+    def testCaptureReturnFromTemplateWhenTypeisString(self):
+        gen = WrapperGenerator("char * newtInit(int i);",
+                               "aname")
+        template = """\
+ {%- for func in funcs %}\
+{%- if func.return_type != "void" %}{{ func.return_type }} return_value = bash_{{ func.name }}(WORD_LIST *args);{%- endif %}\
+{%- endfor %}"""
+        self.assertEqual("char * return_value = bash_newtInit(WORD_LIST *args);",
+                         gen.render(template))
+
+        
     def testFilteringVariadicFunction(self):
         gen = WrapperGenerator("""
 int newtInit(int i);

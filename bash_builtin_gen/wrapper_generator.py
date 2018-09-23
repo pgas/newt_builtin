@@ -10,6 +10,27 @@ class DeclVisitor(c_ast.NodeVisitor):
     def __init__(self):
         self.functions = []
 
+
+    def param_to_string(self, node):
+        stars = ""
+        while type(node) is c_ast.PtrDecl:
+            stars += "*"
+            node = node.type
+        if node.declname:
+            typename = ""
+            if type(node.type) is c_ast.IdentifierType:
+                typename = " ".join(node.type.names)
+            elif type(node.type) is c_ast.Enum:
+                typename = "enum " + node.type.name
+            elif type(node.type) is c_ast.Struct:
+                typename = "struct " + node.type.name
+            if len(stars) > 0:
+                typename += " " + stars
+            return (typename, node.declname)
+        else:
+            return None
+
+        
     def visit_Decl(self, node):
         if type(node.type) is c_ast.FuncDecl:
             args = []
@@ -17,23 +38,13 @@ class DeclVisitor(c_ast.NodeVisitor):
                 if type(param) is c_ast.EllipsisParam:
                     args.append(("ellipsis", '...'))
                 else:
-                    param = param.type
-                    stars = ""
-                    while type(param) is c_ast.PtrDecl:
-                        stars += "*"
-                        param = param.type
-                    if param.declname:
-                        typename = ""
-                        if type(param.type) is c_ast.IdentifierType:
-                            typename = " ".join(param.type.names)
-                        elif type(param.type) is c_ast.Enum:
-                            typename = "enum " + param.type.name
-                        elif type(param.type) is c_ast.Struct:
-                            typename = "struct " + param.type.name
-                        if len(stars) > 0:
-                            typename += " " + stars
-                        args.append((typename, param.declname))
-            f = Function(node.name, args, '')
+                    param_type = self.param_to_string(param.type)
+                    if param_type:
+                        args.append(param_type)
+            fun_typename, _name = self.param_to_string(node.type.type)
+            if not fun_typename:
+                fun_typename = ""
+            f = Function(node.name, args, fun_typename)
             self.functions.append(f)
 
 
