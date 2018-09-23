@@ -35,27 +35,44 @@ entry_point entries[] = {
 
 size_t entries_length = sizeof(entries)/sizeof(entries[0]);
 
+{#- avoid shadowing the param of our function #}
+{%- macro local(name) -%}
+{%- if name == 'args' %}local_{%- endif %}{{ name }}
+{%- endmacro %}
+
+{#- generate the list of arguments for the function call #}
+{%- macro arglist(args) -%}
+{%- for (type, name) in args %}{{ local(name) }}{%- if loop.nextitem is defined %}, {%endif %}{%- endfor %}
+{%- endmacro %}
+
+{%- macro return_var(type) -%}
+{%- if type != "void" %}{{ type }} return_value = {%- endif %}
+{%- endmacro %}
 
 
 /* implementation of the wrappers */
 {%- for func in funcs | without_variadic %}	 
 int bash_{{ func.name }}( const char* varname, WORD_LIST *args) {
   {%- for (type, name) in func.args %}
+  
   if ( args->next == NULL) goto usage;
   args = args->next;
-
-  {#- avoid shadowing the param of our function #}
-  {%- if name == 'args' %}{%- set name = 'local_args' %}{%- endif %}
-  {{ type }} {{ name }};
-  if (! {{ type | convertion_fun }}(args->word->word, &{{ name }})) {    
+  {{ type }} {{ local(name) }};
+  if (! {{ type | string_to_type }}(args->word->word, &{{ local(name) }})) {    
      goto usage;
-    }
-
+  }  
   {%- endfor %}
 
-  
-  
-  {{ func.name | replace('bash_', '') }}({%- for (type, name) in func.args %}{{ name }}{%- if loop.nextitem is defined %}, {%endif %}{%- endfor %});
+  {{ return_var(func.return_type) }} {{ func.name }}({{ arglist(func.args) }});
+
+  {%- if func.return_type != "void" %}
+  if (varname != NULL) {
+    char * value;  
+    {{ func.return_type | type_to_string }}(return_value, &value);
+    bash_builtin_utils_bind_variable(varname, value, 0);
+    xfree(value);
+  }
+  {%- endif %}
 
   return 0;
 

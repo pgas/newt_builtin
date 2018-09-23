@@ -13,10 +13,41 @@ const size_t pointer_string_size = 30;
 /* store the pointers exported to bash in a tree*/
 void * newtComponents = NULL;
 
-bool newtComponent_to_string(newtComponent value, char* result){
-  tsearch(&value, &newtComponents, bash_builtin_utils_compare_ptr);
-  return snprintf(result, pointer_string_size, "%p", value) > 0;
+bool char___ptr___to_string(char* value, char** result){
+  return false;
 }
+
+bool char_to_string(char value, char** result){
+  return false;
+}
+
+bool int___ptr___to_string(int* value, char** result){
+  return false;
+}
+
+bool int_to_string(int value, char** result){
+  return false;
+}
+
+bool newtComponent_to_string(newtComponent value, char** result){
+  *result = xmalloc(pointer_string_size);
+  tsearch(&value, &newtComponents, bash_builtin_utils_compare_ptr);
+  return snprintf(*result, pointer_string_size, "%p", value) > 0;
+  return false;
+}
+
+bool newtGrid_to_string(newtGrid value, char** result){
+  return false;
+}
+
+bool void___ptr____ptr___to_string(void ** value, char** result){
+  return false;
+}
+
+bool void___ptr___to_string(void *value, char** result){
+  return false;
+}
+
 
 /*
  * silently truncate
@@ -33,6 +64,10 @@ bool string_to_int(const char * value, int * result){
 
 /* only allow pointers that have previously been exported*/
 bool string_to_newtComponent(const char* value, newtComponent *result){
+  if (strncmp(value, "NULL", 4) == 0) {
+    *result = NULL;
+    return true;
+  }
   return ((sscanf(value, "%p", result) == 1)
 	  && (tfind(result, &newtComponents, bash_builtin_utils_compare_ptr) != NULL));
 }
@@ -99,7 +134,9 @@ bool string_to_struct_newtExitStruct___ptr__(const char* value, struct newtExitS
 }
 
 bool string_to_void___ptr__(const char* value, void * *result){
-    return false;
+  /* for help tag in Form...it's a string */
+  *result = (void *)value;
+  return true;
 }
 
 bool string_to_enum_newtFlagsSense(const char* value, enum newtFlagsSense *result){

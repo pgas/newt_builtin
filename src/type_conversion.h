@@ -17,8 +17,14 @@ extern const size_t pointer_string_size;
  * the caller must allocate enough space.
  */
 
-bool newtComponent_to_string(newtComponent value, char* result);
-
+bool char___ptr___to_string(char* value, char** result);
+bool char_to_string(char value, char** result);
+bool int___ptr___to_string(int* value, char** result);
+bool int_to_string(int value, char** result);
+bool newtComponent_to_string(newtComponent value, char** result);
+bool newtGrid_to_string(newtGrid value, char** result);
+bool void___ptr____ptr___to_string(void ** value, char** result);
+bool void___ptr___to_string(void *value, char** result);
 
 /**
  *conversions from strings to types used by libnewt

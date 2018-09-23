@@ -126,10 +126,10 @@ class TestFilters(unittest.TestCase):
     def testTypeToConvertFuncName(self):
         type_name = "int"
         self.assertEqual("string_to_int",
-                         wrapper_generator.convertion_fun(type_name))
+                         wrapper_generator.string_to_type(type_name))
         type_name = "char *"
         self.assertEqual("string_to_char___ptr__",
-                         wrapper_generator.convertion_fun(type_name))
+                         wrapper_generator.string_to_type(type_name))
 
 
 class TestWrapperGenerator(unittest.TestCase):

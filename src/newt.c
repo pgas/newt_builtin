@@ -34,7 +34,7 @@ newt_builtin (list)
   char *vname;
   int c;
   reset_internal_getopt ();
-  while ((c = internal_getopt (list, "")) != -1) {
+  while ((c = internal_getopt (list, "v:")) != -1) {
     switch (c)
       {
       case 'v':

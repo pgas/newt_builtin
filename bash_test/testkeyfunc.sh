@@ -12,13 +12,13 @@ if ! type newt &>/dev/null;then
     echo >&2 unable to load the new builtin
 fi
 
-if newt init;then 
-    trap 'newt finished' EXIT
+if newt Init;then 
+    trap 'newt Finished' EXIT
 
     #sleep to let time to fill the buffer
     sleep 2
 
-    newt clearKeyBuffer
-    newt bell
-    newt waitForKey
+    newt ClearKeyBuffer
+    newt Bell
+    newt WaitForKey
 fi

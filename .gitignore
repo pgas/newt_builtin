@@ -37,3 +37,5 @@ test/dispatch
 test/type_conversion
 /test/bash_newt
 /libbash.mk
+/ast
+/test/bash_builtin_utils
