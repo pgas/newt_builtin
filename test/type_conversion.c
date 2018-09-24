@@ -13,6 +13,13 @@ static int teardown(void **state) {
   return 0;
 }
 
+void __wrap_newtComponentAddDestroyCallback(newtComponent co,
+				     newtCallback f, void * data){
+  fprintf(stderr, "called\n");
+}
+
+
+
 void test_string_to_newtComponent_after_to_string(void **state) {
   newtComponent c1 = xmalloc(sizeof(newtComponent));
   char *s;

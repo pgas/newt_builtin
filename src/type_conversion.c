@@ -1,17 +1,16 @@
 #include "type_conversion.h" 
 
 #include <stdio.h>
-#include <search.h>
 
 #include "bash_builtin_utils.h"
+#include "bash_newt_types.h"
 
 /* TODO: configure could perhaps figure out  the value
 and store it in a configure.h
  */
 const size_t pointer_string_size = 30;
 
-/* store the pointers exported to bash in a tree*/
-void * newtComponents = NULL;
+
 
 bool char___ptr___to_string(char* value, char** result){
   return false;
@@ -31,8 +30,8 @@ bool int_to_string(int value, char** result){
 
 bool newtComponent_to_string(newtComponent value, char** result){
   *result = xmalloc(pointer_string_size);
-  tsearch(&value, &newtComponents, bash_builtin_utils_compare_ptr);
-  return snprintf(*result, pointer_string_size, "%p", value) > 0;
+  bash_newt_component comp = bash_newt_new(value);
+  return snprintf(*result, pointer_string_size, "%p", comp) > 0;
   return false;
 }
 
@@ -68,8 +67,13 @@ bool string_to_newtComponent(const char* value, newtComponent *result){
     *result = NULL;
     return true;
   }
-  return ((sscanf(value, "%p", result) == 1)
-	  && (tfind(result, &newtComponents, bash_builtin_utils_compare_ptr) != NULL));
+  bash_newt_component  bash_co;
+  if (sscanf(value, "%p", &bash_co) == 1) {
+    *result  = bash_newt_get_newt_component(bash_co);
+    return (*result != NULL);
+  } else {
+    return false;
+  }
 }
 
 bool string_to_enum_newtGridElement(const char* value, enum newtGridElement *result){

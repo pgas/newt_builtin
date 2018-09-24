@@ -2,11 +2,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-int bash_builtin_utils_compare_ptr (const void *a, const void *b) {
-  void ** da = (void **)a;
-  void ** db = (void **)b;
-  return (*da < *db);
-}
 
 /* borrowed from printf.def */
 SHELL_VAR *bash_builtin_utils_bind_variable(char *name, char *value, int flags){

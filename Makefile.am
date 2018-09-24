@@ -4,6 +4,7 @@ ACLOCAL_AMFLAGS = -I m4
 lib_LTLIBRARIES = newt.la
 newt_la_SOURCES = \
 	src/bash_newt.c \
+	src/bash_newt_types.c \
 	src/type_conversion.c \
 	src/dispatch.c \
 	src/bash_builtin_utils.c \
@@ -44,7 +45,8 @@ test_dispatch_LDADD =   $(test_ldadd)
 EXTRA_test_dispatch_DEPENDENCIES = $(newt_la_SOURCES)
 
 test_type_conversion_CPPFLAGS =  $(test_cppflags)
-test_type_conversion_LDFLAGS =   $(test_ldflags)
+test_type_conversion_LDFLAGS =   -Wl,--wrap=newtComponentAddDestroyCallback \
+				$(test_ldflags)
 test_type_conversion_LDADD =    $(test_ldadd)
 EXTRA_test_type_conversion_DEPENDENCIES = $(newt_la_SOURCES)
 
@@ -52,6 +54,7 @@ test_bash_newt_CPPFLAGS =  $(test_cppflags)
 test_bash_newt_LDFLAGS =   -Wl,--wrap=newtInit \
 			   -Wl,--wrap=newtDrawRootText\
 			   -Wl,--wrap=newtCompactButton \
+			   -Wl,--wrap=newtComponentAddDestroyCallback \
 			   $(test_ldflags) 
 test_bash_newt_LDADD =    $(test_ldadd)
 EXTRA_test_bash_newt_DEPENDENCIES = $(newt_la_SOURCES)
