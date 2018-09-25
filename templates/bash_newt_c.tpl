@@ -1,6 +1,10 @@
 {#  jinja2 template for the implementation  #}
+
+{% import 'default_macros.tpl' as m  %}
+
 #include <stdio.h>
 #include "bash_newt.h"
+#include "bash_builtin_utils.h"
 #include "type_conversion.h"
 
 /* An array of strings forming the `long' documentation for a builtin xxx,
@@ -35,35 +39,16 @@ entry_point entries[] = {
 
 size_t entries_length = sizeof(entries)/sizeof(entries[0]);
 
-{#- avoid shadowing the param of our function #}
-{%- macro local(name) -%}
-{%- if name == 'args' %}local_{%- endif %}{{ name }}
-{%- endmacro %}
-
-{#- generate the list of arguments for the function call #}
-{%- macro arglist(args) -%}
-{%- for (type, name) in args %}{{ local(name) }}{%- if loop.nextitem is defined %}, {%endif %}{%- endfor %}
-{%- endmacro %}
-
-{%- macro return_var(type) -%}
-{%- if type != "void" %}{{ type }} return_value = {%- endif %}
-{%- endmacro %}
-
 
 /* implementation of the wrappers */
 {%- for func in funcs | without_variadic %}	 
-int bash_{{ func.name }}( const char* varname, WORD_LIST *args) {
+int bash_{{ func.name }}( char* varname, WORD_LIST *args) {
+
   {%- for (type, name) in func.args %}
-  
-  if ( args->next == NULL) goto usage;
-  args = args->next;
-  {{ type }} {{ local(name) }};
-  if (! {{ type | string_to_type }}(args->word->word, &{{ local(name) }})) {    
-     goto usage;
-  }  
+      {{ m.localvar(type, name) }}
   {%- endfor %}
 
-  {{ return_var(func.return_type) }} {{ func.name }}({{ arglist(func.args) }});
+  {{ m.return_var(func.return_type) }} {{ func.name }}({{ m.arglist(func.args) }});
 
   {%- if func.return_type != "void" %}
   if (varname != NULL) {

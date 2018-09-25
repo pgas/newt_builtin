@@ -23,18 +23,18 @@ void bash_newt_destroy_callback(newtComponent co, void *data) {
   bash_newt_component bash_co = (bash_newt_component)data;
   /* if (bash_co->filter) free(bash_co->filter); */
   /* if (bash_co->callback) free(bash_co->callback); */
+  tdelete(bash_co, &newtComponents, bash_newt_compare_ptr);
   xfree(bash_co);
 }
 
 bash_newt_component bash_newt_new(newtComponent co) {
 
   bash_newt_component bash_co = xmalloc(sizeof(struct bash_newt_component_struct));
-
   if (bash_co != NULL) {
      bash_co->co = co; 
-  /*   /\* bash_co->filter = NULL; *\/ */
-  /*   /\* bash_co->callback = NULL; *\/ */
-     newtComponentAddDestroyCallback(co, bash_newt_destroy_callback, NULL);
+     /*   /\* bash_co->filter = NULL; *\/ */
+     /*   /\* bash_co->callback = NULL; *\/ */
+     newtComponentAddDestroyCallback(co, bash_newt_destroy_callback, bash_co);
     /* save the value in the tree */
      bash_newt_component *p = (bash_newt_component *)tsearch(bash_co, &newtComponents, bash_newt_compare_ptr);
   }

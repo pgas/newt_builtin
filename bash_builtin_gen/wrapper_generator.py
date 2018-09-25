@@ -1,6 +1,7 @@
 from pycparser import CParser, c_ast
-from collections import namedtuple
-from jinja2 import Template, Environment
+from collections import namedtuple, defaultdict
+
+from jinja2 import Template, Environment, FileSystemLoader
 
 
 Function = namedtuple('Function', 'name args return_type')
@@ -69,7 +70,7 @@ class WrapperGenerator(object):
         ast = CParser().parse(text, filename)
         self.visitor = DeclVisitor()
         self.visitor.visit(ast)
-        self.env = Environment()
+        self.env = Environment(loader=FileSystemLoader('templates'))
         self.env.filters['without_variadic'] = without_variadic
         self.env.filters['string_to_type'] = string_to_type
         self.env.filters['type_to_string'] = type_to_string

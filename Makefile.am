@@ -25,12 +25,17 @@ endif
 AM_TESTS_ENVIRONMENT = \
 	LD_LIBRARY_PATH=$(top_srcdir)/.libs
 
-check_PROGRAMS = test/dispatch test/bash_builtin_utils test/type_conversion test/bash_newt 
-TESTS = test/dispatch test/bash_builtin_utils test/type_conversion test/bash_newt
+check_PROGRAMS = test/bash_newt_types test/dispatch test/bash_builtin_utils test/type_conversion test/bash_newt 
+TESTS =  test/bash_newt_types test/dispatch test/bash_builtin_utils test/type_conversion test/bash_newt
 
 test_cppflags = $(BASH_CPPFLAGS) -I$(top_srcdir)/src
 test_ldflags =  -L$(top_srcdir)/.libs $(BASH_LDFLAGS)  -Wl,--wrap=main
 test_ldadd =   -l:newt.a -lcmocka $(BASH_LIBS)
+
+test_bash_newt_types_CPPFLAGS =  $(test_cppflags)
+test_bash_newt_types_LDFLAGS =  $(test_ldflags)
+test_bash_newt_types_LDADD =   $(test_ldadd)
+EXTRA_test_bash_newt_types_DEPENDENCIES = $(newt_la_SOURCES)
 
 
 test_bash_builtin_utils_CPPFLAGS =  $(test_cppflags)
@@ -70,10 +75,10 @@ pythontests:  $(pysources)
 
 test: pythontests check
 
-src/bash_newt.h: src/bash_newt_h.tpl 
+src/bash_newt.h: templates/bash_newt_h.tpl 
 	python -m bash_builtin_gen pre_processed_newt.h $< > $@
 
-src/bash_newt.c: src/bash_newt_c.tpl src/bash_newt.h 
+src/bash_newt.c: templates/bash_newt_c.tpl src/bash_newt.h 
 	python -m bash_builtin_gen pre_processed_newt.h $<  > $@
 
 clean-local:

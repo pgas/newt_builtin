@@ -39,3 +39,4 @@ test/type_conversion
 /libbash.mk
 /ast
 /test/bash_builtin_utils
+/test/bash_newt_types

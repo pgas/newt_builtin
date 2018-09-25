@@ -16,7 +16,7 @@ extern struct builtin newt_struct;
 {%- for func in funcs | without_variadic %}
 {#- skip variadic function for now, they are tricky to call (libffi..)
     and I suspect they are just convenience function #}	 
-int bash_{{ func.name }}(const char* varname, WORD_LIST *args);
+int bash_{{ func.name }}( char* varname, WORD_LIST *args);
 {%- endfor %}
 /* dispatch table */
 extern entry_point entries[];
