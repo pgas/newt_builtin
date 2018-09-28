@@ -61,6 +61,22 @@ bool string_to_int(const char * value, int * result){
   return false;
 }
 
+
+bool string_to_bash_newt_component(const char* value, bash_newt_component *result){
+  if (strncmp(value, "NULL", 4) == 0) {
+    *result = NULL;
+    return true;
+  }
+  bash_newt_component  bash_co;
+  if (sscanf(value, "%p", &bash_co) == 1) {
+    *result  = bash_co;
+    return (*result != NULL);
+  } else {
+    return false;
+  }
+}
+
+
 /* only allow pointers that have previously been exported*/
 bool string_to_newtComponent(const char* value, newtComponent *result){
   if (strncmp(value, "NULL", 4) == 0) {

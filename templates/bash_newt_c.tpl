@@ -7,6 +7,7 @@
 #include "bash_newt.h"
 #include "bash_builtin_utils.h"
 #include "type_conversion.h"
+#include "bash_newt_types.h"
 
 /* An array of strings forming the `long' documentation for a builtin xxx,
    which is printed by `help xxx'.  It must end with a NULL.  By convention,

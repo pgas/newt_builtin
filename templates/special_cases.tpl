@@ -4,7 +4,7 @@
 
 {%- macro newtComponentAddDestroyCallback(func) %}
 
-   {{ macros.localvar('newtComponent', 'co') }}
+   {{ macros.localvar('bash_newt_component', 'co') }}
    {{ macros.localvar('char', 'callback') }}
 
    bash_newt_set_destroy_callback('co', 'callback');

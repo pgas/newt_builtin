@@ -19,10 +19,14 @@ static int bash_newt_compare_ptr (const void *a, const void *b) {
   return 1;
 }
 
+
 void bash_newt_destroy_callback(newtComponent co, void *data) {
   bash_newt_component bash_co = (bash_newt_component)data;
   /* if (bash_co->filter) free(bash_co->filter); */
-  /* if (bash_co->callback) free(bash_co->callback); */
+  if (bash_co->destroy_callback) {
+    int ret =  evalstring (savestring(bash_co->destroy_callback), NULL, 0);
+    xfree(bash_co->destroy_callback);
+  }
   tdelete(bash_co, &newtComponents, bash_newt_compare_ptr);
   xfree(bash_co);
 }
@@ -33,7 +37,7 @@ bash_newt_component bash_newt_new(newtComponent co) {
   if (bash_co != NULL) {
      bash_co->co = co; 
      /*   /\* bash_co->filter = NULL; *\/ */
-     /*   /\* bash_co->callback = NULL; *\/ */
+     bash_co->destroy_callback = NULL;
      newtComponentAddDestroyCallback(co, bash_newt_destroy_callback, bash_co);
     /* save the value in the tree */
      bash_newt_component *p = (bash_newt_component *)tsearch(bash_co, &newtComponents, bash_newt_compare_ptr);
@@ -52,7 +56,11 @@ newtComponent bash_newt_get_newt_component(bash_newt_component component){
 }
 
 
-void bash_newt_set_destroy_callback(newtComponent co, const char * callback){
-
-
+void bash_newt_set_destroy_callback(bash_newt_component component,
+				    const char * callback){
+  if (tfind(component, &newtComponents, bash_newt_compare_ptr) != NULL){
+    /* only one callback at a time, I think newt works like this */
+    xfree(component->destroy_callback);
+    component->destroy_callback = savestring(callback);
+  }
 }
