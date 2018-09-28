@@ -1,6 +1,11 @@
-{#  jinja2 template for the implementation  #}
+{#-  jinja2 template for the implementation  #}
 
-{% import 'default_macros.tpl' as m  %}
+{#- first import the special cases #}
+{% import 'special_cases.tpl' as special %}
+{#- the the default ones with context so that they takes
+    the special cases into account #}
+{% import 'default_macros.tpl' as macros  with context %}
+
 
 #include <stdio.h>
 #include "bash_newt.h"
@@ -44,11 +49,11 @@ size_t entries_length = sizeof(entries)/sizeof(entries[0]);
 {%- for func in funcs | without_variadic %}	 
 int bash_{{ func.name }}( char* varname, WORD_LIST *args) {
 
-  {%- for (type, name) in func.args %}
-      {{ m.localvar(type, name) }}
-  {%- endfor %}
 
-  {{ m.return_var(func.return_type) }} {{ func.name }}({{ m.arglist(func.args) }});
+        {{ macros.localvar(func.name,  func.args) }}
+
+
+  {{ macros.return_var(func.return_type) }} {{ func.name }}({{ macros.arglist(func.args) }});
 
   {%- if func.return_type != "void" %}
   if (varname != NULL) {
