@@ -13,15 +13,13 @@
 {%- if type != "void" %}{{ type }} return_value = {%- endif %}
 {%- endmacro %}
 
-{%- macro localvar(funcname,   args) %}
-  {%- for (type, name) in args %}
+{%- macro localvar(type, name) %}
   if ( args->next == NULL) goto usage;
   args = args->next;
   {{ type }} {{ local(name) }};
   if (! {{ type | string_to_type }}(args->word->word, &{{ local(name) }})) {    
      goto usage;
   }
-  {%- endfor %}
 {%- endmacro %}
 
 {# {%- if (funcname in special.localvar) %}

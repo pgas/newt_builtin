@@ -11,4 +11,6 @@ bash_newt_component bash_newt_new(newtComponent co);
 
 newtComponent bash_newt_get_newt_component(bash_newt_component co);
 
+void bash_newt_set_destroy_callback(newtComponent co, const char * callback);
+
 #endif

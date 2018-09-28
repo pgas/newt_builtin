@@ -1,11 +1,7 @@
 {#-  jinja2 template for the implementation  #}
 
-{#- first import the special cases #}
-{% import 'special_cases.tpl' as special %}
-{#- the the default ones with context so that they takes
-    the special cases into account #}
-{% import 'default_macros.tpl' as macros  with context %}
-
+{%- import 'default_macros.tpl' as macros %}
+{%- import 'special_cases.tpl' as special %}
 
 #include <stdio.h>
 #include "bash_newt.h"
@@ -48,11 +44,12 @@ size_t entries_length = sizeof(entries)/sizeof(entries[0]);
 /* implementation of the wrappers */
 {%- for func in funcs | without_variadic %}	 
 int bash_{{ func.name }}( char* varname, WORD_LIST *args) {
-
-
-        {{ macros.localvar(func.name,  func.args) }}
-
-
+ {%- if special[func.name] is defined %}
+  {{ special[func.name](func) }}
+ {%- else %}
+  {%- for (type, name) in func.args %}
+  {{ macros.localvar(type, name) }}
+  {%- endfor %}	   
   {{ macros.return_var(func.return_type) }} {{ func.name }}({{ macros.arglist(func.args) }});
 
   {%- if func.return_type != "void" %}
@@ -69,5 +66,7 @@ int bash_{{ func.name }}( char* varname, WORD_LIST *args) {
   usage:
   fprintf(stderr, "newt: usage: %s %s\n", "{{ func.name | replace('newt','newt ') }}", "{%- for (type, name) in func.args %}{{ name }}{%- if loop.nextitem is defined %} {%endif %}{%- endfor %}"); 
   return 1;
+
+ {% endif %}
 }
 {% endfor %}

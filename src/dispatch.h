@@ -3,7 +3,7 @@
 
 #include "bash_includes.h" 
 
-typedef  int (*entry_function)(const char* , WORD_LIST *);
+typedef  int (*entry_function)(char* , WORD_LIST *);
 
 typedef struct entry_point_struct {
   char * name;

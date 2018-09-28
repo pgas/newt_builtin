@@ -50,3 +50,9 @@ newtComponent bash_newt_get_newt_component(bash_newt_component component){
     return NULL;
   }
 }
+
+
+void bash_newt_set_destroy_callback(newtComponent co, const char * callback){
+
+
+}

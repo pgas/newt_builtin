@@ -75,10 +75,13 @@ pythontests:  $(pysources)
 
 test: pythontests check
 
-src/bash_newt.h: templates/bash_newt_h.tpl 
+OTHER_TEMPLATES = templates/default_macros.tpl \
+            templates/special_cases.tpl
+
+src/bash_newt.h: templates/bash_newt_h.tpl  $(OTHER_TEMPLATES)
 	python -m bash_builtin_gen pre_processed_newt.h $< > $@
 
-src/bash_newt.c: templates/bash_newt_c.tpl src/bash_newt.h 
+src/bash_newt.c: templates/bash_newt_c.tpl  $(OTHER_TEMPLATES) src/bash_newt.h 
 	python -m bash_builtin_gen pre_processed_newt.h $<  > $@
 
 clean-local:
