@@ -48,26 +48,7 @@ int bash_{{ func.name }}( char* varname, WORD_LIST *args) {
  {%- if special[func.name] is defined %}
   {{ special[func.name](func) }}
  {%- else %}
-  {%- for (type, name) in func.args %}
-  {{ macros.localvar(type, name) }}
-  {%- endfor %}	   
-  {{ macros.return_var(func.return_type) }} {{ func.name }}({{ macros.arglist(func.args) }});
-
-  {%- if func.return_type != "void" %}
-  if (varname != NULL) {
-    char * value;  
-    {{ func.return_type | type_to_string }}(return_value, &value);
-    bash_builtin_utils_bind_variable(varname, value, 0);
-    xfree(value);
-  }
-  {%- endif %}
-
-  return 0;
-
-  usage:
-  fprintf(stderr, "newt: usage: %s %s\n", "{{ func.name | replace('newt','newt ') }}", "{%- for (type, name) in func.args %}{{ name }}{%- if loop.nextitem is defined %} {%endif %}{%- endfor %}"); 
-  return 1;
-
+  {{ macros.basic_fun(func) }}
  {% endif %}
 }
 {% endfor %}

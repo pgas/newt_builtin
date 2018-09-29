@@ -21,7 +21,8 @@ bool char_to_string(char value, char** result){
 }
 
 bool int___ptr___to_string(int* value, char** result){
-  return false;
+  *result = xmalloc(pointer_string_size);
+  return snprintf(*result, pointer_string_size, "%d", *value) > 0;
 }
 
 bool int_to_string(int value, char** result){
