@@ -18,14 +18,13 @@ fi
 
 
 
-if newt init;then 
-    #    trap 'newt finished' EXIT
-    newt cls
-    newt centeredwindow 60 20
-    newt form -v myform
-    newt waitForKey # also redraw
-    newt form destroy $myform
-    newt waitForKey # also redraw
-    newt finished
+if newt Init;then 
+    newt Cls
+    newt CenteredWindow 60 20 "Form Test"
+    newt -v myform Form NULL "" 0
+    newt WaitForKey # also redraw
+    newt FormDestroy $myform
+    newt WaitForKey # also redraw
+    newt Finished
 fi
 echo  "myform: $myform"
