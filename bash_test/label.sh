@@ -13,25 +13,26 @@ if ! type newt &>/dev/null;then
     echo >&2 unable to load the new builtin
 fi
 
-if newt init;then 
-    trap 'newt finished' EXIT
-    newt cls
-    newt openwindow 10 7 40 7 "Button Sample"
+if newt Init;then 
+    trap 'newt Finished' EXIT
+    newt Cls
+    newt OpenWindow 10 7 40 7 "Button Sample"
 
-    newt label -v l1  10 1 "Hello, world!"    
-    newt button -v b1 10 3 "Ok"
+    newt -v l1 Label   10 1 "Hello, world!"    
+    newt -v b1 Button  10 3 "Ok"
 
     
-    newt form -v form
-    newt form addcomponents "$form" "$l1" "$b1"
+    newt -v form Form  NULL "" 0
+    newt FormAddComponent "$form" "$l1"
+    newt FormAddComponent "$form" "$b1"
     
-    newt runform "$form"
-    newt label settext "$l1" "Bye, world!"
-    newt refresh
+    newt RunForm "$form"
+    newt LabelSetText "$l1" "Bye, world!"
+    newt Refresh
     sleep 1
-    newt label settext "$l1" "The end, world!"
-    newt refresh
+    newt LabelSetText "$l1" "The end, world!"
+    newt Refresh
     sleep 1
 
-    newt form destroy "$form"
+    newt FormDestroy "$form"
 fi
