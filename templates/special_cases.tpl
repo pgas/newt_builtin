@@ -5,11 +5,15 @@
 {%- macro newtComponentAddDestroyCallback(func) %}
 
    {{ macros.localvar('bash_newt_component', 'co') }}
-   {{ macros.localvar('char', 'callback') }}
+   {{ macros.localvar('char *', 'callback') }}
 
-   bash_newt_set_destroy_callback('co', 'callback');
+   bash_newt_set_destroy_callback(co, callback);
 
+   return 0;
+   
    usage:
-     fprintf(stderr, "newt: usage: %s %s\n", "newt ComponentAddDestroyCallback", "co callback"); 
+     fprintf(stderr, "newt: usage: %s %s\n", "newt ComponentAddDestroyCallback", "co callback");
+
+   return 1;
 {%- endmacro %}
 
