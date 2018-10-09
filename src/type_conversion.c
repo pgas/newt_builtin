@@ -33,7 +33,6 @@ bool newtComponent_to_string(newtComponent value, char** result){
   *result = xmalloc(pointer_string_size);
   bash_newt_component comp = bash_newt_new(value);
   return snprintf(*result, pointer_string_size, "%p", comp) > 0;
-  return false;
 }
 
 bool newtGrid_to_string(newtGrid value, char** result){
@@ -45,7 +44,8 @@ bool void___ptr____ptr___to_string(void ** value, char** result){
 }
 
 bool void___ptr___to_string(void *value, char** result){
-  return false;
+  *result = xmalloc(pointer_string_size);
+  return snprintf(*result, pointer_string_size, "%p", value) > 0;
 }
 
 
@@ -147,7 +147,8 @@ bool string_to_struct_newtColors(const char* value, struct newtColors *result){
 }
 
 bool string_to_char(const char* value, char *result){
-    return false;
+  *result = value[0];
+  return true;
 }
 
 bool string_to_struct_newtExitStruct___ptr__(const char* value, struct newtExitStruct * *result){

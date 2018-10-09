@@ -8,6 +8,7 @@
 struct bash_newt_component_struct {
   newtComponent  co;
   char * destroy_callback;
+  char checkbok_result;
 };
 
 /* store the pointers exported to bash in a tree*/
@@ -35,10 +36,8 @@ bash_newt_component bash_newt_new(newtComponent co) {
 
   bash_newt_component bash_co = xmalloc(sizeof(struct bash_newt_component_struct));
   if (bash_co != NULL) {
-     bash_co->co = co; 
-     /*   /\* bash_co->filter = NULL; *\/ */
-     bash_co->destroy_callback = NULL;
-     newtComponentAddDestroyCallback(co, bash_newt_destroy_callback, bash_co);
+     bash_co->co = NULL;
+     bash_newt_set_newt_component(bash_co, co);
     /* save the value in the tree */
      bash_newt_component *p = (bash_newt_component *)tsearch(bash_co, &newtComponents, bash_newt_compare_ptr);
   }
@@ -47,20 +46,41 @@ bash_newt_component bash_newt_new(newtComponent co) {
 }
 
 
-newtComponent bash_newt_get_newt_component(bash_newt_component component){
-  if (tfind(component, &newtComponents, bash_newt_compare_ptr) != NULL){
-    return (component)->co;
+char *  bash_newt_get_checkbox_result(bash_newt_component bash_co){
+  return & bash_co->checkbok_result;
+
+}
+
+void bash_newt_set_newt_component(bash_newt_component bash_co, newtComponent co){
+ if (bash_co != NULL) {
+   if (bash_co->co != NULL) {
+     newtComponentDestroy(bash_co->co);
+   }
+   bash_co->co = co; 
+   bash_co->destroy_callback = NULL;
+   if (co != NULL) {
+     newtComponentAddDestroyCallback(co, bash_newt_destroy_callback, bash_co);
+   }
+   /* save the value in the tree */
+   bash_newt_component *p = (bash_newt_component *)tsearch(bash_co, &newtComponents, bash_newt_compare_ptr);
+  }
+
+}
+
+newtComponent bash_newt_get_newt_component(bash_newt_component bash_co){
+  if (tfind(bash_co, &newtComponents, bash_newt_compare_ptr) != NULL){
+    return (bash_co)->co;
   } else {
     return NULL;
   }
 }
 
 
-void bash_newt_set_destroy_callback(bash_newt_component component,
+void bash_newt_set_destroy_callback(bash_newt_component bash_co,
 				    const char * callback){
-  if (tfind(component, &newtComponents, bash_newt_compare_ptr) != NULL){
+  if (tfind(bash_co, &newtComponents, bash_newt_compare_ptr) != NULL){
     /* only one callback at a time, I think newt works like this */
-    xfree(component->destroy_callback);
-    component->destroy_callback = savestring(callback);
+    xfree(bash_co->destroy_callback);
+    bash_co->destroy_callback = savestring(callback);
   }
 }

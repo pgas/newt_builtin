@@ -33,7 +33,8 @@ test_ldflags =  -L$(top_srcdir)/.libs $(BASH_LDFLAGS)  -Wl,--wrap=main
 test_ldadd =   -l:newt.a -lcmocka $(BASH_LIBS)
 
 test_bash_newt_types_CPPFLAGS =  $(test_cppflags)
-test_bash_newt_types_LDFLAGS =  $(test_ldflags)
+test_bash_newt_types_LDFLAGS =  -Wl,--wrap=newtComponentAddDestroyCallback \
+				$(test_ldflags)
 test_bash_newt_types_LDADD =   $(test_ldadd)
 EXTRA_test_bash_newt_types_DEPENDENCIES = $(newt_la_SOURCES)
 

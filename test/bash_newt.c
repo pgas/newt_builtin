@@ -28,7 +28,6 @@ void  __wrap_newtInit(){
 
 void __wrap_newtComponentAddDestroyCallback(newtComponent co,
 				     newtCallback f, void * data){
-  fprintf(stderr, "called\n");
 }
 
 static int setup(void **state) {

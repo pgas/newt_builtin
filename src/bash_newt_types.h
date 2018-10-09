@@ -9,8 +9,10 @@ typedef struct bash_newt_component_struct *  bash_newt_component;
 
 bash_newt_component bash_newt_new(newtComponent co);
 
-newtComponent bash_newt_get_newt_component(bash_newt_component co);
-
-void bash_newt_set_destroy_callback(bash_newt_component co, const char * callback);
+newtComponent bash_newt_get_newt_component(bash_newt_component bash_co);
+void bash_newt_set_newt_component(bash_newt_component bash_co, newtComponent co);
+char *  bash_newt_get_checkbox_result(bash_newt_component bash_co);
+  
+void bash_newt_set_destroy_callback(bash_newt_component bash_co, const char * callback);
 
 #endif
