@@ -1,0 +1,7 @@
+* NULL when passing a string?
+* more conversions?
+* support filter
+* set special fd (line buffered) for debugging 
+* update tutorial for bash? more tutorial
+
+
