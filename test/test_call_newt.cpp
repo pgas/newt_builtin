@@ -106,6 +106,28 @@ TEST_CASE("call_newt const char* return bound as string", "[call_newt][nonvoid]"
     CHECK(*val == "Alice");
 }
 
+// ── SetSuspendCallback argument shape ─────────────────────────────────────────
+// SetSuspendCallback takes a single string (bash function name); no return value.
+// Mirrors what wrap_SetSuspendCallback parses before registering the shim.
+
+static void fake_register_suspend(const char* /*fn_name*/) {}
+
+TEST_CASE("call_newt SetSuspendCallback shape: one const char* arg → SUCCESS",
+          "[call_newt][setsuspendcallback]") {
+    WordListBuilder wl{"cmd", "my_suspend_fn"};
+    CHECK(call_newt("SetSuspendCallback", "bashFunctionName",
+                    fake_register_suspend, nullptr, wl.head())
+          == EXECUTION_SUCCESS);
+}
+
+TEST_CASE("call_newt SetSuspendCallback shape: no arg → EXECUTION_FAILURE",
+          "[call_newt][setsuspendcallback]") {
+    WordListBuilder wl{"cmd"};   // no function name
+    CHECK(call_newt("SetSuspendCallback", "bashFunctionName",
+                    fake_register_suspend, nullptr, wl.head())
+          == EXECUTION_FAILURE);
+}
+
 // ── non-void / too few args → EXECUTION_FAILURE ──────────────────────────────
 
 TEST_CASE("call_newt non-void, too few args → EXECUTION_FAILURE",

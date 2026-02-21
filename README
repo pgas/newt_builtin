@@ -1,4 +1,99 @@
-Small cmake template for a bash loadable builtin it provides a
-"newt" builtin.
+# newt bash builtin
 
-the original autoconf project is in the autoconf branch
+A [bash loadable builtin](https://www.gnu.org/software/bash/manual/html_node/bash_builtin.html) that exposes the [newt](https://pagure.io/newt) TUI library directly to shell scripts.  Instead of shelling out to a helper program, you load `newt.so` once with `enable -f` and then call `newt Init`, `newt OpenWindow`, `newt Button`, etc. as ordinary bash commands.
+
+> The original autoconf-based version lives in the `autoconf` branch.
+
+---
+
+## Requirements
+
+| Dependency | Notes |
+|---|---|
+| **bash** headers | Usually in `/usr/include/bash`; package: `bash-devel` / `bash-dev` |
+| **libnewt** + headers | Package: `newt-devel` / `libnewt-dev` |
+| **CMake** ≥ 3.14 | For FetchContent (Catch2) |
+| C++17 compiler | gcc or clang |
+
+Install on Debian/Ubuntu:
+```bash
+sudo apt install bash-builtins libnewt-dev cmake g++
+```
+
+Install on Fedora/RHEL:
+```bash
+sudo dnf install bash-devel newt-devel cmake gcc-c++
+```
+
+---
+
+## Build
+
+```bash
+cmake -B build
+cmake --build build
+```
+
+The shared library is produced at `build/src/newt.so`.
+
+If your bash headers are in a non-standard location pass `-DBASH_HEADERS=/path/to/prefix`:
+```bash
+cmake -B build -DBASH_HEADERS=/usr/local
+cmake --build build
+```
+
+To install `newt.so` to `lib/bash` (so bash picks it up via `BASH_LOADABLES_PATH`):
+```bash
+cmake --install build
+```
+
+---
+
+## Usage
+
+```bash
+enable -f build/src/newt.so newt   # load the builtin
+
+if newt Init; then
+    trap 'newt Finished' EXIT
+    newt Cls
+    newt OpenWindow 10 5 40 7 "Hello"
+    newt -v lbl Label 10 1 "Hello, world!"
+    newt -v frm Form NULL '' 0
+    newt FormAddComponent "$frm" "$lbl"
+    newt RunForm "$frm"
+    newt FormDestroy "$frm"
+fi
+```
+
+The `bash_test/` directory contains more examples covering windows, labels,
+entries, forms, buttons and callbacks.
+
+---
+
+## Running the tests
+
+### Unit tests (C++ / Catch2)
+
+These tests cover argument parsing and type conversion with no display needed —
+Catch2 is fetched automatically by CMake.
+
+```bash
+cmake -B build
+cmake --build build
+ctest --test-dir build --output-on-failure
+```
+
+### Functional tests (Python / pytest)
+
+Functional tests spawn a real `bash` process inside a pty ([pexpect](https://pexpect.readthedocs.io/)) and assert on the *rendered* terminal screen ([pyte](https://pyte.readthedocs.io/)).  Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).
+
+```bash
+# Build the shared library first (see above).
+
+cd functional_test
+uv sync              # one-time: creates .venv and installs dependencies
+uv run pytest -v
+```
+
+See [functional_test/README.md](functional_test/README.md) for full details.

@@ -28,6 +28,9 @@ static std::map<newtComponent, std::unique_ptr<char>> g_checkbox_results;
 // function that should be called as the entry filter.
 static std::map<newtComponent, std::string> g_entry_filters;
 
+// Suspend callback: name of the bash function registered via SetSuspendCallback.
+static std::string g_suspend_callback_fn;
+
 // ─── entry filter C shim ──────────────────────────────────────────────────────
 // Called by libnewt for every keystroke in a filtered entry widget.  Looks up
 // the bash function registered for 'co', sets NEWT_ENTRY / NEWT_CH /
@@ -51,6 +54,16 @@ static int entry_filter_shim(newtComponent co, void* /*data*/, int ch,
     std::memcpy(cmd, s.c_str(), s.size() + 1);
     int ret = evalstring(cmd, nullptr, 0);
     return (ret == 0) ? ch : 0;
+}
+
+// Called by libnewt when CTRL+Z is pressed while a form is running.  Looks up
+// the registered bash function and evaluates it.
+static void suspend_callback_shim(void* /*data*/) {
+    if (g_suspend_callback_fn.empty()) return;
+    const std::string& s = g_suspend_callback_fn;
+    char* cmd = reinterpret_cast<char*>(xmalloc(s.size() + 1));
+    std::memcpy(cmd, s.c_str(), s.size() + 1);
+    evalstring(cmd, nullptr, 0);
 }
 
 // ─── widget constructors ──────────────────────────────────────────────────────
@@ -258,6 +271,100 @@ static int wrap_ListboxItemCount(char* v, WORD_LIST* a){ return call_newt("Listb
 static int wrap_TextboxGetNumLines(char* v, WORD_LIST* a) { return call_newt("TextboxGetNumLines", "co",   newtTextboxGetNumLines, v, a); }
 static int wrap_TextboxSetHeight(char* v, WORD_LIST* a){ return call_newt("TextboxSetHeight", "co height", newtTextboxSetHeight,  v, a); }
 
+// SetColors rootFg rootBg borderFg borderBg windowFg windowBg shadowFg shadowBg
+//           titleFg titleBg buttonFg buttonBg actButtonFg actButtonBg
+//           checkboxFg checkboxBg actCheckboxFg actCheckboxBg entryFg entryBg
+//           labelFg labelBg listboxFg listboxBg actListboxFg actListboxBg
+//           textboxFg textboxBg actTextboxFg actTextboxBg helpLineFg helpLineBg
+//           rootTextFg rootTextBg emptyScale fullScale
+//           disabledEntryFg disabledEntryBg compactButtonFg compactButtonBg
+//           actSelListboxFg actSelListboxBg selListboxFg selListboxBg
+static int wrap_SetColors(char* /*v*/, WORD_LIST* a) {
+    static constexpr int NFIELDS = 44;
+    const char* f[NFIELDS];
+    for (int i = 0; i < NFIELDS; ++i) {
+        if (!a->next) goto usage;
+        a = a->next;
+        if (!from_string(a->word->word, f[i])) goto usage;
+    }
+    {
+        struct newtColors c;
+        c.rootFg           = const_cast<char*>(f[0]);
+        c.rootBg           = const_cast<char*>(f[1]);
+        c.borderFg         = const_cast<char*>(f[2]);
+        c.borderBg         = const_cast<char*>(f[3]);
+        c.windowFg         = const_cast<char*>(f[4]);
+        c.windowBg         = const_cast<char*>(f[5]);
+        c.shadowFg         = const_cast<char*>(f[6]);
+        c.shadowBg         = const_cast<char*>(f[7]);
+        c.titleFg          = const_cast<char*>(f[8]);
+        c.titleBg          = const_cast<char*>(f[9]);
+        c.buttonFg         = const_cast<char*>(f[10]);
+        c.buttonBg         = const_cast<char*>(f[11]);
+        c.actButtonFg      = const_cast<char*>(f[12]);
+        c.actButtonBg      = const_cast<char*>(f[13]);
+        c.checkboxFg       = const_cast<char*>(f[14]);
+        c.checkboxBg       = const_cast<char*>(f[15]);
+        c.actCheckboxFg    = const_cast<char*>(f[16]);
+        c.actCheckboxBg    = const_cast<char*>(f[17]);
+        c.entryFg          = const_cast<char*>(f[18]);
+        c.entryBg          = const_cast<char*>(f[19]);
+        c.labelFg          = const_cast<char*>(f[20]);
+        c.labelBg          = const_cast<char*>(f[21]);
+        c.listboxFg        = const_cast<char*>(f[22]);
+        c.listboxBg        = const_cast<char*>(f[23]);
+        c.actListboxFg     = const_cast<char*>(f[24]);
+        c.actListboxBg     = const_cast<char*>(f[25]);
+        c.textboxFg        = const_cast<char*>(f[26]);
+        c.textboxBg        = const_cast<char*>(f[27]);
+        c.actTextboxFg     = const_cast<char*>(f[28]);
+        c.actTextboxBg     = const_cast<char*>(f[29]);
+        c.helpLineFg       = const_cast<char*>(f[30]);
+        c.helpLineBg       = const_cast<char*>(f[31]);
+        c.rootTextFg       = const_cast<char*>(f[32]);
+        c.rootTextBg       = const_cast<char*>(f[33]);
+        c.emptyScale       = const_cast<char*>(f[34]);
+        c.fullScale        = const_cast<char*>(f[35]);
+        c.disabledEntryFg  = const_cast<char*>(f[36]);
+        c.disabledEntryBg  = const_cast<char*>(f[37]);
+        c.compactButtonFg  = const_cast<char*>(f[38]);
+        c.compactButtonBg  = const_cast<char*>(f[39]);
+        c.actSelListboxFg  = const_cast<char*>(f[40]);
+        c.actSelListboxBg  = const_cast<char*>(f[41]);
+        c.selListboxFg     = const_cast<char*>(f[42]);
+        c.selListboxBg     = const_cast<char*>(f[43]);
+        newtSetColors(c);
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr,
+        "newt: usage: newt SetColors "
+        "rootFg rootBg borderFg borderBg windowFg windowBg shadowFg shadowBg "
+        "titleFg titleBg buttonFg buttonBg actButtonFg actButtonBg "
+        "checkboxFg checkboxBg actCheckboxFg actCheckboxBg entryFg entryBg "
+        "labelFg labelBg listboxFg listboxBg actListboxFg actListboxBg "
+        "textboxFg textboxBg actTextboxFg actTextboxBg helpLineFg helpLineBg "
+        "rootTextFg rootTextBg emptyScale fullScale "
+        "disabledEntryFg disabledEntryBg compactButtonFg compactButtonBg "
+        "actSelListboxFg actSelListboxBg selListboxFg selListboxBg\n");
+    return EXECUTION_FAILURE;
+}
+
+// SetSuspendCallback bashFunctionName
+// Registers a bash function as the C-level suspend callback shim.
+static int wrap_SetSuspendCallback(char* /*v*/, WORD_LIST* a) {
+    const char* fn_name;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, fn_name)) goto usage;
+
+    g_suspend_callback_fn = fn_name;
+    newtSetSuspendCallback(suspend_callback_shim, nullptr);
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr, "newt: usage: newt SetSuspendCallback bashFunctionName\n");
+    return EXECUTION_FAILURE;
+}
+
 // ─── existing wrappers (generated) ───────────────────────────────────────────
 
 static int wrap_FormSetTimer(char* v, WORD_LIST* a) {
@@ -428,6 +535,8 @@ static const DispatchEntry dispatch_table[] = {
     { "EntrySetCursorPosition", wrap_EntrySetCursorPosition },
     { "ScaleSet",               wrap_ScaleSet          },
     { "ScaleSetColors",         wrap_ScaleSetColors    },
+    { "SetColors",              wrap_SetColors         },
+    { "SetSuspendCallback",     wrap_SetSuspendCallback},
     // ── constructors ──────────────────────────────────────────────────────────
     { "Entry",                  wrap_Entry             },
     { "Form",                   wrap_Form              },

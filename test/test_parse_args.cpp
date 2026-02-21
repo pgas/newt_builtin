@@ -115,3 +115,74 @@ TEST_CASE("parse_args returns false when from_string fails for an arg",
     std::tuple<int> tup{};
     CHECK_FALSE(parse_args(args, tup));
 }
+
+// ── 44 const char* args ── covers the SetColors field count ──────────────────
+
+// Build a WordListBuilder with 44 colour strings for the SetColors test.
+static std::vector<std::string> make_color_args() {
+    // Matches the newtDefaultColorPalette order:
+    // rootFg/Bg borderFg/Bg windowFg/Bg shadowFg/Bg titleFg/Bg
+    // buttonFg/Bg actButtonFg/Bg checkboxFg/Bg actCheckboxFg/Bg entryFg/Bg
+    // labelFg/Bg listboxFg/Bg actListboxFg/Bg textboxFg/Bg actTextboxFg/Bg
+    // helpLineFg/Bg rootTextFg/Bg emptyScale fullScale
+    // disabledEntryFg/Bg compactButtonFg/Bg actSelListboxFg/Bg selListboxFg/Bg
+    return {
+        "white","blue",    "black","blue",    "black","white",  "white","black",
+        "red",  "white",   "white","red",     "white","red",    "white","black",
+        "white","black",   "black","white",   "blue", "white",  "black","white",
+        "white","blue",    "black","white",   "white","blue",   "black","white",
+        "black","white",   "white",           "red",
+        "black","white",   "white","black",   "white","blue",   "black","white",
+    };
+}
+
+TEST_CASE("parse_args handles 44 const char* args (SetColors shape)",
+          "[parse_args][setcolors]") {
+    std::vector<std::string> tokens{"cmd"};
+    auto colors = make_color_args();
+    tokens.insert(tokens.end(), colors.begin(), colors.end());
+    REQUIRE(tokens.size() == 45);   // sentinel + 44 color strings
+
+    WordListBuilder wl{tokens};
+    WORD_LIST* args = wl.head();
+
+    std::tuple<
+        const char*, const char*, const char*, const char*, const char*, const char*,
+        const char*, const char*, const char*, const char*, const char*, const char*,
+        const char*, const char*, const char*, const char*, const char*, const char*,
+        const char*, const char*, const char*, const char*, const char*, const char*,
+        const char*, const char*, const char*, const char*, const char*, const char*,
+        const char*, const char*, const char*, const char*, const char*, const char*,
+        const char*, const char*, const char*, const char*, const char*, const char*,
+        const char*, const char*
+    > tup{};
+    REQUIRE(parse_args(args, tup));
+    // Spot-check the first and last fields.
+    CHECK(std::string(std::get<0>(tup))  == "white");  // rootFg
+    CHECK(std::string(std::get<1>(tup))  == "blue");   // rootBg
+    CHECK(std::string(std::get<42>(tup)) == "black");  // selListboxFg
+    CHECK(std::string(std::get<43>(tup)) == "white");  // selListboxBg
+}
+
+TEST_CASE("parse_args fails when one arg short of 44 (SetColors shape)",
+          "[parse_args][setcolors]") {
+    std::vector<std::string> tokens{"cmd"};
+    auto colors = make_color_args();
+    colors.pop_back();  // remove the last arg → only 43 supplied
+    tokens.insert(tokens.end(), colors.begin(), colors.end());
+
+    WordListBuilder wl{tokens};
+    WORD_LIST* args = wl.head();
+
+    std::tuple<
+        const char*, const char*, const char*, const char*, const char*, const char*,
+        const char*, const char*, const char*, const char*, const char*, const char*,
+        const char*, const char*, const char*, const char*, const char*, const char*,
+        const char*, const char*, const char*, const char*, const char*, const char*,
+        const char*, const char*, const char*, const char*, const char*, const char*,
+        const char*, const char*, const char*, const char*, const char*, const char*,
+        const char*, const char*, const char*, const char*, const char*, const char*,
+        const char*, const char*
+    > tup{};
+    CHECK_FALSE(parse_args(args, tup));
+}
