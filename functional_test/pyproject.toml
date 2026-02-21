@@ -1,0 +1,13 @@
+[project]
+name = "newt-functional-tests"
+version = "0.1.0"
+description = "Functional tests for the newt bash builtin using pexpect + pyte"
+requires-python = ">=3.11"
+dependencies = [
+    "pexpect>=4.9",
+    "pyte>=0.8",
+    "pytest>=8.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["."]
