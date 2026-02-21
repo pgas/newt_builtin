@@ -1,0 +1,4 @@
+Small cmake template for a bash loadable builtin it provides a
+"newt" builtin.
+
+the original autoconf project is in the autoconf branch
