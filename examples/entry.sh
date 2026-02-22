@@ -34,7 +34,8 @@ if newt Init;then
     newt -v ent2 Entry 10 2 "" 20
     newt EntrySet "$ent2" "Cursor Position" 0
     
-    newt -v ent3 Entry 10 4 "Hello, world!" 20 $((NEWT_FLAG_RETURNEXIT|NEWT_ENTRY_SCROLL))
+    newt -v ent3 Entry 10 4 "Hello, world!" 20 \
+        $(( ${NEWT_FLAG[RETURNEXIT]} | ${NEWT_FLAG[SCROLL]} ))
     newt EntrySetFilter "$ent3" 'printf "ent:%s ch:%q cu:%s\n" $NEWT_ENTRY "$NEWT_CH" $NEWT_CURSOR >&2;[[ $NEWT_CH != e ]]'
 
     newt -v b1 Button 10 6 "Ok"

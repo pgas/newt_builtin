@@ -43,8 +43,7 @@ newt -v lbl_color  Label 5 5 "LabelSetColors: colorset 8 (ACTBUTTON)"
 newt LabelSetText "$lbl_change" "After LabelSetText ✓"
 
 # --- LabelSetColors ----------------------------------------------------------
-# NEWT_COLORSET_ACTBUTTON = 8
-newt LabelSetColors "$lbl_color" 8
+newt LabelSetColors "$lbl_color" "${NEWT_COLORSET[ACTBUTTON]}"
 
 # --- Button / CompactButton --------------------------------------------------
 newt -v btn_next    Button        3 10 "Next >"
@@ -79,10 +78,10 @@ newt -v cb_c Checkbox 3 5  "Option C (custom toggles: 0=off 1=on)" " " "01"
 newt CheckboxSetValue "$cb_b" " "
 newt CheckboxSetValue "$cb_b" "*"
 
-# --- CheckboxSetFlags: disable Option C with NEWT_FLAGS_SET (0) + NEWT_FLAG_DISABLED (8) ---
+# --- CheckboxSetFlags: disable Option C, then re-enable it ---
 # We disable it here to demonstrate the API; re-enable below so the user can still toggle it
-newt CheckboxSetFlags "$cb_c" 8 0    # set NEWT_FLAG_DISABLED
-newt CheckboxSetFlags "$cb_c" 8 1    # reset NEWT_FLAG_DISABLED (re-enable)
+newt CheckboxSetFlags "$cb_c" "${NEWT_FLAG[DISABLED]}" 0    # set NEWT_FLAG_DISABLED
+newt CheckboxSetFlags "$cb_c" "${NEWT_FLAG[DISABLED]}" 1    # reset NEWT_FLAG_DISABLED (re-enable)
 
 newt -v btn2_next Button 3 13 "Next >"
 
@@ -168,11 +167,12 @@ for i in "${!animals[@]}"; do
 done
 
 # --- VerticalScrollbar left top height normalColorset thumbColorset ----------
-# NEWT_COLORSET_LISTBOX=13  NEWT_COLORSET_ACTLISTBOX=14
-newt -v sb VerticalScrollbar 28 3 6 13 14
+newt -v sb VerticalScrollbar 28 3 6 \
+    "${NEWT_COLORSET[LISTBOX]}" "${NEWT_COLORSET[ACTLISTBOX]}"
 
-# --- ScrollbarSetColors: swap to COLORSET_ACTBUTTON (8) / COLORSET_BUTTON (7)
-newt ScrollbarSetColors "$sb" 8 7
+# --- ScrollbarSetColors: swap to COLORSET_ACTBUTTON / COLORSET_BUTTON --------
+newt ScrollbarSetColors "$sb" \
+    "${NEWT_COLORSET[ACTBUTTON]}" "${NEWT_COLORSET[BUTTON]}"
 
 # --- ScrollbarSet co where total ---------------------------------------------
 # Initialise the scrollbar to position 0 out of 10 items

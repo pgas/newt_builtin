@@ -81,8 +81,8 @@ newt FormDestroy "$f2"
 newt PopWindow
 
 # ── Phase 3: use SetColor to tweak a single colorset ─────────────────────────
-# Reset root colours only (colorset 2 = NEWT_COLORSET_ROOT).
-newt SetColor 2 white blue
+# Reset root colours only (NEWT_COLORSET[ROOT]).
+newt SetColor "${NEWT_COLORSET[ROOT]}" white blue
 newt Cls
 newt DrawRootText 2 0 "Phase 3: root colorset patched back to white-on-blue"
 newt Refresh

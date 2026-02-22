@@ -11,7 +11,14 @@ if(NOT BASH_HEADERS_FOUND)
 endif()
 
 # Create the shared library
-add_library(newt MODULE newt.cpp newt_wrappers.cpp newt_arg_parser.hpp newt_wrappers.hpp)
+add_library(newt MODULE
+    newt.cpp
+    newt_wrappers.cpp
+    newt_constants.cpp
+    newt_arg_parser.hpp
+    newt_wrappers.hpp
+    newt_constants.hpp
+)
 
 # Set library properties
 set_target_properties(newt PROPERTIES

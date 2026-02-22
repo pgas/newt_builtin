@@ -20,7 +20,8 @@ if newt Init;then
     
     newt -v label Label 1 1 "Enter a string"
 
-    newt -v entry Entry 16 1 "sample" 20 $((NEWT_FLAG_SCROLL | NEWT_FLAG_RETURNEXIT))
+    newt -v entry Entry 16 1 "sample" 20 \
+        $(( ${NEWT_FLAG[SCROLL]} | ${NEWT_FLAG[RETURNEXIT]} ))
     newt -v button Button 17 3 "Ok"
 
     

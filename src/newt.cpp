@@ -25,6 +25,7 @@ extern "C" {
 }
 
 #include "newt_wrappers.hpp"   // WrapperFn, find_command
+#include "newt_constants.hpp"  // register_newt_constants
 
 // ─── bash builtin boilerplate ─────────────────────────────────────────────────
 
@@ -100,6 +101,7 @@ extern "C" int newt_builtin(WORD_LIST* list) {
 }
 
 extern "C" int newt_builtin_load(char* /*s*/) {
+    register_newt_constants();
     return 1;   // 1 = success for load callbacks
 }
 
