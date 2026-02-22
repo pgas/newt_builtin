@@ -36,6 +36,11 @@ static std::string g_suspend_callback_fn;
 // when that component is destroyed by newtComponentAddDestroyCallback.
 static std::map<newtComponent, std::string> g_destroy_callbacks;
 
+// Component callbacks: maps a newtComponent to a {bashExpr, dataStr} pair
+// registered via ComponentAddCallback.  The shim sets NEWT_COMPONENT and
+// NEWT_CB_DATA before evaluating the expression.
+static std::map<newtComponent, std::pair<std::string, std::string>> g_component_callbacks;
+
 // ─── entry filter C shim ──────────────────────────────────────────────────────
 // Called by libnewt for every keystroke in a filtered entry widget.  Looks up
 // the bash function registered for 'co', sets NEWT_ENTRY / NEWT_CH /
@@ -66,6 +71,25 @@ static int entry_filter_shim(newtComponent co, void* /*data*/, int ch,
 static void suspend_callback_shim(void* /*data*/) {
     if (g_suspend_callback_fn.empty()) return;
     const std::string& s = g_suspend_callback_fn;
+    char* cmd = reinterpret_cast<char*>(xmalloc(s.size() + 1));
+    std::memcpy(cmd, s.c_str(), s.size() + 1);
+    evalstring(cmd, nullptr, 0);
+}
+
+// Called by libnewt when a component fires its change/focus callback.
+// Sets NEWT_COMPONENT and NEWT_CB_DATA, then evaluates the registered bash
+// expression.
+static void component_callback_shim(newtComponent co, void* /*data*/) {
+    auto it = g_component_callbacks.find(co);
+    if (it == g_component_callbacks.end()) return;
+
+    std::string co_str = to_bash_string(co);
+    builtin_bind_variable(const_cast<char*>("NEWT_COMPONENT"),
+                          const_cast<char*>(co_str.c_str()), 0);
+    builtin_bind_variable(const_cast<char*>("NEWT_CB_DATA"),
+                          const_cast<char*>(it->second.second.c_str()), 0);
+
+    const std::string& s = it->second.first;
     char* cmd = reinterpret_cast<char*>(xmalloc(s.size() + 1));
     std::memcpy(cmd, s.c_str(), s.size() + 1);
     evalstring(cmd, nullptr, 0);
@@ -507,9 +531,30 @@ usage:
     std::fprintf(stderr, "newt: usage: newt FormRun form reasonVar valueVar\n");
     return EXECUTION_FAILURE;
 }
-static int wrap_ComponentAddCallback(char* v, WORD_LIST* a) {
-    return call_newt("ComponentAddCallback", "co f data",
-                     newtComponentAddCallback, v, a);
+// ComponentAddCallback co bashExpr [data]
+// Registers a bash expression as the component callback.  Before the
+// expression is evaluated, NEWT_COMPONENT is set to the component pointer and
+// NEWT_CB_DATA is set to the optional data string (or "" if omitted).
+static int wrap_ComponentAddCallback(char* /*v*/, WORD_LIST* a) {
+    newtComponent co;
+    const char* expr;
+    const char* data = "";
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, co)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, expr)) goto usage;
+    if (a->next) {
+        a = a->next;
+        from_string(a->word->word, data);
+    }
+    g_component_callbacks[co] = {expr, data};
+    newtComponentAddCallback(co, component_callback_shim, nullptr);
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr,
+                 "newt: usage: newt ComponentAddCallback co bashExpr [data]\n");
+    return EXECUTION_FAILURE;
 }
 // ComponentGetPosition co leftVar topVar
 static int wrap_ComponentGetPosition(char* /*v*/, WORD_LIST* a) {

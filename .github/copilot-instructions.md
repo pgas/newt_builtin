@@ -266,6 +266,7 @@ modifying them, be careful about argument walking and output binding.
 | `GetScreenSize` | Two output-pointer arguments |
 | `SetColors` | Takes a `struct newtColors` by value |
 | `SetSuspendCallback` | Registers a C shim; stores bash function name in `g_suspend_callback_fn` |
+| `ComponentAddCallback` | Registers a C shim; stores bash expression + data string in `g_component_callbacks`; sets `NEWT_COMPONENT` and `NEWT_CB_DATA` before evaluating |
 | `ComponentAddDestroyCallback` | Registers a C shim; stores bash expression in `g_destroy_callbacks` |
 | `ListboxGetEntry` | Two output pointers (text + data) |
 | `EntrySetFilter` | Registers a C shim; stores bash function name in `g_entry_filters` |

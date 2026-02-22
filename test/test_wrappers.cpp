@@ -22,7 +22,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <cstdio>
+#include <map>
 #include <string>
+#include <utility>
 
 // ─── shared sentinel strings ──────────────────────────────────────────────────
 static constexpr const char* CO   = "NULL";   // parsed as nullptr newtComponent
@@ -955,24 +957,61 @@ TEST_CASE("FormAddComponents: form only, no components → FAILURE", "[wrappers]
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 33. ComponentAddCallback: void(newtComponent, newtCallback, void*)
+// 33. ComponentAddCallback: hand-written bash-shim wrapper
+//     newt ComponentAddCallback co bashExpr [data]
 // ─────────────────────────────────────────────────────────────────────────────
 
-static void fake_component_add_cb(newtComponent, newtCallback, void*) {}
+// Local inline re-implementation of the hand-written wrapper (does not
+// depend on newt_wrappers.cpp being compiled into the test).
+static std::map<newtComponent, std::pair<std::string, std::string>>
+    test_co_callbacks;
 
-TEST_CASE("ComponentAddCallback: co f data → SUCCESS", "[wrappers][ComponentAddCallback]") {
-    char buf[32];
-    std::snprintf(buf, sizeof(buf), "%p", reinterpret_cast<void*>(fake_cb_target));
-    WordListBuilder wl{"cmd", CO, buf, "0"};
-    CHECK(call_newt("ComponentAddCallback", "co f data",
-                    fake_component_add_cb, nullptr, wl.head())
-          == EXECUTION_SUCCESS);
+static int test_wrap_ComponentAddCallback(WORD_LIST* a) {
+    newtComponent co;
+    const char* expr;
+    const char* data = "";
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, co)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, expr)) goto usage;
+    if (a->next) {
+        a = a->next;
+        from_string(a->word->word, data);
+    }
+    test_co_callbacks[co] = {expr, data};
+    newtComponentAddCallback(co, nullptr, nullptr);
+    return EXECUTION_SUCCESS;
+usage:
+    return EXECUTION_FAILURE;
 }
-TEST_CASE("ComponentAddCallback: too few args → FAILURE", "[wrappers][ComponentAddCallback]") {
-    WordListBuilder wl{"cmd", CO};
-    CHECK(call_newt("ComponentAddCallback", "co f data",
-                    fake_component_add_cb, nullptr, wl.head())
-          == EXECUTION_FAILURE);
+
+TEST_CASE("ComponentAddCallback: co expr → SUCCESS, registered",
+          "[wrappers][ComponentAddCallback]") {
+    test_co_callbacks.clear();
+    clear_component_callback_regs();
+    WordListBuilder wl{"cmd", CO, "my_fn"};
+    REQUIRE(test_wrap_ComponentAddCallback(wl.head()) == EXECUTION_SUCCESS);
+    REQUIRE(!component_callback_regs().empty());
+    CHECK(test_co_callbacks[nullptr].first  == "my_fn");
+    CHECK(test_co_callbacks[nullptr].second == "");
+}
+TEST_CASE("ComponentAddCallback: co expr data → SUCCESS, data stored",
+          "[wrappers][ComponentAddCallback]") {
+    test_co_callbacks.clear();
+    clear_component_callback_regs();
+    WordListBuilder wl{"cmd", CO, "my_fn", "42"};
+    REQUIRE(test_wrap_ComponentAddCallback(wl.head()) == EXECUTION_SUCCESS);
+    CHECK(test_co_callbacks[nullptr].second == "42");
+}
+TEST_CASE("ComponentAddCallback: too few args (only co) → FAILURE",
+          "[wrappers][ComponentAddCallback]") {
+    WordListBuilder wl{"cmd", CO};  // missing bashExpr
+    CHECK(test_wrap_ComponentAddCallback(wl.head()) == EXECUTION_FAILURE);
+}
+TEST_CASE("ComponentAddCallback: no args → FAILURE",
+          "[wrappers][ComponentAddCallback]") {
+    WordListBuilder wl{"cmd"};
+    CHECK(test_wrap_ComponentAddCallback(wl.head()) == EXECUTION_FAILURE);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

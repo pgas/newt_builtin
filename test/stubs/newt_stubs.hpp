@@ -6,6 +6,8 @@
  */
 #pragma once
 
+#include <vector>
+
 // ── opaque handle types ───────────────────────────────────────────────────────
 
 struct _newtComponent_tag {};
@@ -32,6 +34,22 @@ enum newtGridElement {
     NEWT_GRID_COMPONENT = 0,
     NEWT_GRID_SUBGRID   = 1,
 };
+
+// ── newtComponentAddCallback stub ────────────────────────────────────────────
+
+struct ComponentCallbackReg {
+    newtComponent co;
+    newtCallback  f;
+    void*         data;
+};
+inline std::vector<ComponentCallbackReg>& component_callback_regs() {
+    static std::vector<ComponentCallbackReg> v;
+    return v;
+}
+inline void clear_component_callback_regs() { component_callback_regs().clear(); }
+inline void newtComponentAddCallback(newtComponent co, newtCallback f, void* data) {
+    component_callback_regs().push_back({co, f, data});
+}
 
 // ── newtExitStruct for FormRun ────────────────────────────────────────────────
 

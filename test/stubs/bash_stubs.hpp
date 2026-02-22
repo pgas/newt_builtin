@@ -88,3 +88,17 @@ inline const std::string* last_bound(const std::string& name) {
 // included here for completeness).
 inline void* xmalloc(std::size_t n) { return std::malloc(n); }
 inline void  xfree(void* p)         { std::free(p); }
+
+// evalstring stub — records the command string passed to it so tests can
+// inspect what the shim would evaluate, then frees the (xmalloc'd) copy.
+struct EvalCall { std::string cmd; };
+inline std::vector<EvalCall>& eval_calls() {
+    static std::vector<EvalCall> v;
+    return v;
+}
+inline void clear_eval_calls() { eval_calls().clear(); }
+inline int evalstring(char* cmd, const char* /*from*/, int /*flags*/) {
+    eval_calls().push_back({cmd ? cmd : ""});
+    std::free(cmd);
+    return 0;
+}

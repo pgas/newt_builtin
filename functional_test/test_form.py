@@ -206,18 +206,12 @@ def test_componentgetsize_returns_dimensions(bash_newt):
 # ─── ComponentAddCallback: fires bash function on component event ─────────────
 
 def test_componentaddcallback_accepts_args(bash_newt):
-    """ComponentAddCallback should accept (co, fn_ptr, data) without crashing.
-
-    Testing that the registered C callback actually fires from bash requires a
-    valid C function pointer, which is not easily obtained from a shell script.
-    This test verifies that the argument-parsing layer accepts a hex null
-    function pointer ("0x0") and NULL data without error (return code 0).
-    """
+    """ComponentAddCallback should accept (co, bashExpr [data]) without crashing."""
     bash_newt.sendline(
         b"newt Init && newt Cls && "
         b'newt OpenWindow 10 5 40 6 "Callback Test" && '
         b'newt -v btn Button 3 1 "Fire" && '
-        b'newt ComponentAddCallback "$btn" 0x0 0 ; '
+        b"newt ComponentAddCallback \"$btn\" 'CB_FIRED=1' mydata ; "
         b'r=$? && '
         b'newt Finished && '
         b'echo "ACCEPT=$r"'
@@ -229,4 +223,30 @@ def test_componentaddcallback_accepts_args(bash_newt):
 
     assert any("ACCEPT=0" in r for r in rows), (
         f"Expected 'ACCEPT=0' (argument parsing succeeded).\n{full}"
+    )
+
+
+def test_componentaddcallback_fires(bash_newt):
+    """Callback expression should execute when the component is activated."""
+    bash_newt.sendline(
+        b"newt Init && newt Cls && "
+        b'newt OpenWindow 10 5 40 8 "Callback Fires" && '
+        b'newt -v btn Button 3 2 "Activate" && '
+        b"newt ComponentAddCallback \"$btn\" 'CB_FIRED=1' && "
+        b'newt -v f Form NULL NULL 0 && '
+        b'newt FormAddComponent "$f" "$btn" && '
+        b'newt RunForm "$f" && '
+        b'newt FormDestroy "$f" && '
+        b'newt Finished && '
+        b'echo "CB_FIRED=${CB_FIRED:-0}"'
+    )
+    time.sleep(0.5)
+    bash_newt.send(b"\n")   # press Enter to activate the button
+    time.sleep(0.5)
+    screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
+    rows = screen_rows(screen)
+    full = screen_text(screen)
+
+    assert any("CB_FIRED=1" in r for r in rows), (
+        f"Expected 'CB_FIRED=1' after button activation.\n{full}"
     )

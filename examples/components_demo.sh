@@ -47,8 +47,8 @@ newt LabelSetColors "$lbl_color" "${NEWT_COLORSET[ACTBUTTON]}"
 
 # --- Button / CompactButton --------------------------------------------------
 newt -v btn_next    Button        3 10 "Next >"
-newt -v btn_cb      CompactButton 3 13 "CompactButton"
-newt -v btn_cb2     CompactButton 22 13 "Also CompactButton"
+newt -v btn_cb      CompactButton 20 11 "CompactButton"
+newt -v btn_cb2     CompactButton 36 11 "Also CompactButton"
 
 newt -v f1 Form NULL NULL 0
 newt FormAddComponents "$f1" \
@@ -115,7 +115,7 @@ declare -a rb_ptrs=()
 # bash evaluates the subscript arithmetic via builtin_bind_variable.
 i=0
 for label in "${rb_labels[@]}"; do
-    prev="${rb_ptrs[i-1]:-NULL}"
+    (( i == 0 )) && prev=NULL || prev="${rb_ptrs[i-1]}"
     isdef=$(( i == 0 ? 1 : 0 ))
     row=$(( 3 + i ))
     newt -v "rb_ptrs[i++]" Radiobutton 3 "$row" "$label" $isdef "$prev"
@@ -174,18 +174,23 @@ newt -v sb VerticalScrollbar 28 3 6 \
 newt ScrollbarSetColors "$sb" \
     "${NEWT_COLORSET[ACTBUTTON]}" "${NEWT_COLORSET[BUTTON]}"
 
-# --- ScrollbarSet co where total ---------------------------------------------
-# Initialise the scrollbar to position 0 out of 10 items
-newt ScrollbarSet "$sb" 0 10
+# Initialise the scrollbar to position 0; total = count-1 so the thumb
+# reaches the very bottom when the last item is selected.
+newt ScrollbarSet "$sb" 0 "$(( ${#animals[@]} - 1 ))"
 
 newt -v btn4_done Button 3 16 "Finish"
 
 newt -v f4 Form NULL NULL 0
 newt FormAddComponents "$f4" "$lbl4" "$lb" "$sb" "$btn4_done"
-newt RunForm "$f4"
 
-# Read back current listbox selection (demonstrates RadioGetCurrent analog);
-# retrieve selection index and update scrollbar as items are scrolled.
+# Sync the scrollbar via a component callback on the listbox.
+# The expression is evaluated (by evalstring) each time the listbox
+# selection changes.  $lb, $sb and ${#animals[@]} are still live shell
+# variables at that point, so bash expands them correctly.
+newt ComponentAddCallback "$lb" \
+    'newt -v _sb_pos ListboxGetCurrent "$lb" && newt ScrollbarSet "$sb" "$_sb_pos" "$(( ${#animals[@]} - 1 ))"'
+
+newt RunForm "$f4"
 newt -v sel_idx ListboxGetCurrent "$lb"
 newt FormDestroy "$f4"
 newt PopWindow
