@@ -354,6 +354,8 @@ usage:
 }
 static int wrap_TextboxGetNumLines(char* v, WORD_LIST* a) { return call_newt("TextboxGetNumLines", "co",   newtTextboxGetNumLines, v, a); }
 static int wrap_TextboxSetHeight(char* v, WORD_LIST* a){ return call_newt("TextboxSetHeight", "co height", newtTextboxSetHeight,  v, a); }
+static int wrap_TextboxSetText(char* v, WORD_LIST* a)  { return call_newt("TextboxSetText",   "co text",   newtTextboxSetText,   v, a); }
+static int wrap_TextboxSetColors(char* v, WORD_LIST* a){ return call_newt("TextboxSetColors", "co normal active", newtTextboxSetColors, v, a); }
 
 // SetColors rootFg rootBg borderFg borderBg windowFg windowBg shadowFg shadowBg
 //           titleFg titleBg buttonFg buttonBg actButtonFg actButtonBg
@@ -757,6 +759,8 @@ static const DispatchEntry dispatch_table[] = {
     { "ListboxSelectItem",       wrap_ListboxSelectItem       },
     { "TextboxGetNumLines",     wrap_TextboxGetNumLines},
     { "TextboxSetHeight",       wrap_TextboxSetHeight  },
+    { "TextboxSetText",         wrap_TextboxSetText    },
+    { "TextboxSetColors",       wrap_TextboxSetColors  },
     { "FormSetTimer",           wrap_FormSetTimer      },
     { "FormSetSize",            wrap_FormSetSize       },
     { "FormGetCurrent",         wrap_FormGetCurrent    },

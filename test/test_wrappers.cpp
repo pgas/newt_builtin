@@ -470,8 +470,30 @@ CO_CO_TESTS(FormSetCurrent,   "form comp")
 CO_CO_TESTS(FormAddComponent, "form comp")
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 15. void(newtComponent, const char*) – LabelSetText-style (some new)
+// 15. void(newtComponent, const char*) – LabelSetText / TextboxSetText style
 // ─────────────────────────────────────────────────────────────────────────────
+
+TEST_CASE("TextboxSetText: co text → SUCCESS", "[wrappers][TextboxSetText]") {
+    WordListBuilder wl{"cmd", CO, "hello world"};
+    CHECK(call_newt("TextboxSetText", "co text", fake_void_co_cstr, nullptr, wl.head())
+          == EXECUTION_SUCCESS);
+}
+TEST_CASE("TextboxSetText: too few args → FAILURE", "[wrappers][TextboxSetText]") {
+    WordListBuilder wl{"cmd", CO};
+    CHECK(call_newt("TextboxSetText", "co text", fake_void_co_cstr, nullptr, wl.head())
+          == EXECUTION_FAILURE);
+}
+
+TEST_CASE("TextboxSetColors: co normal active → SUCCESS", "[wrappers][TextboxSetColors]") {
+    WordListBuilder wl{"cmd", CO, "15", "16"};
+    CHECK(call_newt("TextboxSetColors", "co normal active", fake_void_co_i_i, nullptr, wl.head())
+          == EXECUTION_SUCCESS);
+}
+TEST_CASE("TextboxSetColors: too few args → FAILURE", "[wrappers][TextboxSetColors]") {
+    WordListBuilder wl{"cmd", CO, "15"};
+    CHECK(call_newt("TextboxSetColors", "co normal active", fake_void_co_i_i, nullptr, wl.head())
+          == EXECUTION_FAILURE);
+}
 
 TEST_CASE("EntrySet: co value cursorAtEnd → SUCCESS", "[wrappers][EntrySet]") {
     WordListBuilder wl{"cmd", CO, "new text", "0"};
