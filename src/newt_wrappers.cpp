@@ -16,6 +16,7 @@ extern "C" {
 }
 
 #include "newt_arg_parser.hpp"
+#include "newt_init_guard.hpp"
 #include "newt_wrappers.hpp"
 
 // ─── per-component data storage ───────────────────────────────────────────────
@@ -243,8 +244,35 @@ usage:
 
 // ─── wrappers for zero-/one-arg functions ────────────────────────────────────
 
-static int wrap_Init(char* v, WORD_LIST* a)            { return call_newt("Init",            "",           newtInit,             v, a); }
-static int wrap_Finished(char* v, WORD_LIST* a)        { return call_newt("Finished",        "",           newtFinished,         v, a); }
+// wrap_Init: call newtInit() and mark the session as active.
+// Both newtInit and newtFinished return int; we bind the result when -v is
+// given but always return EXECUTION_SUCCESS so callers can use
+//   if newt Init; then ... fi
+static int wrap_Init(char* v, WORD_LIST* /*a*/) {
+    int rc = newtInit();
+    newt_init_guard::set_initialized();
+    if (v) {
+        std::string s = to_bash_string(rc);
+        bind_variable(v, const_cast<char*>(s.c_str()), 0);
+    }
+    return EXECUTION_SUCCESS;
+}
+
+// wrap_Finished: idempotent — safe to call more than once (e.g. from both an
+// explicit call before printing results AND a trap-on-EXIT safety net).
+// Only the first call after a successful Init actually invokes newtFinished();
+// subsequent calls are silent no-ops.
+static int wrap_Finished(char* v, WORD_LIST* /*a*/) {
+    if (newt_init_guard::is_initialized()) {
+        int rc = newtFinished();
+        newt_init_guard::clear_initialized();
+        if (v) {
+            std::string s = to_bash_string(rc);
+            bind_variable(v, const_cast<char*>(s.c_str()), 0);
+        }
+    }
+    return EXECUTION_SUCCESS;
+}
 static int wrap_Cls(char* v, WORD_LIST* a)             { return call_newt("Cls",             "",           newtCls,              v, a); }
 static int wrap_WaitForKey(char* v, WORD_LIST* a)      { return call_newt("WaitForKey",      "",           newtWaitForKey,       v, a); }
 static int wrap_ClearKeyBuffer(char* v, WORD_LIST* a)  { return call_newt("ClearKeyBuffer",  "",           newtClearKeyBuffer,   v, a); }

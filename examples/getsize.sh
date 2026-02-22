@@ -15,5 +15,6 @@ fi
 if newt Init;then 
     trap 'newt Finished' EXIT
     newt GetScreenSize NEWT_COLS NEWT_ROWS
+    newt Finished
     echo >&2 "${NEWT_COLS}x${NEWT_ROWS}"
 fi

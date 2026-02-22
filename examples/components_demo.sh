@@ -172,13 +172,16 @@ newt FormDestroy "$f4"
 newt PopWindow
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Summary (printed to stderr after newt Finished)
+# Summary (printed to the terminal after restoring it via newt Finished)
 # ─────────────────────────────────────────────────────────────────────────────
-# Finished is called by the trap
-printf '\n=== Demo summary ===\n' >&2
-printf 'Screen size : %sx%s\n'   "$COLS" "$ROWS"                 >&2
-printf 'Checkbox A  : %s\n'      "$val_a"                        >&2
-printf 'Checkbox B  : %s\n'      "$val_b"                        >&2
-printf 'Checkbox C  : %s\n'      "$val_c"                        >&2
-printf 'Radio chose : %s\n'      "$chosen"                       >&2
-printf 'Listbox sel : index %s (%s)\n' "$sel_idx" "${animals[$sel_idx]:-?}" >&2
+# Restore the terminal explicitly before printing.  The trap 'newt Finished'
+# registered at startup is still in place as a safety net for abnormal exits;
+# because wrap_Finished is idempotent, calling it twice is harmless.
+newt Finished
+printf '\n=== Demo summary ===\n'
+printf 'Screen size : %sx%s\n'   "$COLS" "$ROWS"
+printf 'Checkbox A  : %s\n'      "$val_a"
+printf 'Checkbox B  : %s\n'      "$val_b"
+printf 'Checkbox C  : %s\n'      "$val_c"
+printf 'Radio chose : %s\n'      "$chosen"
+printf 'Listbox sel : index %s (%s)\n' "$sel_idx" "${animals[$sel_idx]:-?}"

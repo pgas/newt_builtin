@@ -19,6 +19,7 @@ fi
 
 
 if newt Init;then 
+    trap 'newt Finished' EXIT
     newt Cls
     newt CenteredWindow 60 20 "Form Test"
     newt -v myform Form NULL "" 0

@@ -18,6 +18,7 @@
 #include "stubs/newt_stubs.hpp"
 #include "stubs/word_list_builder.hpp"
 #include "newt_arg_parser.hpp"
+#include "newt_init_guard.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 #include <cstdio>
@@ -166,6 +167,64 @@ ZERO_ARG_TESTS(PopWindow)
 ZERO_ARG_TESTS(PopWindowNoRefresh)
 ZERO_ARG_TESTS(RedrawHelpLine)
 ZERO_ARG_TESTS(PopHelpLine)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 1b. Init / Finished idempotency guard
+//
+// These tests exercise newt_init_guard directly.  The guard is the mechanism
+// that makes wrap_Finished a no-op when called more than once (e.g. from both
+// an explicit call before printing results and a trap-on-EXIT safety net).
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Helper that mimics the wrap_Finished guard logic using a counter instead of
+// a real newtFinished() call (no libnewt available in unit tests).
+static int guarded_finish(int& finish_count) {
+    if (newt_init_guard::is_initialized()) {
+        ++finish_count;
+        newt_init_guard::clear_initialized();
+    }
+    return EXECUTION_SUCCESS;
+}
+
+TEST_CASE("Finished guard: not initialized → no-op, SUCCESS",
+          "[wrappers][Finished][idempotent]") {
+    newt_init_guard::clear_initialized();  // known clean state
+    int count = 0;
+    CHECK(guarded_finish(count) == EXECUTION_SUCCESS);
+    CHECK(count == 0);   // newtFinished() must NOT have been called
+}
+
+TEST_CASE("Finished guard: initialized once → called exactly once, SUCCESS",
+          "[wrappers][Finished][idempotent]") {
+    newt_init_guard::clear_initialized();
+    newt_init_guard::set_initialized();   // simulate a prior Init
+    int count = 0;
+    CHECK(guarded_finish(count) == EXECUTION_SUCCESS);
+    CHECK(count == 1);   // called exactly once
+    CHECK_FALSE(newt_init_guard::is_initialized());
+}
+
+TEST_CASE("Finished guard: called twice after Init → second call is no-op, both SUCCESS",
+          "[wrappers][Finished][idempotent]") {
+    newt_init_guard::clear_initialized();
+    newt_init_guard::set_initialized();
+    int count = 0;
+    CHECK(guarded_finish(count) == EXECUTION_SUCCESS);
+    CHECK(count == 1);
+    // second call: guard is already cleared, must be a silent no-op
+    CHECK(guarded_finish(count) == EXECUTION_SUCCESS);
+    CHECK(count == 1);   // still 1 — newtFinished() not called a second time
+}
+
+TEST_CASE("Init guard: set_initialized marks as active",
+          "[wrappers][Init][idempotent]") {
+    newt_init_guard::clear_initialized();
+    CHECK_FALSE(newt_init_guard::is_initialized());
+    newt_init_guard::set_initialized();
+    CHECK(newt_init_guard::is_initialized());
+    newt_init_guard::clear_initialized();  // clean up
+    CHECK_FALSE(newt_init_guard::is_initialized());
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. ResizeScreen: void(int redraw)

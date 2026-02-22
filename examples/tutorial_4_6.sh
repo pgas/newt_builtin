@@ -14,6 +14,7 @@ if ! type newt &>/dev/null;then
 fi
 
 if newt Init;then 
+    trap 'newt Finished' EXIT
     newt Cls
     newt OpenWindow 10 5 40 8 "Entry and Label Sample"
     
