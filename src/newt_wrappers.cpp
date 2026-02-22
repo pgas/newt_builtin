@@ -49,9 +49,9 @@ static int entry_filter_shim(newtComponent co, void* /*data*/, int ch,
     char ch_str[8];   std::snprintf(ch_str,  sizeof(ch_str),  "%d", ch);
     char cur_str[16]; std::snprintf(cur_str, sizeof(cur_str), "%d", cursor);
 
-    bind_variable(const_cast<char*>("NEWT_ENTRY"),  const_cast<char*>(co_str.c_str()), 0);
-    bind_variable(const_cast<char*>("NEWT_CH"),     ch_str,  0);
-    bind_variable(const_cast<char*>("NEWT_CURSOR"), cur_str, 0);
+    builtin_bind_variable(const_cast<char*>("NEWT_ENTRY"),  const_cast<char*>(co_str.c_str()), 0);
+    builtin_bind_variable(const_cast<char*>("NEWT_CH"),     ch_str,  0);
+    builtin_bind_variable(const_cast<char*>("NEWT_CURSOR"), cur_str, 0);
 
     // evalstring needs a writable copy of the command string.
     const std::string& s = it->second;
@@ -105,7 +105,7 @@ static int wrap_Entry(char* v, WORD_LIST* a) {
         newtComponent rv = newtEntry(left, top, initialValue, width, nullptr, flags);
         if (v) {
             std::string s = to_bash_string(rv);
-            bind_variable(v, const_cast<char*>(s.c_str()), 0);
+            builtin_bind_variable(v, const_cast<char*>(s.c_str()), 0);
         }
     }
     return EXECUTION_SUCCESS;
@@ -133,7 +133,7 @@ static int wrap_Form(char* v, WORD_LIST* a) {
         newtComponent rv = newtForm(vertBar, helpTag, flags);
         if (v) {
             std::string s = to_bash_string(rv);
-            bind_variable(v, const_cast<char*>(s.c_str()), 0);
+            builtin_bind_variable(v, const_cast<char*>(s.c_str()), 0);
         }
     }
     return EXECUTION_SUCCESS;
@@ -169,7 +169,7 @@ static int wrap_Checkbox(char* v, WORD_LIST* a) {
         g_checkbox_results[rv] = std::move(storage);
         if (v) {
             std::string s = to_bash_string(rv);
-            bind_variable(v, const_cast<char*>(s.c_str()), 0);
+            builtin_bind_variable(v, const_cast<char*>(s.c_str()), 0);
         }
     }
     return EXECUTION_SUCCESS;
@@ -253,7 +253,7 @@ static int wrap_Init(char* v, WORD_LIST* /*a*/) {
     newt_init_guard::set_initialized();
     if (v) {
         std::string s = to_bash_string(rc);
-        bind_variable(v, const_cast<char*>(s.c_str()), 0);
+        builtin_bind_variable(v, const_cast<char*>(s.c_str()), 0);
     }
     return EXECUTION_SUCCESS;
 }
@@ -268,7 +268,7 @@ static int wrap_Finished(char* v, WORD_LIST* /*a*/) {
         newt_init_guard::clear_initialized();
         if (v) {
             std::string s = to_bash_string(rc);
-            bind_variable(v, const_cast<char*>(s.c_str()), 0);
+            builtin_bind_variable(v, const_cast<char*>(s.c_str()), 0);
         }
     }
     return EXECUTION_SUCCESS;
@@ -344,8 +344,8 @@ static int wrap_ListboxGetEntry(char* /*v*/, WORD_LIST* a) {
         newtListboxGetEntry(co, num, &text, &data);
         std::string ts = to_bash_string(text ? text : "");
         std::string ds = to_bash_string(data);
-        bind_variable(const_cast<char*>(text_var), const_cast<char*>(ts.c_str()), 0);
-        bind_variable(const_cast<char*>(data_var), const_cast<char*>(ds.c_str()), 0);
+        builtin_bind_variable(const_cast<char*>(text_var), const_cast<char*>(ts.c_str()), 0);
+        builtin_bind_variable(const_cast<char*>(data_var), const_cast<char*>(ds.c_str()), 0);
     }
     return EXECUTION_SUCCESS;
 usage:
@@ -495,9 +495,9 @@ static int wrap_FormRun(char* /*v*/, WORD_LIST* a) {
                 reason_str = "ERROR";
                 break;
         }
-        bind_variable(const_cast<char*>(reason_var),
+        builtin_bind_variable(const_cast<char*>(reason_var),
                       const_cast<char*>(reason_str), 0);
-        bind_variable(const_cast<char*>(value_var),
+        builtin_bind_variable(const_cast<char*>(value_var),
                       const_cast<char*>(value_str.c_str()), 0);
     }
     return EXECUTION_SUCCESS;
@@ -524,9 +524,9 @@ static int wrap_ComponentGetPosition(char* /*v*/, WORD_LIST* a) {
     {
         int left = 0, top = 0;
         newtComponentGetPosition(co, &left, &top);
-        bind_variable(const_cast<char*>(left_var),
+        builtin_bind_variable(const_cast<char*>(left_var),
                       const_cast<char*>(to_bash_string(left).c_str()), 0);
-        bind_variable(const_cast<char*>(top_var),
+        builtin_bind_variable(const_cast<char*>(top_var),
                       const_cast<char*>(to_bash_string(top).c_str()), 0);
     }
     return EXECUTION_SUCCESS;
@@ -550,9 +550,9 @@ static int wrap_ComponentGetSize(char* /*v*/, WORD_LIST* a) {
     {
         int width = 0, height = 0;
         newtComponentGetSize(co, &width, &height);
-        bind_variable(const_cast<char*>(width_var),
+        builtin_bind_variable(const_cast<char*>(width_var),
                       const_cast<char*>(to_bash_string(width).c_str()), 0);
-        bind_variable(const_cast<char*>(height_var),
+        builtin_bind_variable(const_cast<char*>(height_var),
                       const_cast<char*>(to_bash_string(height).c_str()), 0);
     }
     return EXECUTION_SUCCESS;
@@ -667,8 +667,8 @@ static int wrap_GetScreenSize(char* /*v*/, WORD_LIST* a) {
         newtGetScreenSize(&cols, &rows);
         std::string cols_s = to_bash_string(cols);
         std::string rows_s = to_bash_string(rows);
-        bind_variable(const_cast<char*>(cols_var), const_cast<char*>(cols_s.c_str()), 0);
-        bind_variable(const_cast<char*>(rows_var), const_cast<char*>(rows_s.c_str()), 0);
+        builtin_bind_variable(const_cast<char*>(cols_var), const_cast<char*>(cols_s.c_str()), 0);
+        builtin_bind_variable(const_cast<char*>(rows_var), const_cast<char*>(rows_s.c_str()), 0);
     }
     return EXECUTION_SUCCESS;
 usage:

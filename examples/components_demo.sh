@@ -107,25 +107,44 @@ newt OpenWindow 5 2 65 18 "Page 3: Radiobutton"
 
 newt -v lbl3 Label 3 1 "Select one option, then press Next >"
 
+# Parallel arrays: labels and corresponding component pointers
+declare -a rb_labels=("Choice Alpha" "Choice Beta" "Choice Gamma" "Choice Delta")
+declare -a rb_ptrs=()
+
 # Radiobutton left top text isDefault prevButton
-# First button: isDefault=1, prevButton=NULL
-newt -v rb1 Radiobutton 3 3 "Choice Alpha"   1 "NULL"
-newt -v rb2 Radiobutton 3 4 "Choice Beta"    0 "$rb1"
-newt -v rb3 Radiobutton 3 5 "Choice Gamma"   0 "$rb2"
-newt -v rb4 Radiobutton 3 6 "Choice Delta"   0 "$rb3"
+# newt -v "rb_ptrs[i++]" stores the pointer directly into the array;
+# bash evaluates the subscript arithmetic via builtin_bind_variable.
+i=0
+for label in "${rb_labels[@]}"; do
+    prev="${rb_ptrs[i-1]:-NULL}"
+    isdef=$(( i == 0 ? 1 : 0 ))
+    row=$(( 3 + i ))
+    newt -v "rb_ptrs[i++]" Radiobutton 3 "$row" "$label" $isdef "$prev"
+done
 
 # --- RadioSetCurrent: pre-select the third button ---
-newt RadioSetCurrent "$rb3"
+newt RadioSetCurrent "${rb_ptrs[2]}"
 
 newt -v btn3_next Button 3 13 "Next >"
 
 newt -v f3 Form NULL NULL 0
-newt FormAddComponents "$f3" "$lbl3" "$rb1" "$rb2" "$rb3" "$rb4" "$btn3_next"
+newt FormAddComponents "$f3" "$lbl3" \
+    "${rb_ptrs[0]}" "${rb_ptrs[1]}" "${rb_ptrs[2]}" "${rb_ptrs[3]}" \
+    "$btn3_next"
 newt RunForm "$f3"
 newt FormDestroy "$f3"
 
-# --- RadioGetCurrent ---------------------------------------------------------
-newt -v chosen RadioGetCurrent "$rb1"
+# --- RadioGetCurrent: find the chosen pointer, then look up index + label ---
+newt -v _chosen_ptr RadioGetCurrent "${rb_ptrs[0]}"
+chosen_idx=""
+chosen_label=""
+for i in "${!rb_ptrs[@]}"; do
+    if [[ "${rb_ptrs[$i]}" == "$_chosen_ptr" ]]; then
+        chosen_idx=$i
+        chosen_label="${rb_labels[$i]}"
+        break
+    fi
+done
 
 newt PopWindow
 
@@ -183,5 +202,5 @@ printf 'Screen size : %sx%s\n'   "$COLS" "$ROWS"
 printf 'Checkbox A  : %s\n'      "$val_a"
 printf 'Checkbox B  : %s\n'      "$val_b"
 printf 'Checkbox C  : %s\n'      "$val_c"
-printf 'Radio chose : %s\n'      "$chosen"
+printf 'Radio chose : index %s (%s)\n' "$chosen_idx" "$chosen_label"
 printf 'Listbox sel : index %s (%s)\n' "$sel_idx" "${animals[$sel_idx]:-?}"

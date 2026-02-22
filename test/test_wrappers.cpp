@@ -642,7 +642,7 @@ TEST_CASE("GridSimpleWindow: too few args → FAILURE", "[wrappers][GridSimpleWi
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 23. ListboxGetCurrent: void*(newtComponent) → bind as hex
+// 23. ListboxGetCurrent: void*(newtComponent) → bind as decimal
 // ─────────────────────────────────────────────────────────────────────────────
 
 TEST_CASE("ListboxGetCurrent: co → SUCCESS, result bound", "[wrappers][ListboxGetCurrent]") {
@@ -653,8 +653,8 @@ TEST_CASE("ListboxGetCurrent: co → SUCCESS, result bound", "[wrappers][Listbox
           == EXECUTION_SUCCESS);
     const std::string* s = last_bound("KEY");
     REQUIRE(s != nullptr);
-    // to_bash_string(void*) formats as %p — just confirm it's non-empty
-    CHECK(!s->empty());
+    // to_bash_string(void*) formats as decimal — fake returns (void*)3
+    CHECK(*s == "3");
 }
 TEST_CASE("ListboxGetCurrent: no args → FAILURE", "[wrappers][ListboxGetCurrent]") {
     WordListBuilder wl{"cmd"};

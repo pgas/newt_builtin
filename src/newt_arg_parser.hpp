@@ -193,15 +193,11 @@ inline std::string to_bash_string(newtGrid value) {
 }
 
 inline std::string to_bash_string(void* value) {
-    char buf[32];
-    std::snprintf(buf, sizeof(buf), "%p", value);
-    return buf;
+    return std::to_string(reinterpret_cast<uintptr_t>(value));
 }
 
 inline std::string to_bash_string(const void* value) {
-    char buf[32];
-    std::snprintf(buf, sizeof(buf), "%p", value);
-    return buf;
+    return std::to_string(reinterpret_cast<uintptr_t>(value));
 }
 
 // ─── arg list walker ──────────────────────────────────────────────────────────
@@ -244,7 +240,7 @@ int call_newt(const char* name, const char* usage_str,
         Ret rv = std::apply(fn, parsed);
         if (varname) {
             std::string value = to_bash_string(rv);
-            bind_variable(varname, const_cast<char*>(value.c_str()), 0);
+            builtin_bind_variable(varname, const_cast<char*>(value.c_str()), 0);
         }
     }
     return EXECUTION_SUCCESS;

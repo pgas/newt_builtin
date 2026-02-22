@@ -27,6 +27,9 @@ struct word_list {
 };
 using WORD_LIST = word_list;
 
+// ── SHELL_VAR — opaque stub (only pointer used by builtin_bind_variable) ──────
+struct SHELL_VAR {};
+
 // ── constants ─────────────────────────────────────────────────────────────────
 
 static constexpr int EXECUTION_SUCCESS = 0;
@@ -61,6 +64,12 @@ inline std::vector<BoundVar>& bound_vars() {
 inline int bind_variable(const char* name, char* value, int /*flags*/) {
     bound_vars().push_back({name ? name : "", value ? value : ""});
     return 0;
+}
+
+// builtin_bind_variable — handles array references (used by production code)
+inline SHELL_VAR* builtin_bind_variable(const char* name, const char* value, int flags) {
+    bound_vars().push_back({name ? name : "", value ? value : ""});
+    return nullptr;
 }
 
 // ── test helpers ──────────────────────────────────────────────────────────────
