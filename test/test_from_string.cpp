@@ -147,6 +147,13 @@ TEST_CASE("from_string<void*> accepts \"NULL\"", "[from_string][voidptr]") {
     CHECK(p == nullptr);
 }
 
+TEST_CASE("from_string<void*> accepts \"\" (empty string) as nullptr",
+          "[from_string][voidptr]") {
+    void* p = reinterpret_cast<void*>(1);
+    REQUIRE(from_string("", p));
+    CHECK(p == nullptr);
+}
+
 TEST_CASE("from_string<void*> round-trips a pointer via to_bash_string",
           "[from_string][voidptr]") {
     static int dummy = 42;

@@ -717,3 +717,271 @@ TEST_CASE("ListboxSelectItem: too few args → FAILURE", "[wrappers][ListboxSele
                     fake_void_co_constvoidptr_sense, nullptr, wl.head())
           == EXECUTION_FAILURE);
 }
+// ─────────────────────────────────────────────────────────────────────────────
+// 30. FormWatchFd: void(newtComponent form, int fd, int fdFlags)
+// ─────────────────────────────────────────────────────────────────────────────
+
+TEST_CASE("FormWatchFd: form fd fdFlags → SUCCESS", "[wrappers][FormWatchFd]") {
+    WordListBuilder wl{"cmd", CO, "0", "1"};
+    CHECK(call_newt("FormWatchFd", "form fd fdFlags",
+                    fake_void_co_i_i, nullptr, wl.head())
+          == EXECUTION_SUCCESS);
+}
+TEST_CASE("FormWatchFd: too few args → FAILURE", "[wrappers][FormWatchFd]") {
+    WordListBuilder wl{"cmd", CO, "0"};  // missing fdFlags
+    CHECK(call_newt("FormWatchFd", "form fd fdFlags",
+                    fake_void_co_i_i, nullptr, wl.head())
+          == EXECUTION_FAILURE);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 31. FormRun: hand-written wrapper — co reasonVar valueVar
+//
+// Tests use an inline reimplementation of wrap_FormRun's parsing logic
+// with a local fake newtFormRun, allowing full argument-walk verification
+// without compiling against newt_wrappers.cpp.
+// ─────────────────────────────────────────────────────────────────────────────
+
+static newtExitStruct g_fake_exit_struct{};
+static void fake_newt_form_run(newtComponent, newtExitStruct* es) {
+    *es = g_fake_exit_struct;
+}
+
+// Inline reimplementation of wrap_FormRun's argument-walking logic.
+static int test_wrap_FormRun(WORD_LIST* a) {
+    newtComponent co;
+    const char* reason_var;
+    const char* value_var;
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, co)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, reason_var)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, value_var)) goto usage;
+    {
+        newtExitStruct es;
+        fake_newt_form_run(co, &es);
+        const char* reason_str = "ERROR";
+        std::string value_str = "0";
+        switch (es.reason) {
+            case NEWT_EXIT_HOTKEY:
+                reason_str = "HOTKEY";
+                value_str = to_bash_string(es.u.key);
+                break;
+            case NEWT_EXIT_COMPONENT:
+                reason_str = "COMPONENT";
+                value_str = to_bash_string(es.u.co);
+                break;
+            case NEWT_EXIT_FDREADY:
+                reason_str = "FDREADY";
+                value_str = to_bash_string(es.u.watch);
+                break;
+            case NEWT_EXIT_TIMER:
+                reason_str = "TIMER";
+                break;
+            case NEWT_EXIT_ERROR:
+            default:
+                reason_str = "ERROR";
+                break;
+        }
+        bind_variable(const_cast<char*>(reason_var),
+                      const_cast<char*>(reason_str), 0);
+        bind_variable(const_cast<char*>(value_var),
+                      const_cast<char*>(value_str.c_str()), 0);
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    return EXECUTION_FAILURE;
+}
+
+TEST_CASE("FormRun: co reasonVar valueVar → SUCCESS, TIMER exit", "[wrappers][FormRun]") {
+    clear_bound_vars();
+    g_fake_exit_struct.reason = NEWT_EXIT_TIMER;
+    WordListBuilder wl{"cmd", CO, "REASON", "VALUE"};
+    REQUIRE(test_wrap_FormRun(wl.head()) == EXECUTION_SUCCESS);
+    const std::string* r = last_bound("REASON");
+    const std::string* v = last_bound("VALUE");
+    REQUIRE(r != nullptr);  CHECK(*r == "TIMER");
+    REQUIRE(v != nullptr);  CHECK(*v == "0");
+}
+TEST_CASE("FormRun: HOTKEY exit binds key code", "[wrappers][FormRun]") {
+    clear_bound_vars();
+    g_fake_exit_struct.reason  = NEWT_EXIT_HOTKEY;
+    g_fake_exit_struct.u.key   = 65;   // 'A'
+    WordListBuilder wl{"cmd", CO, "REASON", "VALUE"};
+    REQUIRE(test_wrap_FormRun(wl.head()) == EXECUTION_SUCCESS);
+    REQUIRE(last_bound("REASON") != nullptr);
+    CHECK(*last_bound("REASON") == "HOTKEY");
+    REQUIRE(last_bound("VALUE") != nullptr);
+    CHECK(*last_bound("VALUE") == "65");
+}
+TEST_CASE("FormRun: COMPONENT exit binds component ptr", "[wrappers][FormRun]") {
+    clear_bound_vars();
+    g_fake_exit_struct.reason  = NEWT_EXIT_COMPONENT;
+    g_fake_exit_struct.u.co    = nullptr;
+    WordListBuilder wl{"cmd", CO, "REASON", "VALUE"};
+    REQUIRE(test_wrap_FormRun(wl.head()) == EXECUTION_SUCCESS);
+    REQUIRE(last_bound("REASON") != nullptr);
+    CHECK(*last_bound("REASON") == "COMPONENT");
+}
+TEST_CASE("FormRun: too few args → FAILURE", "[wrappers][FormRun]") {
+    WordListBuilder wl{"cmd", CO, "REASON"};  // missing valueVar
+    CHECK(test_wrap_FormRun(wl.head()) == EXECUTION_FAILURE);
+}
+TEST_CASE("FormRun: no args → FAILURE", "[wrappers][FormRun]") {
+    WordListBuilder wl{"cmd"};
+    CHECK(test_wrap_FormRun(wl.head()) == EXECUTION_FAILURE);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 32. FormAddComponents: hand-written wrapper — form comp1 [comp2 ...]
+// ─────────────────────────────────────────────────────────────────────────────
+
+static void fake_newt_form_add_component(newtComponent, newtComponent) {}
+
+static int test_wrap_FormAddComponents(WORD_LIST* a) {
+    newtComponent form;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, form)) goto usage;
+    if (!a->next) goto usage; a = a->next;       // need at least one component
+    while (a) {
+        newtComponent comp;
+        if (!from_string(a->word->word, comp)) goto usage;
+        fake_newt_form_add_component(form, comp);
+        a = a->next;
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    return EXECUTION_FAILURE;
+}
+
+TEST_CASE("FormAddComponents: form + 1 comp → SUCCESS", "[wrappers][FormAddComponents]") {
+    WordListBuilder wl{"cmd", CO, CO};
+    CHECK(test_wrap_FormAddComponents(wl.head()) == EXECUTION_SUCCESS);
+}
+TEST_CASE("FormAddComponents: form + 3 comps → SUCCESS", "[wrappers][FormAddComponents]") {
+    WordListBuilder wl{"cmd", CO, CO, CO, CO};
+    CHECK(test_wrap_FormAddComponents(wl.head()) == EXECUTION_SUCCESS);
+}
+TEST_CASE("FormAddComponents: no args → FAILURE", "[wrappers][FormAddComponents]") {
+    WordListBuilder wl{"cmd"};
+    CHECK(test_wrap_FormAddComponents(wl.head()) == EXECUTION_FAILURE);
+}
+TEST_CASE("FormAddComponents: form only, no components → FAILURE", "[wrappers][FormAddComponents]") {
+    WordListBuilder wl{"cmd", CO};  // form but no components
+    CHECK(test_wrap_FormAddComponents(wl.head()) == EXECUTION_FAILURE);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 33. ComponentAddCallback: void(newtComponent, newtCallback, void*)
+// ─────────────────────────────────────────────────────────────────────────────
+
+static void fake_component_add_cb(newtComponent, newtCallback, void*) {}
+
+TEST_CASE("ComponentAddCallback: co f data → SUCCESS", "[wrappers][ComponentAddCallback]") {
+    char buf[32];
+    std::snprintf(buf, sizeof(buf), "%p", reinterpret_cast<void*>(fake_cb_target));
+    WordListBuilder wl{"cmd", CO, buf, "0"};
+    CHECK(call_newt("ComponentAddCallback", "co f data",
+                    fake_component_add_cb, nullptr, wl.head())
+          == EXECUTION_SUCCESS);
+}
+TEST_CASE("ComponentAddCallback: too few args → FAILURE", "[wrappers][ComponentAddCallback]") {
+    WordListBuilder wl{"cmd", CO};
+    CHECK(call_newt("ComponentAddCallback", "co f data",
+                    fake_component_add_cb, nullptr, wl.head())
+          == EXECUTION_FAILURE);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 34. ComponentGetPosition: void(co, int* left, int* top) — hand-written
+// ─────────────────────────────────────────────────────────────────────────────
+
+static void fake_get_position(newtComponent, int* l, int* t) { *l = 5; *t = 3; }
+
+static int test_wrap_ComponentGetPosition(WORD_LIST* a) {
+    newtComponent co;
+    const char* lv;
+    const char* tv;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, co)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, lv)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, tv)) goto usage;
+    {
+        int l = 0, t = 0;
+        fake_get_position(co, &l, &t);
+        bind_variable(const_cast<char*>(lv),
+                      const_cast<char*>(to_bash_string(l).c_str()), 0);
+        bind_variable(const_cast<char*>(tv),
+                      const_cast<char*>(to_bash_string(t).c_str()), 0);
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    return EXECUTION_FAILURE;
+}
+
+TEST_CASE("ComponentGetPosition: co leftVar topVar → SUCCESS, values bound",
+          "[wrappers][ComponentGetPosition]") {
+    clear_bound_vars();
+    WordListBuilder wl{"cmd", CO, "L", "T"};
+    REQUIRE(test_wrap_ComponentGetPosition(wl.head()) == EXECUTION_SUCCESS);
+    REQUIRE(last_bound("L") != nullptr);  CHECK(*last_bound("L") == "5");
+    REQUIRE(last_bound("T") != nullptr);  CHECK(*last_bound("T") == "3");
+}
+TEST_CASE("ComponentGetPosition: too few args → FAILURE", "[wrappers][ComponentGetPosition]") {
+    WordListBuilder wl{"cmd", CO, "L"};  // missing topVar
+    CHECK(test_wrap_ComponentGetPosition(wl.head()) == EXECUTION_FAILURE);
+}
+TEST_CASE("ComponentGetPosition: no args → FAILURE", "[wrappers][ComponentGetPosition]") {
+    WordListBuilder wl{"cmd"};
+    CHECK(test_wrap_ComponentGetPosition(wl.head()) == EXECUTION_FAILURE);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 35. ComponentGetSize: void(co, int* width, int* height) — hand-written
+// ─────────────────────────────────────────────────────────────────────────────
+
+static void fake_get_size(newtComponent, int* w, int* h) { *w = 20; *h = 4; }
+
+static int test_wrap_ComponentGetSize(WORD_LIST* a) {
+    newtComponent co;
+    const char* wv;
+    const char* hv;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, co)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, wv)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, hv)) goto usage;
+    {
+        int w = 0, h = 0;
+        fake_get_size(co, &w, &h);
+        bind_variable(const_cast<char*>(wv),
+                      const_cast<char*>(to_bash_string(w).c_str()), 0);
+        bind_variable(const_cast<char*>(hv),
+                      const_cast<char*>(to_bash_string(h).c_str()), 0);
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    return EXECUTION_FAILURE;
+}
+
+TEST_CASE("ComponentGetSize: co widthVar heightVar → SUCCESS, values bound",
+          "[wrappers][ComponentGetSize]") {
+    clear_bound_vars();
+    WordListBuilder wl{"cmd", CO, "W", "H"};
+    REQUIRE(test_wrap_ComponentGetSize(wl.head()) == EXECUTION_SUCCESS);
+    REQUIRE(last_bound("W") != nullptr);  CHECK(*last_bound("W") == "20");
+    REQUIRE(last_bound("H") != nullptr);  CHECK(*last_bound("H") == "4");
+}
+TEST_CASE("ComponentGetSize: too few args → FAILURE", "[wrappers][ComponentGetSize]") {
+    WordListBuilder wl{"cmd", CO, "W"};  // missing heightVar
+    CHECK(test_wrap_ComponentGetSize(wl.head()) == EXECUTION_FAILURE);
+}
+TEST_CASE("ComponentGetSize: no args → FAILURE", "[wrappers][ComponentGetSize]") {
+    WordListBuilder wl{"cmd"};
+    CHECK(test_wrap_ComponentGetSize(wl.head()) == EXECUTION_FAILURE);
+}

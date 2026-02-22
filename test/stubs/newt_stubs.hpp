@@ -32,3 +32,22 @@ enum newtGridElement {
     NEWT_GRID_COMPONENT = 0,
     NEWT_GRID_SUBGRID   = 1,
 };
+
+// ── newtExitStruct for FormRun ────────────────────────────────────────────────
+
+enum newtExitReason {
+    NEWT_EXIT_HOTKEY    = 0,
+    NEWT_EXIT_COMPONENT = 1,
+    NEWT_EXIT_FDREADY   = 2,
+    NEWT_EXIT_TIMER     = 3,
+    NEWT_EXIT_ERROR     = 4,
+};
+
+struct newtExitStruct {
+    newtExitReason reason;
+    union {
+        int watch;
+        int key;
+        newtComponent co;
+    } u;
+};

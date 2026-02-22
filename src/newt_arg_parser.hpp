@@ -103,11 +103,11 @@ inline bool from_string(const char* s, newtGrid& out) {
     return false;
 }
 
-// void* — generic pointer; accepts "NULL", hex pointer strings (%p), or plain
-// decimal integers (interpreted as (void*)(intptr_t)n — convenient for listbox
-// integer data keys).
+// void* — generic pointer; accepts "NULL", "" (empty string), hex pointer
+// strings (%p), or plain decimal integers (interpreted as
+// (void*)(intptr_t)n — convenient for listbox integer data keys).
 inline bool from_string(const char* s, void*& out) {
-    if (std::strcmp(s, "NULL") == 0) { out = nullptr; return true; }
+    if (s[0] == '\0' || std::strcmp(s, "NULL") == 0) { out = nullptr; return true; }
     // Decimal integers (plain digits, optional leading '-') come first so that
     // strings like "42" are parsed as decimal 42 and not as hex 0x42.
     intmax_t n;

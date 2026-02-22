@@ -353,3 +353,70 @@ TEST_CASE("Listbox: too few args → FAILURE", "[components][Listbox]") {
     CHECK(call_newt("Listbox", "left top height flags", fake_listbox, nullptr, wl.head())
           == EXECUTION_FAILURE);
 }
+// ─── Form: newtComponent(newtComponent vertBar, void* helpTag, int flags) ────
+//
+// wrap_Form has hand-written optional-arg logic – all three args are optional.
+// Test via an inline reimplementation of the parsing logic.
+//
+// signature used for the fake:  newtComponent(newtComponent, void*, int)
+
+static newtComponent fake_form_ctor(newtComponent, void*, int) { return nullptr; }
+
+// Inline reimplementation of wrap_Form's optional-arg parsing:
+static int test_wrap_Form(char* v, WORD_LIST* a) {
+    newtComponent vertBar = nullptr;
+    void*         helpTag = nullptr;
+    int           flags   = 0;
+    if (a->next) {
+        a = a->next;
+        if (!from_string(a->word->word, vertBar)) goto usage;
+        if (a->next) {
+            a = a->next;
+            if (!from_string(a->word->word, helpTag)) goto usage;
+            if (a->next) {
+                a = a->next;
+                if (!from_string(a->word->word, flags)) goto usage;
+            }
+        }
+    }
+    {
+        newtComponent rv = fake_form_ctor(vertBar, helpTag, flags);
+        if (v) {
+            std::string s = to_bash_string(rv);
+            bind_variable(v, const_cast<char*>(s.c_str()), 0);
+        }
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    return EXECUTION_FAILURE;
+}
+
+TEST_CASE("Form: no args → SUCCESS (all args optional)", "[components][Form]") {
+    clear_bound_vars();
+    WordListBuilder wl{"cmd"};
+    char v[] = "f";
+    CHECK(test_wrap_Form(v, wl.head()) == EXECUTION_SUCCESS);
+    CHECK(last_bound("f") != nullptr);
+}
+TEST_CASE("Form: vertBar only → SUCCESS", "[components][Form]") {
+    clear_bound_vars();
+    WordListBuilder wl{"cmd", CO};
+    char v[] = "f";
+    CHECK(test_wrap_Form(v, wl.head()) == EXECUTION_SUCCESS);
+    CHECK(last_bound("f") != nullptr);
+}
+TEST_CASE("Form: vertBar helpTag → SUCCESS", "[components][Form]") {
+    clear_bound_vars();
+    WordListBuilder wl{"cmd", CO, "NULL"};
+    char v[] = "f";
+    CHECK(test_wrap_Form(v, wl.head()) == EXECUTION_SUCCESS);
+}
+TEST_CASE("Form: all 3 args → SUCCESS", "[components][Form]") {
+    clear_bound_vars();
+    WordListBuilder wl{"cmd", CO, "NULL", "0"};
+    char v[] = "f";
+    CHECK(test_wrap_Form(v, wl.head()) == EXECUTION_SUCCESS);
+    const std::string* s = last_bound("f");
+    REQUIRE(s != nullptr);
+    CHECK(!s->empty());
+}

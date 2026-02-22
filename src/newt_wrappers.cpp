@@ -423,6 +423,116 @@ usage:
 
 // ─── existing wrappers (generated) ───────────────────────────────────────────
 
+static int wrap_FormWatchFd(char* v, WORD_LIST* a) {
+    return call_newt("FormWatchFd", "form fd fdFlags", newtFormWatchFd, v, a);
+}
+// FormRun co reasonVar valueVar
+// Calls newtFormRun and reports the exit condition via two shell variables.
+//   reasonVar: HOTKEY | COMPONENT | FDREADY | TIMER | ERROR
+//   valueVar:  key code (HOTKEY), component ptr (COMPONENT), fd index
+//              (FDREADY), or 0 (TIMER / ERROR).
+static int wrap_FormRun(char* /*v*/, WORD_LIST* a) {
+    newtComponent co;
+    const char* reason_var;
+    const char* value_var;
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, co)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, reason_var)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, value_var)) goto usage;
+    {
+        struct newtExitStruct es;
+        newtFormRun(co, &es);
+        const char* reason_str = "ERROR";
+        std::string value_str = "0";
+        switch (es.reason) {
+            case newtExitStruct::NEWT_EXIT_HOTKEY:
+                reason_str = "HOTKEY";
+                value_str = to_bash_string(es.u.key);
+                break;
+            case newtExitStruct::NEWT_EXIT_COMPONENT:
+                reason_str = "COMPONENT";
+                value_str = to_bash_string(es.u.co);
+                break;
+            case newtExitStruct::NEWT_EXIT_FDREADY:
+                reason_str = "FDREADY";
+                value_str = to_bash_string(es.u.watch);
+                break;
+            case newtExitStruct::NEWT_EXIT_TIMER:
+                reason_str = "TIMER";
+                break;
+            case newtExitStruct::NEWT_EXIT_ERROR:
+                reason_str = "ERROR";
+                break;
+        }
+        bind_variable(const_cast<char*>(reason_var),
+                      const_cast<char*>(reason_str), 0);
+        bind_variable(const_cast<char*>(value_var),
+                      const_cast<char*>(value_str.c_str()), 0);
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr, "newt: usage: newt FormRun form reasonVar valueVar\n");
+    return EXECUTION_FAILURE;
+}
+static int wrap_ComponentAddCallback(char* v, WORD_LIST* a) {
+    return call_newt("ComponentAddCallback", "co f data",
+                     newtComponentAddCallback, v, a);
+}
+// ComponentGetPosition co leftVar topVar
+static int wrap_ComponentGetPosition(char* /*v*/, WORD_LIST* a) {
+    newtComponent co;
+    const char* left_var;
+    const char* top_var;
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, co)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, left_var)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, top_var)) goto usage;
+    {
+        int left = 0, top = 0;
+        newtComponentGetPosition(co, &left, &top);
+        bind_variable(const_cast<char*>(left_var),
+                      const_cast<char*>(to_bash_string(left).c_str()), 0);
+        bind_variable(const_cast<char*>(top_var),
+                      const_cast<char*>(to_bash_string(top).c_str()), 0);
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr,
+                 "newt: usage: newt ComponentGetPosition co leftVar topVar\n");
+    return EXECUTION_FAILURE;
+}
+// ComponentGetSize co widthVar heightVar
+static int wrap_ComponentGetSize(char* /*v*/, WORD_LIST* a) {
+    newtComponent co;
+    const char* width_var;
+    const char* height_var;
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, co)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, width_var)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, height_var)) goto usage;
+    {
+        int width = 0, height = 0;
+        newtComponentGetSize(co, &width, &height);
+        bind_variable(const_cast<char*>(width_var),
+                      const_cast<char*>(to_bash_string(width).c_str()), 0);
+        bind_variable(const_cast<char*>(height_var),
+                      const_cast<char*>(to_bash_string(height).c_str()), 0);
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr,
+                 "newt: usage: newt ComponentGetSize co widthVar heightVar\n");
+    return EXECUTION_FAILURE;
+}
 static int wrap_FormSetTimer(char* v, WORD_LIST* a) {
     return call_newt("FormSetTimer", "form milliseconds", newtFormSetTimer, v, a);
 }
@@ -627,7 +737,9 @@ static const DispatchEntry dispatch_table[] = {
     { "FormAddComponent",       wrap_FormAddComponent  },
     { "FormSetHeight",          wrap_FormSetHeight     },
     { "FormSetWidth",           wrap_FormSetWidth      },
+    { "FormWatchFd",             wrap_FormWatchFd       },
     { "RunForm",                wrap_RunForm           },
+    { "FormRun",                wrap_FormRun           },
     { "DrawForm",               wrap_DrawForm          },
     { "FormAddHotKey",          wrap_FormAddHotKey     },
     { "FormGetScrollPosition",  wrap_FormGetScrollPosition },
@@ -635,6 +747,9 @@ static const DispatchEntry dispatch_table[] = {
     { "FormDestroy",            wrap_FormDestroy       },
     { "ComponentDestroy",       wrap_ComponentDestroy  },
     { "ComponentTakesFocus",    wrap_ComponentTakesFocus},
+    { "ComponentAddCallback",   wrap_ComponentAddCallback},
+    { "ComponentGetPosition",   wrap_ComponentGetPosition},
+    { "ComponentGetSize",       wrap_ComponentGetSize  },
     { "GridPlace",              wrap_GridPlace         },
     { "GridFree",               wrap_GridFree          },
     { "GridBasicWindow",        wrap_GridBasicWindow   },
