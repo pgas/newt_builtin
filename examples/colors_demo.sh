@@ -35,7 +35,7 @@ newt GetScreenSize COLS ROWS
 # Page 1: LabelSetColors – every colorset painted on its own row
 # ─────────────────────────────────────────────────────────────────────────────
 newt DrawRootText 2 0 "Screen: ${COLS}x${ROWS}   (Page 1/4 — LabelSetColors)"
-newt OpenWindow 4 1 65 22 "Page 1: LabelSetColors — every NEWT_COLORSET"
+newt OpenWindow 4 1 65 17 "Page 1: LabelSetColors — every NEWT_COLORSET"
 
 declare -a cs_names=(
     ROOT BORDER WINDOW SHADOW TITLE
@@ -45,17 +45,22 @@ declare -a cs_names=(
     COMPACTBUTTON ACTSELLISTBOX SELLISTBOX
 )
 
-row=1
 declare -a lbl_refs=()
-for name in "${cs_names[@]}"; do
-    newt -v _lbl Label 3 "$row" "$(printf '%-14s  colorset %-2d' \
-        "$name" "${NEWT_COLORSET[$name]}")"
+for i in "${!cs_names[@]}"; do
+    name="${cs_names[$i]}"
+    # Two columns: left col items 0–11 at left=2, right col items 12–22 at left=33
+    if (( i < 12 )); then
+        col=2; row=$(( i + 1 ))
+    else
+        col=33; row=$(( i - 12 + 1 ))
+    fi
+    newt -v _lbl Label "$col" "$row" \
+        "$(printf '%-14s %2d' "$name" "${NEWT_COLORSET[$name]}")"
     newt LabelSetColors "$_lbl" "${NEWT_COLORSET[$name]}"
     lbl_refs+=("$_lbl")
-    (( row++ ))
 done
 
-newt -v btn1 Button 48 19 "Next >"
+newt -v btn1 Button 48 13 "Next >"
 newt -v f1 Form NULL NULL 0
 newt FormAddComponents "$f1" "${lbl_refs[@]}" "$btn1"
 newt RunForm "$f1"
