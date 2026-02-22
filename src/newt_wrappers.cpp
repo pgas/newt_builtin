@@ -31,6 +31,10 @@ static std::map<newtComponent, std::string> g_entry_filters;
 // Suspend callback: name of the bash function registered via SetSuspendCallback.
 static std::string g_suspend_callback_fn;
 
+// Destroy callbacks: maps a newtComponent to the bash expression to evaluate
+// when that component is destroyed by newtComponentAddDestroyCallback.
+static std::map<newtComponent, std::string> g_destroy_callbacks;
+
 // ─── entry filter C shim ──────────────────────────────────────────────────────
 // Called by libnewt for every keystroke in a filtered entry widget.  Looks up
 // the bash function registered for 'co', sets NEWT_ENTRY / NEWT_CH /
@@ -64,6 +68,18 @@ static void suspend_callback_shim(void* /*data*/) {
     char* cmd = reinterpret_cast<char*>(xmalloc(s.size() + 1));
     std::memcpy(cmd, s.c_str(), s.size() + 1);
     evalstring(cmd, nullptr, 0);
+}
+
+// Called by libnewt when a component is destroyed.  Looks up the bash
+// expression registered for 'co' and evaluates it.
+static void component_destroy_shim(newtComponent co, void* /*data*/) {
+    auto it = g_destroy_callbacks.find(co);
+    if (it == g_destroy_callbacks.end()) return;
+    const std::string& s = it->second;
+    char* cmd = reinterpret_cast<char*>(xmalloc(s.size() + 1));
+    std::memcpy(cmd, s.c_str(), s.size() + 1);
+    evalstring(cmd, nullptr, 0);
+    g_destroy_callbacks.erase(it);
 }
 
 // ─── widget constructors ──────────────────────────────────────────────────────
@@ -253,9 +269,10 @@ static int wrap_SetHelpCallback(char* v, WORD_LIST* a) { return call_newt("SetHe
 static int wrap_RadioSetCurrent(char* v, WORD_LIST* a) { return call_newt("RadioSetCurrent", "setMember",  newtRadioSetCurrent,  v, a); }
 static int wrap_CompactButton(char* v, WORD_LIST* a)   { return call_newt("CompactButton",   "left top text", newtCompactButton, v, a); }
 static int wrap_Button(char* v, WORD_LIST* a)          { return call_newt("Button",          "left top text", newtButton,       v, a); }
-static int wrap_CheckboxGetValue(char* v, WORD_LIST* a){ return call_newt("CheckboxGetValue", "co",         newtCheckboxGetValue, v, a); }
-static int wrap_CheckboxSetValue(char* v, WORD_LIST* a){ return call_newt("CheckboxSetValue", "co value",   newtCheckboxSetValue, v, a); }
-static int wrap_RadioGetCurrent(char* v, WORD_LIST* a) { return call_newt("RadioGetCurrent", "setMember",  newtRadioGetCurrent,  v, a); }
+static int wrap_CheckboxGetValue(char* v, WORD_LIST* a){ return call_newt("CheckboxGetValue", "co",              newtCheckboxGetValue, v, a); }
+static int wrap_CheckboxSetValue(char* v, WORD_LIST* a){ return call_newt("CheckboxSetValue", "co value",        newtCheckboxSetValue, v, a); }
+static int wrap_CheckboxSetFlags(char* v, WORD_LIST* a){ return call_newt("CheckboxSetFlags", "co flags sense",   newtCheckboxSetFlags, v, a); }
+static int wrap_RadioGetCurrent(char* v, WORD_LIST* a) { return call_newt("RadioGetCurrent",  "setMember",        newtRadioGetCurrent,  v, a); }
 static int wrap_Label(char* v, WORD_LIST* a)           { return call_newt("Label",           "left top text", newtLabel,        v, a); }
 static int wrap_LabelSetText(char* v, WORD_LIST* a)    { return call_newt("LabelSetText",    "co text",    newtLabelSetText,     v, a); }
 static int wrap_LabelSetColors(char* v, WORD_LIST* a)  { return call_newt("LabelSetColors",  "co colorset",newtLabelSetColors,   v, a); }
@@ -267,7 +284,46 @@ static int wrap_ListboxGetCurrent(char* v, WORD_LIST* a){ return call_newt("List
 static int wrap_ListboxSetCurrent(char* v, WORD_LIST* a){ return call_newt("ListboxSetCurrent", "co num",    newtListboxSetCurrent, v, a); }
 static int wrap_ListboxSetWidth(char* v, WORD_LIST* a) { return call_newt("ListboxSetWidth", "co width",   newtListboxSetWidth,   v, a); }
 static int wrap_ListboxClear(char* v, WORD_LIST* a)    { return call_newt("ListboxClear",    "co",         newtListboxClear,      v, a); }
-static int wrap_ListboxItemCount(char* v, WORD_LIST* a){ return call_newt("ListboxItemCount", "co",        newtListboxItemCount,  v, a); }
+static int wrap_ListboxItemCount(char* v, WORD_LIST* a){ return call_newt("ListboxItemCount",     "co",                    newtListboxItemCount,      v, a); }
+static int wrap_ListboxSetCurrentByKey(char* v, WORD_LIST* a) { return call_newt("ListboxSetCurrentByKey", "co key",            newtListboxSetCurrentByKey, v, a); }
+static int wrap_ListboxSetEntry(char* v, WORD_LIST* a) { return call_newt("ListboxSetEntry",           "co num text",          newtListboxSetEntry,        v, a); }
+static int wrap_ListboxSetData(char* v, WORD_LIST* a)  { return call_newt("ListboxSetData",            "co num data",          newtListboxSetData,         v, a); }
+static int wrap_ListboxAppendEntry(char* v, WORD_LIST* a) { return call_newt("ListboxAppendEntry",    "co text data",         newtListboxAppendEntry,     v, a); }
+static int wrap_ListboxInsertEntry(char* v, WORD_LIST* a) { return call_newt("ListboxInsertEntry",    "co text data key",     newtListboxInsertEntry,     v, a); }
+static int wrap_ListboxDeleteEntry(char* v, WORD_LIST* a) { return call_newt("ListboxDeleteEntry",    "co key",               newtListboxDeleteEntry,     v, a); }
+static int wrap_ListboxClearSelection(char* v, WORD_LIST* a) { return call_newt("ListboxClearSelection", "co",               newtListboxClearSelection,  v, a); }
+static int wrap_ListboxSelectItem(char* v, WORD_LIST* a)   { return call_newt("ListboxSelectItem",  "co key sense",         newtListboxSelectItem,      v, a); }
+
+// ListboxGetEntry co num textVar dataVar
+// Calls newtListboxGetEntry and binds the text and data pointer to two shell variables.
+static int wrap_ListboxGetEntry(char* /*v*/, WORD_LIST* a) {
+    newtComponent co;
+    int num;
+    const char* text_var;
+    const char* data_var;
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, co))       goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, num))      goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, text_var)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, data_var)) goto usage;
+    {
+        char* text = nullptr;
+        void* data = nullptr;
+        newtListboxGetEntry(co, num, &text, &data);
+        std::string ts = to_bash_string(text ? text : "");
+        std::string ds = to_bash_string(data);
+        bind_variable(const_cast<char*>(text_var), const_cast<char*>(ts.c_str()), 0);
+        bind_variable(const_cast<char*>(data_var), const_cast<char*>(ds.c_str()), 0);
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr, "newt: usage: newt ListboxGetEntry co num textVar dataVar\n");
+    return EXECUTION_FAILURE;
+}
 static int wrap_TextboxGetNumLines(char* v, WORD_LIST* a) { return call_newt("TextboxGetNumLines", "co",   newtTextboxGetNumLines, v, a); }
 static int wrap_TextboxSetHeight(char* v, WORD_LIST* a){ return call_newt("TextboxSetHeight", "co height", newtTextboxSetHeight,  v, a); }
 
@@ -457,6 +513,50 @@ static int wrap_ScaleSetColors(char* v, WORD_LIST* a) {
                      newtScaleSetColors, v, a);
 }
 
+// GetScreenSize colsVar rowsVar
+// Calls newtGetScreenSize and binds the results to the named variables.
+static int wrap_GetScreenSize(char* /*v*/, WORD_LIST* a) {
+    const char* cols_var;
+    const char* rows_var;
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, cols_var)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, rows_var)) goto usage;
+
+    {
+        int cols = 0, rows = 0;
+        newtGetScreenSize(&cols, &rows);
+        std::string cols_s = to_bash_string(cols);
+        std::string rows_s = to_bash_string(rows);
+        bind_variable(const_cast<char*>(cols_var), const_cast<char*>(cols_s.c_str()), 0);
+        bind_variable(const_cast<char*>(rows_var), const_cast<char*>(rows_s.c_str()), 0);
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr, "newt: usage: newt GetScreenSize colsVar rowsVar\n");
+    return EXECUTION_FAILURE;
+}
+
+// ComponentAddDestroyCallback co bashExpression
+// Registers a bash expression to be evaluated when the component is destroyed.
+static int wrap_ComponentAddDestroyCallback(char* /*v*/, WORD_LIST* a) {
+    newtComponent co;
+    const char* expr;
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, co)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, expr)) goto usage;
+
+    g_destroy_callbacks[co] = expr;
+    newtComponentAddDestroyCallback(co, component_destroy_shim, nullptr);
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr, "newt: usage: newt ComponentAddDestroyCallback co bashExpression\n");
+    return EXECUTION_FAILURE;
+}
+
 // ─── dispatch table ───────────────────────────────────────────────────────────
 
 struct DispatchEntry {
@@ -493,6 +593,7 @@ static const DispatchEntry dispatch_table[] = {
     { "Button",                 wrap_Button            },
     { "CheckboxGetValue",       wrap_CheckboxGetValue  },
     { "CheckboxSetValue",       wrap_CheckboxSetValue  },
+    { "CheckboxSetFlags",       wrap_CheckboxSetFlags  },
     { "RadioGetCurrent",        wrap_RadioGetCurrent   },
     { "Label",                  wrap_Label             },
     { "LabelSetText",           wrap_LabelSetText      },
@@ -505,7 +606,17 @@ static const DispatchEntry dispatch_table[] = {
     { "ListboxSetCurrent",      wrap_ListboxSetCurrent },
     { "ListboxSetWidth",        wrap_ListboxSetWidth   },
     { "ListboxClear",           wrap_ListboxClear      },
-    { "ListboxItemCount",       wrap_ListboxItemCount  },
+    { "ListboxItemCount",        wrap_ListboxItemCount        },
+    { "ListboxSetCurrentByKey",  wrap_ListboxSetCurrentByKey  },
+    { "ListboxSetEntry",         wrap_ListboxSetEntry         },
+    { "ListboxSetData",          wrap_ListboxSetData          },
+    { "ListboxAppendEntry",      wrap_ListboxAppendEntry      },
+    { "ListboxAddEntry",         wrap_ListboxAppendEntry      },
+    { "ListboxInsertEntry",      wrap_ListboxInsertEntry      },
+    { "ListboxDeleteEntry",      wrap_ListboxDeleteEntry      },
+    { "ListboxGetEntry",         wrap_ListboxGetEntry         },
+    { "ListboxClearSelection",   wrap_ListboxClearSelection   },
+    { "ListboxSelectItem",       wrap_ListboxSelectItem       },
     { "TextboxGetNumLines",     wrap_TextboxGetNumLines},
     { "TextboxSetHeight",       wrap_TextboxSetHeight  },
     { "FormSetTimer",           wrap_FormSetTimer      },
@@ -534,8 +645,8 @@ static const DispatchEntry dispatch_table[] = {
     { "EntryGetCursorPosition", wrap_EntryGetCursorPosition },
     { "EntrySetCursorPosition", wrap_EntrySetCursorPosition },
     { "ScaleSet",               wrap_ScaleSet          },
-    { "ScaleSetColors",         wrap_ScaleSetColors    },
-    { "SetColors",              wrap_SetColors         },
+    { "ScaleSetColors",         wrap_ScaleSetColors    },    { "GetScreenSize",           wrap_GetScreenSize     },
+    { "ComponentAddDestroyCallback", wrap_ComponentAddDestroyCallback },    { "SetColors",              wrap_SetColors         },
     { "SetSuspendCallback",     wrap_SetSuspendCallback},
     // ── constructors ──────────────────────────────────────────────────────────
     { "Entry",                  wrap_Entry             },

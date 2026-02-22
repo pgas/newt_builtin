@@ -2,7 +2,6 @@
 
 A [bash loadable builtin](https://www.gnu.org/software/bash/manual/html_node/bash_builtin.html) that exposes the [newt](https://pagure.io/newt) TUI library directly to shell scripts.  Instead of shelling out to a helper program, you load `newt.so` once with `enable -f` and then call `newt Init`, `newt OpenWindow`, `newt Button`, etc. as ordinary bash commands.
 
-> The original autoconf-based version lives in the `autoconf` branch.
 
 ---
 

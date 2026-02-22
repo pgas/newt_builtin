@@ -22,6 +22,8 @@ add_executable(newt_tests
     test_to_bash_string.cpp
     test_parse_args.cpp
     test_call_newt.cpp
+    test_components.cpp
+    test_wrappers.cpp
 )
 
 target_compile_features(newt_tests PRIVATE cxx_std_17)

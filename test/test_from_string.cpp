@@ -177,3 +177,26 @@ TEST_CASE("from_string<newtGridElement> parses integer values",
     REQUIRE(from_string("0", ge)); CHECK(ge == NEWT_GRID_COMPONENT);
     REQUIRE(from_string("1", ge)); CHECK(ge == NEWT_GRID_SUBGRID);
 }
+
+// ── void* decimal integer keys ────────────────────────────────────────────────
+
+TEST_CASE("from_string<void*> accepts decimal integer as key",
+          "[from_string][voidptr]") {
+    void* p = nullptr;
+    REQUIRE(from_string("42", p));
+    CHECK(p == reinterpret_cast<void*>(static_cast<intptr_t>(42)));
+}
+
+TEST_CASE("from_string<void*> accepts negative decimal integer",
+          "[from_string][voidptr]") {
+    void* p = nullptr;
+    REQUIRE(from_string("-1", p));
+    CHECK(p == reinterpret_cast<void*>(static_cast<intptr_t>(-1)));
+}
+
+TEST_CASE("from_string<void*> zero decimal is nullptr",
+          "[from_string][voidptr]") {
+    void* p = reinterpret_cast<void*>(1);
+    REQUIRE(from_string("0", p));
+    CHECK(p == nullptr);
+}

@@ -29,6 +29,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#include <cstdint>
 
 // NOTE: The caller must include the bash headers and <newt.h> before this file:
 //   extern "C" { #include <newt.h> }
@@ -102,10 +103,26 @@ inline bool from_string(const char* s, newtGrid& out) {
     return false;
 }
 
-// void* — generic pointer; also accepts "NULL"
+// void* — generic pointer; accepts "NULL", hex pointer strings (%p), or plain
+// decimal integers (interpreted as (void*)(intptr_t)n — convenient for listbox
+// integer data keys).
 inline bool from_string(const char* s, void*& out) {
     if (std::strcmp(s, "NULL") == 0) { out = nullptr; return true; }
-    return std::sscanf(s, "%p", &out) == 1;
+    // Decimal integers (plain digits, optional leading '-') come first so that
+    // strings like "42" are parsed as decimal 42 and not as hex 0x42.
+    intmax_t n;
+    if (legal_number(s, &n)) { out = reinterpret_cast<void*>(static_cast<intptr_t>(n)); return true; }
+    // Fall back to %p-style hex pointers (e.g. "0x7ffd1234abcd").
+    if (std::sscanf(s, "%p", &out) == 1) return true;
+    return false;
+}
+
+// const void* — same parsing as void*
+inline bool from_string(const char* s, const void*& out) {
+    void* p;
+    if (!from_string(s, p)) return false;
+    out = p;
+    return true;
 }
 
 // newtCallback — typedef void (*newtCallback)(newtComponent, void *)
@@ -176,6 +193,12 @@ inline std::string to_bash_string(newtGrid value) {
 }
 
 inline std::string to_bash_string(void* value) {
+    char buf[32];
+    std::snprintf(buf, sizeof(buf), "%p", value);
+    return buf;
+}
+
+inline std::string to_bash_string(const void* value) {
     char buf[32];
     std::snprintf(buf, sizeof(buf), "%p", value);
     return buf;
