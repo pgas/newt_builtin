@@ -23,7 +23,7 @@ def test_formrun_timer_exit(bash_newt):
         b"newt Init && newt Cls && "
         b'newt OpenWindow 10 5 40 6 "FormRun Timer" && '
         b'newt -v lbl Label 3 1 "waiting..." && '
-        b'newt -v f Form NULL NULL 0 && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponent "$f" "$lbl" && '
         b'newt FormSetTimer "$f" 200 && '       # exit after 200 ms
         b'newt FormRun "$f" REASON VALUE && '
@@ -50,7 +50,7 @@ def test_formrun_component_exit(bash_newt):
         b"newt Init && newt Cls && "
         b'newt OpenWindow 10 5 40 6 "FormRun Component" && '
         b'newt -v btn Button 3 1 "OK" && '
-        b'newt -v f Form NULL NULL 0 && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponent "$f" "$btn" && '
         b'newt FormRun "$f" REASON VALUE && '
         b'newt FormDestroy "$f" && '
@@ -84,7 +84,7 @@ def test_formwatchfd_with_timer_fallback(bash_newt):
         b"newt Init && newt Cls && "
         b'newt OpenWindow 10 5 40 6 "WatchFd Test" && '
         b'newt -v lbl Label 3 1 "watch fd" && '
-        b'newt -v f Form NULL NULL 0 && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponent "$f" "$lbl" && '
         # Watch a non-ready pipe read-end for readability.
         b'exec 9< <(sleep 10) && '
@@ -115,7 +115,7 @@ def test_drawform_renders_content(bash_newt):
         b"newt Init && newt Cls && "
         b'newt OpenWindow 10 4 40 8 "DrawForm Test" && '
         b'newt -v lbl Label 3 1 "drawn label" && '
-        b'newt -v f Form NULL NULL 0 && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponent "$f" "$lbl" && '
         b'newt DrawForm "$f" && '
         b'newt Refresh && '
@@ -141,7 +141,7 @@ def test_componentgetposition_returns_coords(bash_newt):
         b"newt Init && newt Cls && "
         b'newt OpenWindow 5 3 50 10 "GetPosition" && '
         b'newt -v lbl Label 4 2 "pos label" && '
-        b'newt -v f Form NULL NULL 0 && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponent "$f" "$lbl" && '
         b'newt DrawForm "$f" && '
         b'newt ComponentGetPosition "$lbl" LCOL LROW && '
@@ -177,7 +177,7 @@ def test_componentgetsize_returns_dimensions(bash_newt):
         b"newt Init && newt Cls && "
         b'newt OpenWindow 5 3 50 10 "GetSize" && '
         b'newt -v btn Button 4 2 "ClickMe" && '
-        b'newt -v f Form NULL NULL 0 && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponent "$f" "$btn" && '
         b'newt DrawForm "$f" && '
         b'newt ComponentGetSize "$btn" BWIDTH BHEIGHT && '
@@ -227,26 +227,31 @@ def test_componentaddcallback_accepts_args(bash_newt):
 
 
 def test_componentaddcallback_fires(bash_newt):
-    """Callback expression should execute when the component is activated."""
+    """Callback expression should execute when a checkbox value changes."""
     bash_newt.sendline(
         b"newt Init && newt Cls && "
-        b'newt OpenWindow 10 5 40 8 "Callback Fires" && '
-        b'newt -v btn Button 3 2 "Activate" && '
-        b"newt ComponentAddCallback \"$btn\" 'CB_FIRED=1' && "
-        b'newt -v f Form NULL NULL 0 && '
-        b'newt FormAddComponent "$f" "$btn" && '
+        b'newt OpenWindow 10 5 40 10 "Callback Fires" && '
+        b'newt -v cb Checkbox 3 2 "Toggle me" && '
+        b"newt ComponentAddCallback \"$cb\" 'CB_FIRED=1' && "
+        b'newt -v _ok Button 3 5 "OK" && '
+        b'newt -v f Form "" "" 0 && '
+        b'newt FormAddComponents "$f" "$cb" "$_ok" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '
         b'newt Finished && '
         b'echo "CB_FIRED=${CB_FIRED:-0}"'
     )
-    time.sleep(0.5)
-    bash_newt.send(b"\n")   # press Enter to activate the button
+    render(bash_newt, initial_timeout=2.0)   # wait for form to appear
+    bash_newt.send(b" ")    # Space: toggle checkbox → fires callback → CB_FIRED=1
+    time.sleep(0.1)
+    bash_newt.send(b"\t")   # Tab: move focus to OK button
+    time.sleep(0.1)
+    bash_newt.send(b"\r")   # Enter: click OK → exit form
     time.sleep(0.5)
     screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
     rows = screen_rows(screen)
     full = screen_text(screen)
 
     assert any("CB_FIRED=1" in r for r in rows), (
-        f"Expected 'CB_FIRED=1' after button activation.\n{full}"
+        f"Expected 'CB_FIRED=1' after checkbox toggle.\n{full}"
     )

@@ -29,8 +29,8 @@
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
-// Returns a "NULL" component string recognised by from_string<newtComponent>.
-static const char* CO = "NULL";
+// Empty string is the shell-side sentinel for a null newtComponent.
+static const char* CO = "";
 
 // ─── CompactButton: newtComponent(int left, int top, const char* text) ────────
 
@@ -407,13 +407,13 @@ TEST_CASE("Form: vertBar only → SUCCESS", "[components][Form]") {
 }
 TEST_CASE("Form: vertBar helpTag → SUCCESS", "[components][Form]") {
     clear_bound_vars();
-    WordListBuilder wl{"cmd", CO, "NULL"};
+    WordListBuilder wl{"cmd", CO, ""};
     char v[] = "f";
     CHECK(test_wrap_Form(v, wl.head()) == EXECUTION_SUCCESS);
 }
 TEST_CASE("Form: all 3 args → SUCCESS", "[components][Form]") {
     clear_bound_vars();
-    WordListBuilder wl{"cmd", CO, "NULL", "0"};
+    WordListBuilder wl{"cmd", CO, "", "0"};
     char v[] = "f";
     CHECK(test_wrap_Form(v, wl.head()) == EXECUTION_SUCCESS);
     const std::string* s = last_bound("f");

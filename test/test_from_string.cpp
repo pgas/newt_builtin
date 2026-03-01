@@ -102,10 +102,15 @@ TEST_CASE("from_string<const char*> aliases the input pointer",
 
 // ── newtComponent (pointer parsed from %p) ────────────────────────────────────
 
-TEST_CASE("from_string<newtComponent> accepts \"NULL\"", "[from_string][component]") {
+TEST_CASE("from_string<newtComponent> accepts \"\" (empty string) as nullptr", "[from_string][component]") {
     newtComponent co = reinterpret_cast<newtComponent>(0xdeadbeef);
-    REQUIRE(from_string("NULL", co));
+    REQUIRE(from_string("", co));
     CHECK(co == nullptr);
+}
+
+TEST_CASE("from_string<newtComponent> rejects \"NULL\" literal", "[from_string][component]") {
+    newtComponent co = reinterpret_cast<newtComponent>(0xdeadbeef);
+    CHECK_FALSE(from_string("NULL", co));
 }
 
 TEST_CASE("from_string<newtComponent> round-trips a pointer via to_bash_string",
@@ -122,10 +127,15 @@ TEST_CASE("from_string<newtComponent> round-trips a pointer via to_bash_string",
 
 // ── newtGrid (same mechanism as newtComponent) ────────────────────────────────
 
-TEST_CASE("from_string<newtGrid> accepts \"NULL\"", "[from_string][grid]") {
+TEST_CASE("from_string<newtGrid> accepts \"\" (empty string) as nullptr", "[from_string][grid]") {
     newtGrid g = reinterpret_cast<newtGrid>(0x1);
-    REQUIRE(from_string("NULL", g));
+    REQUIRE(from_string("", g));
     CHECK(g == nullptr);
+}
+
+TEST_CASE("from_string<newtGrid> rejects \"NULL\" literal", "[from_string][grid]") {
+    newtGrid g = reinterpret_cast<newtGrid>(0x1);
+    CHECK_FALSE(from_string("NULL", g));
 }
 
 TEST_CASE("from_string<newtGrid> round-trips a pointer via to_bash_string",
@@ -141,10 +151,9 @@ TEST_CASE("from_string<newtGrid> round-trips a pointer via to_bash_string",
 
 // ── void* ─────────────────────────────────────────────────────────────────────
 
-TEST_CASE("from_string<void*> accepts \"NULL\"", "[from_string][voidptr]") {
+TEST_CASE("from_string<void*> rejects \"NULL\" literal", "[from_string][voidptr]") {
     void* p = reinterpret_cast<void*>(1);
-    REQUIRE(from_string("NULL", p));
-    CHECK(p == nullptr);
+    CHECK_FALSE(from_string("NULL", p));
 }
 
 TEST_CASE("from_string<void*> accepts \"\" (empty string) as nullptr",
@@ -181,8 +190,9 @@ TEST_CASE("from_string<newtFlagsSense> parses integer values",
 TEST_CASE("from_string<newtGridElement> parses integer values",
           "[from_string][enum]") {
     enum newtGridElement ge{};
-    REQUIRE(from_string("0", ge)); CHECK(ge == NEWT_GRID_COMPONENT);
-    REQUIRE(from_string("1", ge)); CHECK(ge == NEWT_GRID_SUBGRID);
+    REQUIRE(from_string("0", ge)); CHECK(ge == NEWT_GRID_EMPTY);
+    REQUIRE(from_string("1", ge)); CHECK(ge == NEWT_GRID_COMPONENT);
+    REQUIRE(from_string("2", ge)); CHECK(ge == NEWT_GRID_SUBGRID);
 }
 
 // ── void* decimal integer keys ────────────────────────────────────────────────

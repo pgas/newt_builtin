@@ -27,8 +27,8 @@
 #include <utility>
 
 // ─── shared sentinel strings ──────────────────────────────────────────────────
-static constexpr const char* CO   = "NULL";   // parsed as nullptr newtComponent
-static constexpr const char* GRID = "NULL";   // parsed as nullptr newtGrid
+static constexpr const char* CO   = "";   // empty string → nullptr newtComponent
+static constexpr const char* GRID = "";   // empty string → nullptr newtGrid
 
 // ─── shared fake functions ────────────────────────────────────────────────────
 //

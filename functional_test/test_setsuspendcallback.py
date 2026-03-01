@@ -23,7 +23,7 @@ def test_setsuspendcallback_registration_does_not_crash(bash_newt):
         b'my_suspend() { newt Suspend; newt Resume; } && '
         b"newt SetSuspendCallback my_suspend && "
         b'newt -v btn Button 14 1 "OK" && '
-        b'newt -v f Form NULL NULL 0 && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponent "$f" "$btn" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '
@@ -62,7 +62,7 @@ def test_setsuspendcallback_callback_fires_on_sigtstp(bash_newt, tmp_path):
         b"newt Cls && "
         b'newt OpenWindow 5 2 50 5 "Waiting" && '
         b'newt -v lbl Label 5 1 "press ctrl-z" && '
-        b'newt -v f Form NULL NULL 0 && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponent "$f" "$lbl" && '
         b"newt SetSuspendCallback my_suspend && "
         b'newt RunForm "$f"'

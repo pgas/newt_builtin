@@ -51,9 +51,13 @@ def render(child: pexpect.spawn, **drain_kwargs) -> pyte.Screen:
 
 
 def screen_rows(screen: pyte.Screen) -> list[str]:
-    """Return the rendered screen as a list of strings (one per row, rstripped)."""
+    """Return the rendered screen as a list of strings (one per row, rstripped).
+
+    Uses explicit column indices so that character positions are preserved
+    correctly even when pyte's sparse buffer has not been fully initialised.
+    """
     return [
-        "".join(c.data for c in screen.buffer[row].values()).rstrip()
+        "".join(screen.buffer[row][col].data for col in range(screen.columns)).rstrip()
         for row in range(screen.lines)
     ]
 

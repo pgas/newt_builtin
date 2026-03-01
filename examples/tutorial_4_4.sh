@@ -21,7 +21,7 @@ if newt Init;then
     newt -v b1 Button 10 1 "Ok"
     newt -v b2 CompactButton  22 2 "Cancel"
     
-    newt -v form Form NULL "a help string?" 0
+    newt -v form Form "" "a help string?" 0
     
 
     newt FormAddComponent "$form" "$b1"

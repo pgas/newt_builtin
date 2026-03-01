@@ -55,7 +55,7 @@ newt -v info3 Label  3 3  "Press  Enter / Tab  to return from the callback."
 newt -v info4 Label  3 5  "Press  Enter  (on the OK button) to finish."
 newt -v btn   Button 3 7  "OK"
 
-newt -v f Form NULL NULL 0
+newt -v f Form "" "" 0
 newt FormAddComponents "$f" "$info" "$info2" "$info3" "$info4" "$btn"
 
 newt RunForm "$f"

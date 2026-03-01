@@ -75,7 +75,7 @@ newt TextboxSetColors "$tb" \
 
 newt -v btn Button 2 $(( tb_h + 2 )) "Close"
 
-newt -v f Form NULL NULL 0
+newt -v f Form "" "" 0
 newt FormAddComponents "$f" "$tb" "$btn"
 
 # Watch the coproc pipe for incoming log lines.

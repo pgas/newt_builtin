@@ -13,7 +13,7 @@ def test_entry_visible(bash_newt):
         b"newt Init && newt Cls && "
         b'newt OpenWindow 5 3 50 10 "Entry Test" && '
         b'newt -v e Entry 3 2 "hello" 30 0 "" 0 && '
-        b'newt -v f Form NULL "" 0 && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponents "$f" "$e" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '
@@ -35,15 +35,17 @@ def test_entry_getvalue(bash_newt):
         b"newt Init && newt Cls && "
         b'newt OpenWindow 5 3 50 10 "EntryGV" && '
         b'newt -v e Entry 3 2 "world" 30 0 "" 0 && '
-        b'newt -v f Form NULL "" 0 && '
-        b'newt FormAddComponents "$f" "$e" && '
+        b'newt -v _ok Button 3 5 "OK" && '
+        b'newt -v f Form "" "" 0 && '
+        b'newt FormAddComponents "$f" "$_ok" "$e" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '
         b'newt -v val EntryGetValue "$e" && '
         b'newt Finished && '
         b'echo "val=[$val]"'
     )
-    bash_newt.send(b"\n")
+    render(bash_newt, initial_timeout=2.0)
+    bash_newt.send(b"\r")
     time.sleep(0.5)
     screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
     rows = screen_rows(screen)
@@ -62,15 +64,17 @@ def test_entry_set_changes_value(bash_newt):
         b'newt OpenWindow 5 3 50 10 "EntrySet" && '
         b'newt -v e Entry 3 2 "original" 30 0 "" 0 && '
         b'newt EntrySet "$e" "updated" 1 && '
-        b'newt -v f Form NULL "" 0 && '
-        b'newt FormAddComponents "$f" "$e" && '
+        b'newt -v _ok Button 3 5 "OK" && '
+        b'newt -v f Form "" "" 0 && '
+        b'newt FormAddComponents "$f" "$_ok" "$e" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '
         b'newt -v val EntryGetValue "$e" && '
         b'newt Finished && '
         b'echo "val=[$val]"'
     )
-    bash_newt.send(b"\n")
+    render(bash_newt, initial_timeout=2.0)
+    bash_newt.send(b"\r")
     time.sleep(0.5)
     screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
     rows = screen_rows(screen)
@@ -87,7 +91,7 @@ def test_entry_set_flags_disabled(bash_newt):
         b'newt OpenWindow 5 3 50 10 "EntryFlags" && '
         b'newt -v e Entry 3 2 "fixed" 30 0 "" 0 && '
         b'newt EntrySetFlags "$e" 2 1 && '
-        b'newt -v f Form NULL "" 0 && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponents "$f" "$e" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '

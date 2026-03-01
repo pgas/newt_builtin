@@ -28,7 +28,7 @@ newt OpenWindow 10 3 50 10 "Default Palette"
 
 newt -v lbl  Label   5 1 "This uses the built-in default palette."
 newt -v btn  Button  5 3 "Continue"
-newt -v f    Form    NULL NULL 0
+newt -v f    Form "" "" 0
 newt FormAddComponents "$f" "$lbl" "$btn"
 newt RunForm "$f"
 newt FormDestroy "$f"
@@ -74,7 +74,7 @@ newt OpenWindow 10 3 50 10 "Custom Palette"
 
 newt -v lbl2 Label   5 1 "Colours applied via SetColors!"
 newt -v btn2 Button  5 3 "Got it"
-newt -v f2   Form    NULL NULL 0
+newt -v f2   Form "" "" 0
 newt FormAddComponents "$f2" "$lbl2" "$btn2"
 newt RunForm "$f2"
 newt FormDestroy "$f2"

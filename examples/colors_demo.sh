@@ -73,7 +73,7 @@ while ! $quit; do
 
         newt -v btn_next CompactButton 13 15 "[N]ext"
         newt -v btn_quit CompactButton 23 15 "[Q]uit"
-        newt -v f Form NULL NULL 0
+        newt -v f Form "" "" 0
         newt FormAddComponents "$f" "${lbl_refs[@]}" "$btn_next" "$btn_quit"
         newt FormSetCurrent "$f" "$btn_next"
         newt FormAddHotKey "$f" "$KEY_Q"
@@ -122,7 +122,7 @@ The five boxing wizards jump quickly."
         newt -v btn_prev CompactButton  3 15 "[P]rev"
         newt -v btn_next CompactButton 13 15 "[N]ext"
         newt -v btn_quit CompactButton 23 15 "[Q]uit"
-        newt -v f Form NULL NULL 0
+        newt -v f Form "" "" 0
         newt FormAddComponents "$f" \
             "$lbl_tb" "$tb" \
             "$lbl_en" "$en_norm" "$en_dis" \
@@ -189,7 +189,7 @@ The five boxing wizards jump quickly."
         newt -v btn_prev CompactButton  3 15 "[P]rev"
         newt -v btn_next CompactButton 13 15 "[N]ext"
         newt -v btn_quit CompactButton 23 15 "[Q]uit"
-        newt -v f Form NULL NULL 0
+        newt -v f Form "" "" 0
         newt FormAddComponents "$f" \
             "$lbl_sc" "$sc" \
             "$lbl_sep" "$lbl_sb_hdr" "$lbl_sb" "$lb3" "$sb3" \
@@ -238,7 +238,7 @@ The five boxing wizards jump quickly."
         newt -v btn_prev CompactButton  3 15 "[P]rev"
         newt -v btn_quit CompactButton 23 15 "[Q]uit"
 
-        newt -v f Form NULL NULL 0
+        newt -v f Form "" "" 0
         newt FormAddComponents "$f" \
             "$lbl4a" "$lbl4b" "$lbl4_root" "$lbl4c" "$lbl4_title" \
             "$lbl4d" "$lbl4_btn" \

@@ -2,7 +2,7 @@
 
 Covers: Listbox (constructor), ListboxAddEntry / ListboxAppendEntry,
 ListboxSetCurrent, ListboxSetEntry, ListboxGetCurrent, ListboxItemCount,
-ListboxClear.
+ListboxClear, ListboxGetSelection.
 """
 
 import time
@@ -22,7 +22,7 @@ def _listbox_form(bash_newt, extra_cmds=b""):
     if extra_cmds:
         setup = setup + b" && " + extra_cmds
     setup += (
-        b' && newt -v f Form NULL "" 0 && '
+        b' && newt -v f Form "" "" 0 && '
         b'newt FormAddComponents "$f" "$lb" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '
@@ -70,14 +70,15 @@ def test_listbox_item_count(bash_newt):
         b'newt ListboxAddEntry "$lb" "B" 2 && '
         b'newt ListboxAddEntry "$lb" "C" 3 && '
         b'newt -v cnt ListboxItemCount "$lb" && '
-        b'newt -v f Form NULL "" 0 && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponents "$f" "$lb" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '
         b'newt Finished && '
         b'echo "cnt=[$cnt]"'
     )
-    bash_newt.send(b"\n")
+    render(bash_newt, initial_timeout=2.0)  # wait for listbox form
+    bash_newt.send(b"\r")  # press Enter to select item and exit form
     time.sleep(0.5)
     screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
     rows = screen_rows(screen)
@@ -95,8 +96,8 @@ def test_listbox_setentry_updates_text(bash_newt):
         b'newt -v lb Listbox 3 1 8 0 && '
         b'newt ListboxAddEntry "$lb" "Old"  1 && '
         b'newt ListboxAddEntry "$lb" "Keep" 2 && '
-        b'newt ListboxSetEntry "$lb" 1 "New" && '
-        b'newt -v f Form NULL "" 0 && '
+        b'newt ListboxSetEntry "$lb" 0 "New" && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponents "$f" "$lb" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '
@@ -111,7 +112,7 @@ def test_listbox_setentry_updates_text(bash_newt):
     assert not any("Old" in r for r in rows), \
         f"'Old' still visible after ListboxSetEntry.\n{full}"
 
-    bash_newt.send(b"\n")
+    bash_newt.send(b"\r")
 
 
 def test_listbox_clear(bash_newt):
@@ -124,14 +125,16 @@ def test_listbox_clear(bash_newt):
         b'newt ListboxAddEntry "$lb" "Beta"  2 && '
         b'newt ListboxClear "$lb" && '
         b'newt -v cnt ListboxItemCount "$lb" && '
-        b'newt -v f Form NULL "" 0 && '
-        b'newt FormAddComponents "$f" "$lb" && '
+        b'newt -v _ok Button 3 10 "OK" && '
+        b'newt -v f Form "" "" 0 && '
+        b'newt FormAddComponents "$f" "$_ok" "$lb" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '
         b'newt Finished && '
         b'echo "cnt=[$cnt]"'
     )
-    bash_newt.send(b"\n")
+    render(bash_newt, initial_timeout=2.0)  # wait for form
+    bash_newt.send(b"\r")  # click OK to exit form
     time.sleep(0.5)
     screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
     rows = screen_rows(screen)
@@ -150,15 +153,17 @@ def test_listbox_getcurrent(bash_newt):
         b'newt ListboxAddEntry "$lb" "X" 10 && '
         b'newt ListboxAddEntry "$lb" "Y" 20 && '
         b'newt ListboxSetCurrent "$lb" 0 && '
-        b'newt -v f Form NULL "" 0 && '
-        b'newt FormAddComponents "$f" "$lb" && '
+        b'newt -v _ok Button 3 10 "OK" && '
+        b'newt -v f Form "" "" 0 && '
+        b'newt FormAddComponents "$f" "$_ok" "$lb" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '
         b'newt -v key ListboxGetCurrent "$lb" && '
         b'newt Finished && '
         b'echo "key=[$key]"'
     )
-    bash_newt.send(b"\n")
+    render(bash_newt, initial_timeout=2.0)  # wait for form
+    bash_newt.send(b"\r")  # click OK to exit form
     time.sleep(0.5)
     screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
     rows = screen_rows(screen)
@@ -169,3 +174,31 @@ def test_listbox_getcurrent(bash_newt):
     key_lines = [r for r in rows if "key=[" in r]
     assert key_lines and key_lines[0].strip() != "key=[]", \
         f"ListboxGetCurrent returned empty key.\n{full}"
+
+
+def test_listbox_getselection(bash_newt):
+    """ListboxGetSelection should return pre-selected items."""
+    # NEWT_FLAG_MULTIPLE = 1<<8 = 256
+    bash_newt.sendline(
+        b"newt Init && newt Cls && "
+        b'newt -v lb Listbox 3 1 8 256 && '
+        b'newt ListboxAddEntry "$lb" "X" 1 && '
+        b'newt ListboxAddEntry "$lb" "Y" 2 && '
+        b'newt ListboxAddEntry "$lb" "Z" 3 && '
+        b'newt ListboxSelectItem "$lb" 2 0 && '
+        b'newt ListboxGetSelection "$lb" sel && '
+        b'newt Finished && '
+        b'echo "cnt=[$sel] first=[$sel_0]"'
+    )
+    time.sleep(0.3)
+    screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
+    rows = screen_rows(screen)
+    full = screen_text(screen)
+
+    assert any("cnt=[" in r for r in rows), \
+        f"ListboxGetSelection count not bound.\n{full}"
+    cnt_lines = [r for r in rows if "cnt=[" in r]
+    assert cnt_lines and "cnt=[0]" not in cnt_lines[0], \
+        f"ListboxGetSelection returned zero items.\n{full}"
+    assert any("first=[" in r for r in rows), \
+        f"ListboxGetSelection first item not bound.\n{full}"

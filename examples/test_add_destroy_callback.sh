@@ -21,7 +21,7 @@ if newt Init;then
     newt ComponentAddDestroyCallback "$b1" 'printf Hello, >&2'
     newt ComponentAddDestroyCallback "$b2" 'echo \ World! >&2'
     
-    newt -v form Form NULL "a help string?" 0
+    newt -v form Form "" "a help string?" 0
     newt FormAddComponent "$form" "$b1"
     newt FormAddComponent "$form" "$b2"
 

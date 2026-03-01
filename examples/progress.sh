@@ -61,7 +61,7 @@ newt ScaleSetColors "$scale" \
 
 newt -v btn Button 3 5 "Cancel"
 
-newt -v f Form NULL NULL 0
+newt -v f Form "" "" 0
 newt FormAddComponents "$f" "$lbl" "$scale" "$btn"
 
 # Watch the coproc's stdout pipe for readability.

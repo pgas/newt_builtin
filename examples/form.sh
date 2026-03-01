@@ -22,7 +22,7 @@ if newt Init;then
     trap 'newt Finished' EXIT
     newt Cls
     newt CenteredWindow 60 20 "Form Test"
-    newt -v myform Form NULL "" 0
+    newt -v myform Form "" "" 0
     newt WaitForKey # also redraw
     newt FormDestroy $myform
     newt WaitForKey # also redraw

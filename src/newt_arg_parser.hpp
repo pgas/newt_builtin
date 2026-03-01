@@ -81,9 +81,9 @@ inline bool from_string(const char* s, char& out) {
     return true;
 }
 
-// newtComponent — stored as a pointer, serialised as "%p"; also accepts "NULL"
+// newtComponent — stored as a pointer, serialised as "%p"; also accepts "" as nullptr
 inline bool from_string(const char* s, newtComponent& out) {
-    if (std::strcmp(s, "NULL") == 0) { out = nullptr; return true; }
+    if (s[0] == '\0') { out = nullptr; return true; }
     void* p = nullptr;
     if (std::sscanf(s, "%p", &p) == 1) {
         out = static_cast<newtComponent>(p);
@@ -92,9 +92,9 @@ inline bool from_string(const char* s, newtComponent& out) {
     return false;
 }
 
-// newtGrid — also a pointer type; also accepts "NULL"
+// newtGrid — also a pointer type; also accepts "" as nullptr
 inline bool from_string(const char* s, newtGrid& out) {
-    if (std::strcmp(s, "NULL") == 0) { out = nullptr; return true; }
+    if (s[0] == '\0') { out = nullptr; return true; }
     void* p = nullptr;
     if (std::sscanf(s, "%p", &p) == 1) {
         out = static_cast<newtGrid>(p);
@@ -107,7 +107,7 @@ inline bool from_string(const char* s, newtGrid& out) {
 // strings (%p), or plain decimal integers (interpreted as
 // (void*)(intptr_t)n — convenient for listbox integer data keys).
 inline bool from_string(const char* s, void*& out) {
-    if (s[0] == '\0' || std::strcmp(s, "NULL") == 0) { out = nullptr; return true; }
+    if (s[0] == '\0') { out = nullptr; return true; }
     // Decimal integers (plain digits, optional leading '-') come first so that
     // strings like "42" are parsed as decimal 42 and not as hex 0x42.
     intmax_t n;

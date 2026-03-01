@@ -22,6 +22,11 @@ using newtCallback        = void (*)(newtComponent, void*);
 using newtSuspendCallback = void (*)(void*);
 using newtEntryFilter     = char (*)(newtComponent, void*, int, int);
 
+// ── constants ─────────────────────────────────────────────────────────────────
+
+static constexpr int NEWT_ARG_LAST   = -100000;
+static constexpr int NEWT_ARG_APPEND = -1;
+
 // ── enums ─────────────────────────────────────────────────────────────────────
 
 enum newtFlagsSense {
@@ -31,8 +36,9 @@ enum newtFlagsSense {
 };
 
 enum newtGridElement {
-    NEWT_GRID_COMPONENT = 0,
-    NEWT_GRID_SUBGRID   = 1,
+    NEWT_GRID_EMPTY     = 0,
+    NEWT_GRID_COMPONENT = 1,
+    NEWT_GRID_SUBGRID   = 2,
 };
 
 // ── newtComponentAddCallback stub ────────────────────────────────────────────

@@ -17,7 +17,7 @@ def test_label_text_visible(bash_newt):
         b"newt Cls && "
         b'newt OpenWindow 10 5 40 7 "Label Window" && '
         b'newt -v l1 Label 10 1 "Hello, world!" && '
-        b"newt -v myform Form NULL '' 0 && "
+        b"newt -v myform Form '' '' 0 && "
         b'newt FormAddComponent "$myform" "$l1" && '
         b'newt RunForm "$myform" && '
         b'newt FormDestroy "$myform" && '
@@ -48,8 +48,9 @@ def test_label_set_text(bash_newt):
         b"newt Cls && "
         b'newt OpenWindow 10 5 40 7 "Update Test" && '
         b'newt -v l1 Label 10 1 "initial text" && '
-        b'newt -v myform Form NULL \'\' 0 && '
-        b'newt FormAddComponent "$myform" "$l1" && '
+        b'newt -v _cont Button 5 4 "Continue" && '
+        b"newt -v myform Form '' '' 0 && "
+        b'newt FormAddComponents "$myform" "$_cont" "$l1" && '
         b'newt RunForm "$myform"'
     )
     bash_newt.sendline(setup)
@@ -62,7 +63,7 @@ def test_label_set_text(bash_newt):
     )
 
     # Press Enter to return from RunForm, then update the label and refresh.
-    bash_newt.send(b"\n")
+    bash_newt.send(b"\r")
     bash_newt.sendline(
         b'newt LabelSetText "$l1" "updated text" && '
         b"newt Refresh && "
@@ -77,4 +78,4 @@ def test_label_set_text(bash_newt):
         "'updated text' not found after LabelSetText.\n" + screen_text(screen2)
     )
 
-    bash_newt.send(b"\n")
+    bash_newt.send(b"\r")

@@ -50,7 +50,7 @@ newt -v btn_next    Button        3 10 "Next >"
 newt -v btn_cb      CompactButton 20 11 "CompactButton"
 newt -v btn_cb2     CompactButton 36 11 "Also CompactButton"
 
-newt -v f1 Form NULL NULL 0
+newt -v f1 Form "" "" 0
 newt FormAddComponents "$f1" \
     "$lbl_title" "$lbl_change" "$lbl_color" \
     "$btn_cb" "$btn_cb2" "$btn_next"
@@ -85,7 +85,7 @@ newt CheckboxSetFlags "$cb_c" "${NEWT_FLAG[DISABLED]}" 1    # reset NEWT_FLAG_DI
 
 newt -v btn2_next Button 3 13 "Next >"
 
-newt -v f2 Form NULL NULL 0
+newt -v f2 Form "" "" 0
 newt FormAddComponents "$f2" "$lbl2" "$cb_a" "$cb_b" "$cb_c" "$btn2_next"
 newt RunForm "$f2"
 newt FormDestroy "$f2"
@@ -115,7 +115,7 @@ declare -a rb_ptrs=()
 # bash evaluates the subscript arithmetic via builtin_bind_variable.
 i=0
 for label in "${rb_labels[@]}"; do
-    (( i == 0 )) && prev=NULL || prev="${rb_ptrs[i-1]}"
+    (( i == 0 )) && prev="" || prev="${rb_ptrs[i-1]}"
     isdef=$(( i == 0 ? 1 : 0 ))
     row=$(( 3 + i ))
     newt -v "rb_ptrs[i++]" Radiobutton 3 "$row" "$label" $isdef "$prev"
@@ -126,7 +126,7 @@ newt RadioSetCurrent "${rb_ptrs[2]}"
 
 newt -v btn3_next Button 3 13 "Next >"
 
-newt -v f3 Form NULL NULL 0
+newt -v f3 Form "" "" 0
 newt FormAddComponents "$f3" "$lbl3" \
     "${rb_ptrs[0]}" "${rb_ptrs[1]}" "${rb_ptrs[2]}" "${rb_ptrs[3]}" \
     "$btn3_next"
@@ -180,7 +180,7 @@ newt ScrollbarSet "$sb" 0 "$(( ${#animals[@]} - 1 ))"
 
 newt -v btn4_done Button 3 16 "Finish"
 
-newt -v f4 Form NULL NULL 0
+newt -v f4 Form "" "" 0
 newt FormAddComponents "$f4" "$lbl4" "$lb" "$sb" "$btn4_done"
 
 # Sync the scrollbar via a component callback on the listbox.

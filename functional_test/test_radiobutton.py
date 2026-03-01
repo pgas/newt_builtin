@@ -17,10 +17,10 @@ def test_radiobutton_labels_visible(bash_newt):
     bash_newt.sendline(
         b"newt Init && newt Cls && "
         b'newt OpenWindow 5 3 50 12 "Radio Test" && '
-        b'newt -v r1 Radiobutton 3 1 "Alpha" 1 "NULL" && '
+        b'newt -v r1 Radiobutton 3 1 "Alpha" 1 "" && '
         b'newt -v r2 Radiobutton 3 2 "Beta"  0 "$r1" && '
         b'newt -v r3 Radiobutton 3 3 "Gamma" 0 "$r2" && '
-        b'newt -v f Form NULL "" 0 && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponents "$f" "$r1" "$r2" "$r3" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '
@@ -42,17 +42,19 @@ def test_radio_get_current_returns_value(bash_newt):
     bash_newt.sendline(
         b"newt Init && newt Cls && "
         b'newt OpenWindow 5 3 50 10 "RadioGet" && '
-        b'newt -v r1 Radiobutton 3 1 "One" 1 "NULL" && '
+        b'newt -v r1 Radiobutton 3 1 "One" 1 "" && '
         b'newt -v r2 Radiobutton 3 2 "Two" 0 "$r1" && '
-        b'newt -v f Form NULL "" 0 && '
-        b'newt FormAddComponents "$f" "$r1" "$r2" && '
+        b'newt -v _ok Button 3 4 "OK" && '
+        b'newt -v f Form "" "" 0 && '
+        b'newt FormAddComponents "$f" "$_ok" "$r1" "$r2" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '
         b'newt -v cur RadioGetCurrent "$r1" && '
         b'newt Finished && '
         b'echo "cur=$cur"'
     )
-    bash_newt.send(b"\n")
+    render(bash_newt, initial_timeout=2.0)
+    bash_newt.send(b"\r")
     time.sleep(0.5)
     screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
     rows = screen_rows(screen)
@@ -60,7 +62,7 @@ def test_radio_get_current_returns_value(bash_newt):
 
     assert any("cur=" in r for r in rows), \
         f"'cur=' not found in output.\n{full}"
-    # The result should be a non-empty string (pointer or "NULL")
+    # The result should be a non-empty string (a hex pointer value)
     cur_lines = [r for r in rows if "cur=" in r]
     assert cur_lines, f"No line with 'cur='\n{full}"
     assert cur_lines[0].strip() != "cur=", \
@@ -72,19 +74,21 @@ def test_radio_set_current(bash_newt):
     bash_newt.sendline(
         b"newt Init && newt Cls && "
         b'newt OpenWindow 5 3 50 10 "RadioSet" && '
-        b'newt -v r1 Radiobutton 3 1 "First"  1 "NULL" && '
+        b'newt -v r1 Radiobutton 3 1 "First"  1 "" && '
         b'newt -v r2 Radiobutton 3 2 "Second" 0 "$r1" && '
         b'newt -v r3 Radiobutton 3 3 "Third"  0 "$r2" && '
         b'newt RadioSetCurrent "$r3" && '
-        b'newt -v f Form NULL "" 0 && '
-        b'newt FormAddComponents "$f" "$r1" "$r2" "$r3" && '
+        b'newt -v _ok Button 3 5 "OK" && '
+        b'newt -v f Form "" "" 0 && '
+        b'newt FormAddComponents "$f" "$_ok" "$r1" "$r2" "$r3" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '
         b'newt -v cur RadioGetCurrent "$r1" && '
         b'newt Finished && '
         b'[[ "$cur" == "$r3" ]] && echo "correct" || echo "wrong"'
     )
-    bash_newt.send(b"\n")
+    render(bash_newt, initial_timeout=2.0)
+    bash_newt.send(b"\r")
     time.sleep(0.5)
     screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
     rows = screen_rows(screen)

@@ -15,8 +15,8 @@ def test_button_text_visible(bash_newt):
         b"newt Init && newt Cls && "
         b'newt OpenWindow 10 5 40 8 "Button Test" && '
         b'newt -v b1 Button 5 1 "OK" && '
-        b'newt -v b2 Button 5 3 "Cancel" && '
-        b'newt -v f Form NULL "" 0 && '
+        b'newt -v b2 Button 5 4 "Cancel" && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponents "$f" "$b1" "$b2" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '
@@ -43,7 +43,7 @@ def test_compact_button_text_visible(bash_newt):
         b'newt OpenWindow 10 5 50 8 "CompactButton Test" && '
         b'newt -v b1 CompactButton 5 1 "Yes" && '
         b'newt -v b2 CompactButton 20 1 "No" && '
-        b'newt -v f Form NULL "" 0 && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponents "$f" "$b1" "$b2" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '
@@ -67,11 +67,11 @@ def test_form_add_components_multiple(bash_newt):
     """FormAddComponents should add multiple components in one call."""
     bash_newt.sendline(
         b"newt Init && newt Cls && "
-        b'newt OpenWindow 5 3 50 10 "Multi-Add" && '
+        b'newt OpenWindow 5 3 50 12 "Multi-Add" && '
         b'newt -v b1 Button 3 1 "First" && '
-        b'newt -v b2 Button 3 3 "Second" && '
-        b'newt -v b3 Button 3 5 "Third" && '
-        b'newt -v f Form NULL "" 0 && '
+        b'newt -v b2 Button 3 4 "Second" && '
+        b'newt -v b3 Button 3 7 "Third" && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponents "$f" "$b1" "$b2" "$b3" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '
@@ -94,7 +94,7 @@ def test_runform_returns_component(bash_newt):
         b"newt Init && newt Cls && "
         b'newt OpenWindow 10 5 40 6 "Return Test" && '
         b'newt -v btn Button 5 1 "Go" && '
-        b'newt -v f Form NULL "" 0 && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponent "$f" "$btn" && '
         b'newt -v ret RunForm "$f" && '
         b'newt FormDestroy "$f" && '
@@ -102,7 +102,7 @@ def test_runform_returns_component(bash_newt):
         b'echo "ret=$ret"'
     )
     screen = render(bash_newt, initial_timeout=2.0)
-    bash_newt.send(b"\n")
+    bash_newt.send(b"\r")
     import time; time.sleep(0.5)
     screen2 = render(bash_newt, initial_timeout=1.0, drain_timeout=0.2)
     rows = screen_rows(screen2)

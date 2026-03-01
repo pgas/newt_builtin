@@ -17,7 +17,7 @@ def test_checkbox_text_visible(bash_newt):
         b"newt Init && newt Cls && "
         b'newt OpenWindow 5 3 50 10 "Checkbox Test" && '
         b'newt -v cb Checkbox 3 2 "Enable feature" && '
-        b'newt -v f Form NULL "" 0 && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponent "$f" "$cb" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '
@@ -39,16 +39,18 @@ def test_checkbox_default_unchecked(bash_newt):
         b"newt Init && newt Cls && "
         b'newt OpenWindow 5 3 50 8 "Check Default" && '
         b'newt -v cb Checkbox 3 1 "Item" && '
-        b'newt -v f Form NULL "" 0 && '
-        b'newt FormAddComponent "$f" "$cb" && '
+        b'newt -v _ok Button 3 4 "OK" && '
+        b'newt -v f Form "" "" 0 && '
+        b'newt FormAddComponents "$f" "$_ok" "$cb" && '
         b'newt RunForm "$f" && '
-        b'newt FormDestroy "$f" && '
         b'newt -v val CheckboxGetValue "$cb" && '
+        b'newt FormDestroy "$f" && '
         b'newt Finished && '
         b'echo "val=[$val]"'
     )
-    # Unblock the form first
-    bash_newt.send(b"\n")
+    # Wait for form to appear, then click OK to exit
+    render(bash_newt, initial_timeout=2.0)
+    bash_newt.send(b"\r")
     time.sleep(0.5)
     screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
     rows = screen_rows(screen)
@@ -65,15 +67,17 @@ def test_checkbox_preset_checked(bash_newt):
         b"newt Init && newt Cls && "
         b'newt OpenWindow 5 3 50 8 "Pre-checked" && '
         b'newt -v cb Checkbox 3 1 "Selected" "*" && '
-        b'newt -v f Form NULL "" 0 && '
-        b'newt FormAddComponent "$f" "$cb" && '
+        b'newt -v _ok Button 3 4 "OK" && '
+        b'newt -v f Form "" "" 0 && '
+        b'newt FormAddComponents "$f" "$_ok" "$cb" && '
         b'newt RunForm "$f" && '
-        b'newt FormDestroy "$f" && '
         b'newt -v val CheckboxGetValue "$cb" && '
+        b'newt FormDestroy "$f" && '
         b'newt Finished && '
         b'echo "val=[$val]"'
     )
-    bash_newt.send(b"\n")
+    render(bash_newt, initial_timeout=2.0)
+    bash_newt.send(b"\r")
     time.sleep(0.5)
     screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
     rows = screen_rows(screen)
@@ -90,15 +94,17 @@ def test_checkbox_set_value(bash_newt):
         b'newt OpenWindow 5 3 50 8 "SetValue" && '
         b'newt -v cb Checkbox 3 1 "Toggle" && '
         b'newt CheckboxSetValue "$cb" "*" && '
-        b'newt -v f Form NULL "" 0 && '
-        b'newt FormAddComponent "$f" "$cb" && '
+        b'newt -v _ok Button 3 4 "OK" && '
+        b'newt -v f Form "" "" 0 && '
+        b'newt FormAddComponents "$f" "$_ok" "$cb" && '
         b'newt RunForm "$f" && '
-        b'newt FormDestroy "$f" && '
         b'newt -v val CheckboxGetValue "$cb" && '
+        b'newt FormDestroy "$f" && '
         b'newt Finished && '
         b'echo "val=[$val]"'
     )
-    bash_newt.send(b"\n")
+    render(bash_newt, initial_timeout=2.0)
+    bash_newt.send(b"\r")
     time.sleep(0.5)
     screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
     rows = screen_rows(screen)
@@ -115,7 +121,7 @@ def test_checkbox_set_flags_disable(bash_newt):
         b'newt OpenWindow 5 3 50 8 "Disabled CB" && '
         b'newt -v cb Checkbox 3 1 "Disabled item" && '
         b'newt CheckboxSetFlags "$cb" 8 0 && '
-        b'newt -v f Form NULL "" 0 && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponent "$f" "$cb" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '

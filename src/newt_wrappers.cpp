@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 extern "C" {
 #include <newt.h>
@@ -321,7 +322,29 @@ static int wrap_SetHelpCallback(char* v, WORD_LIST* a) { return call_newt("SetHe
 static int wrap_RadioSetCurrent(char* v, WORD_LIST* a) { return call_newt("RadioSetCurrent", "setMember",  newtRadioSetCurrent,  v, a); }
 static int wrap_CompactButton(char* v, WORD_LIST* a)   { return call_newt("CompactButton",   "left top text", newtCompactButton, v, a); }
 static int wrap_Button(char* v, WORD_LIST* a)          { return call_newt("Button",          "left top text", newtButton,       v, a); }
-static int wrap_CheckboxGetValue(char* v, WORD_LIST* a){ return call_newt("CheckboxGetValue", "co",              newtCheckboxGetValue, v, a); }
+static int wrap_CheckboxGetValue(char* v, WORD_LIST* a) {
+    // newtCheckboxGetValue() reads cb->currValue which can be stale; instead
+    // read the result pointer we passed to newtCheckbox() (updated by cbDraw).
+    newtComponent co;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, co)) goto usage;
+    {
+        char val;
+        auto it = g_checkbox_results.find(co);
+        if (it != g_checkbox_results.end())
+            val = *(it->second);
+        else
+            val = newtCheckboxGetValue(co);
+        if (v) {
+            std::string s(1, val);
+            builtin_bind_variable(v, const_cast<char*>(s.c_str()), 0);
+        }
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr, "newt: usage: newt CheckboxGetValue co\n");
+    return EXECUTION_FAILURE;
+}
 static int wrap_CheckboxSetValue(char* v, WORD_LIST* a){ return call_newt("CheckboxSetValue", "co value",        newtCheckboxSetValue, v, a); }
 static int wrap_CheckboxSetFlags(char* v, WORD_LIST* a){ return call_newt("CheckboxSetFlags", "co flags sense",   newtCheckboxSetFlags, v, a); }
 static int wrap_RadioGetCurrent(char* v, WORD_LIST* a) { return call_newt("RadioGetCurrent",  "setMember",        newtRadioGetCurrent,  v, a); }
@@ -742,6 +765,645 @@ usage:
     return EXECUTION_FAILURE;
 }
 
+// ─── CheckboxTree ─────────────────────────────────────────────────────────────
+
+static int wrap_CheckboxTree(char* v, WORD_LIST* a) {
+    return call_newt("CheckboxTree", "left top height flags",
+                     newtCheckboxTree, v, a);
+}
+
+static int wrap_CheckboxTreeMulti(char* v, WORD_LIST* a) {
+    return call_newt("CheckboxTreeMulti", "left top height seq flags",
+                     newtCheckboxTreeMulti, v, a);
+}
+
+static int wrap_CheckboxTreeSetCurrent(char* v, WORD_LIST* a) {
+    return call_newt("CheckboxTreeSetCurrent", "co item",
+                     newtCheckboxTreeSetCurrent, v, a);
+}
+
+static int wrap_CheckboxTreeGetCurrent(char* v, WORD_LIST* a) {
+    return call_newt("CheckboxTreeGetCurrent", "co",
+                     newtCheckboxTreeGetCurrent, v, a);
+}
+
+static int wrap_CheckboxTreeSetEntry(char* v, WORD_LIST* a) {
+    return call_newt("CheckboxTreeSetEntry", "co data text",
+                     newtCheckboxTreeSetEntry, v, a);
+}
+
+static int wrap_CheckboxTreeSetWidth(char* v, WORD_LIST* a) {
+    return call_newt("CheckboxTreeSetWidth", "co width",
+                     newtCheckboxTreeSetWidth, v, a);
+}
+
+static int wrap_CheckboxTreeGetEntryValue(char* v, WORD_LIST* a) {
+    return call_newt("CheckboxTreeGetEntryValue", "co data",
+                     newtCheckboxTreeGetEntryValue, v, a);
+}
+
+static int wrap_CheckboxTreeSetEntryValue(char* v, WORD_LIST* a) {
+    return call_newt("CheckboxTreeSetEntryValue", "co data value",
+                     newtCheckboxTreeSetEntryValue, v, a);
+}
+
+// CheckboxTreeGetSelection co numitemsVar
+// Binds itemsVar[0], itemsVar[1], ... and numitemsVar.
+static int wrap_CheckboxTreeGetSelection(char* /*v*/, WORD_LIST* a) {
+    newtComponent co;
+    const char* varname;
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, co)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, varname)) goto usage;
+    {
+        int n = 0;
+        const void** sel = newtCheckboxTreeGetSelection(co, &n);
+        for (int i = 0; i < n; ++i) {
+            std::string idx_var = std::string(varname) + "_" + std::to_string(i);
+            std::string val     = to_bash_string(sel[i]);
+            builtin_bind_variable(const_cast<char*>(idx_var.c_str()),
+                                  const_cast<char*>(val.c_str()), 0);
+        }
+        std::string cnt = to_bash_string(n);
+        builtin_bind_variable(const_cast<char*>(varname),
+                              const_cast<char*>(cnt.c_str()), 0);
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr, "newt: usage: newt CheckboxTreeGetSelection co numVar\n");
+    return EXECUTION_FAILURE;
+}
+
+// CheckboxTreeGetMultiSelection co numitemsVar seqnum
+static int wrap_CheckboxTreeGetMultiSelection(char* /*v*/, WORD_LIST* a) {
+    newtComponent co;
+    const char* varname;
+    char seqnum;
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, co)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, varname)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, seqnum)) goto usage;
+    {
+        int n = 0;
+        const void** sel = newtCheckboxTreeGetMultiSelection(co, &n, seqnum);
+        for (int i = 0; i < n; ++i) {
+            std::string idx_var = std::string(varname) + "_" + std::to_string(i);
+            std::string val     = to_bash_string(sel[i]);
+            builtin_bind_variable(const_cast<char*>(idx_var.c_str()),
+                                  const_cast<char*>(val.c_str()), 0);
+        }
+        std::string cnt = to_bash_string(n);
+        builtin_bind_variable(const_cast<char*>(varname),
+                              const_cast<char*>(cnt.c_str()), 0);
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr,
+        "newt: usage: newt CheckboxTreeGetMultiSelection co numVar seqnum\n");
+    return EXECUTION_FAILURE;
+}
+
+// CheckboxTreeAddItem co text data flags index [index2 ...]
+// Extra integer indices build the variadic list terminated by NEWT_ARG_LAST.
+static int wrap_CheckboxTreeAddItem(char* v, WORD_LIST* a) {
+    newtComponent co;
+    const char* text;
+    void*       data;
+    int         flags;
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, co))   goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, text)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, data)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, flags)) goto usage;
+    {
+        // Collect remaining ints into a vector; append NEWT_ARG_LAST sentinel.
+        std::vector<int> indexes;
+        while (a->next) {
+            a = a->next;
+            int idx;
+            if (!from_string(a->word->word, idx)) goto usage;
+            indexes.push_back(idx);
+        }
+        // Build a null-terminated int array with NEWT_ARG_LAST sentinel.
+        // newtCheckboxTreeAddArray expects a plain int* terminated by
+        // NEWT_ARG_LAST, which is exactly what we build here.
+        indexes.push_back(NEWT_ARG_LAST);
+        int rc = newtCheckboxTreeAddArray(co, text, data, flags, indexes.data());
+        if (v) {
+            std::string s = to_bash_string(rc);
+            builtin_bind_variable(v, const_cast<char*>(s.c_str()), 0);
+        }
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr,
+        "newt: usage: newt CheckboxTreeAddItem co text data flags index ...\n");
+    return EXECUTION_FAILURE;
+}
+
+// CheckboxTreeFindItem co data — binds varname to space-separated index list
+static int wrap_CheckboxTreeFindItem(char* v, WORD_LIST* a) {
+    newtComponent co;
+    void* data;
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, co))   goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, data)) goto usage;
+    {
+        int* idxs = newtCheckboxTreeFindItem(co, data);
+        std::string result;
+        if (idxs) {
+            for (int i = 0; idxs[i] != NEWT_ARG_LAST; ++i) {
+                if (i) result += ' ';
+                result += to_bash_string(idxs[i]);
+            }
+            // libnewt allocates this with malloc; free it.
+            free(idxs);
+        }
+        if (v)
+            builtin_bind_variable(v, const_cast<char*>(result.c_str()), 0);
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr, "newt: usage: newt CheckboxTreeFindItem co data\n");
+    return EXECUTION_FAILURE;
+}
+
+// ─── ListboxGetSelection co numVar ────────────────────────────────────────────
+// Binds numVar_0 … numVar_{n-1} to the void* data keys (as decimal integers)
+// and numVar to the count.
+static int wrap_ListboxGetSelection(char* /*v*/, WORD_LIST* a) {
+    newtComponent co;
+    const char* varname;
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, co))     goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, varname)) goto usage;
+    {
+        int n = 0;
+        void** sel = newtListboxGetSelection(co, &n);
+        for (int i = 0; i < n; ++i) {
+            std::string idx_var = std::string(varname) + "_" + std::to_string(i);
+            std::string val     = to_bash_string(sel[i]);
+            builtin_bind_variable(const_cast<char*>(idx_var.c_str()),
+                                  const_cast<char*>(val.c_str()), 0);
+        }
+        if (sel) free(sel);
+        std::string cnt = to_bash_string(n);
+        builtin_bind_variable(const_cast<char*>(varname),
+                              const_cast<char*>(cnt.c_str()), 0);
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr, "newt: usage: newt ListboxGetSelection co numVar\n");
+    return EXECUTION_FAILURE;
+}
+
+// ─── TextboxReflowed left top text width flexDown flexUp flags ────────────────
+static int wrap_TextboxReflowed(char* v, WORD_LIST* a) {
+    return call_newt("TextboxReflowed",
+                     "left top text width flexDown flexUp flags",
+                     newtTextboxReflowed, v, a);
+}
+
+// ─── ReflowText text width flexDown flexUp actualWidthVar actualHeightVar ──────
+static int wrap_ReflowText(char* v, WORD_LIST* a) {
+    char*       text;
+    int         width, flex_down, flex_up;
+    const char* w_var;
+    const char* h_var;
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, text))      goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, width))     goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, flex_down)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, flex_up))   goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, w_var))     goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, h_var))     goto usage;
+    {
+        int actual_w = 0, actual_h = 0;
+        char* result = newtReflowText(text, width, flex_down, flex_up,
+                                      &actual_w, &actual_h);
+        if (v && result) {
+            std::string s = to_bash_string(result);
+            builtin_bind_variable(v, const_cast<char*>(s.c_str()), 0);
+        }
+        builtin_bind_variable(const_cast<char*>(w_var),
+                      const_cast<char*>(to_bash_string(actual_w).c_str()), 0);
+        builtin_bind_variable(const_cast<char*>(h_var),
+                      const_cast<char*>(to_bash_string(actual_h).c_str()), 0);
+        free(result);
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr,
+        "newt: usage: newt ReflowText text width flexDown flexUp "
+        "actualWidthVar actualHeightVar\n");
+    return EXECUTION_FAILURE;
+}
+
+// ─── Grid constructors ────────────────────────────────────────────────────────
+
+static int wrap_CreateGrid(char* v, WORD_LIST* a) {
+    return call_newt("CreateGrid", "cols rows", newtCreateGrid, v, a);
+}
+
+// GridSetField grid col row type val padLeft padTop padRight padBottom anchor flags
+static int wrap_GridSetField(char* v, WORD_LIST* a) {
+    return call_newt("GridSetField",
+                     "grid col row type val padLeft padTop padRight padBottom anchor flags",
+                     newtGridSetField, v, a);
+}
+
+// GridWrappedWindow grid title
+static int wrap_GridWrappedWindow(char* v, WORD_LIST* a) {
+    return call_newt("GridWrappedWindow", "grid title",
+                     newtGridWrappedWindow, v, a);
+}
+
+// GridWrappedWindowAt grid title left top
+static int wrap_GridWrappedWindowAt(char* v, WORD_LIST* a) {
+    return call_newt("GridWrappedWindowAt", "grid title left top",
+                     newtGridWrappedWindowAt, v, a);
+}
+
+// GridGetSize grid widthVar heightVar
+static int wrap_GridGetSize(char* /*v*/, WORD_LIST* a) {
+    newtGrid    grid;
+    const char* w_var;
+    const char* h_var;
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, grid))  goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, w_var)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, h_var)) goto usage;
+    {
+        int w = 0, h = 0;
+        newtGridGetSize(grid, &w, &h);
+        builtin_bind_variable(const_cast<char*>(w_var),
+                      const_cast<char*>(to_bash_string(w).c_str()), 0);
+        builtin_bind_variable(const_cast<char*>(h_var),
+                      const_cast<char*>(to_bash_string(h).c_str()), 0);
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr,
+        "newt: usage: newt GridGetSize grid widthVar heightVar\n");
+    return EXECUTION_FAILURE;
+}
+
+// GridAddComponentsToForm grid form recurse
+static int wrap_GridAddComponentsToForm(char* v, WORD_LIST* a) {
+    return call_newt("GridAddComponentsToForm", "grid form recurse",
+                     newtGridAddComponentsToForm, v, a);
+}
+
+// GridVStacked / GridHStacked / GridVCloseStacked / GridHCloseStacked
+// Shell interface: newt GridVStacked type1 what1 type2 what2 ... NULL
+// We walk pairs (type, what) until we see "NULL" as the type, then call the
+// va_list variant newtGridVStacked(..., NULL).  Because the variadic C API uses
+// NEWT_GRID_EMPTY as a sentinel, we must build the call dynamically.
+// Strategy: allocate a flat (type,what,type,what,...,NEWT_GRID_EMPTY,NULL)
+// array and use newtGridSetField on a manually-created grid instead.
+// Simpler strategy: support up to 16 pairs and build explicit calls.
+// Even simpler: wrap the non-variadic alternative newtCreateGrid + newtGridSetField.
+// Providing direct wrappers for the variadic grid stackers via manual parsing:
+static newtGrid grid_stacked_helper(
+        newtGrid (*fn_one)(enum newtGridElement, void*,...),
+        WORD_LIST* a) {
+    // Collect (type, val) pairs; stop when no more args.
+    std::vector<std::pair<enum newtGridElement, void*>> pairs;
+    while (a->next) {
+        a = a->next;
+        intmax_t t;
+        if (!legal_number(a->word->word, &t)) break;
+        enum newtGridElement type = static_cast<enum newtGridElement>(t);
+        if (!a->next) break;
+        a = a->next;
+        void* val_p = nullptr;
+        from_string(a->word->word, val_p);
+        pairs.push_back({type, val_p});
+    }
+    if (pairs.empty()) return nullptr;
+    // Build the call using the first pair and the rest as varargs.
+    // We call the function with up to 8 pairs to keep it simple.
+#define PAIR(i) pairs[i].first, pairs[i].second
+    // Fall through a size-based dispatch; max 8 additional pairs.
+    size_t n = pairs.size();
+    switch (n) {
+    case 1: return fn_one(PAIR(0), NEWT_GRID_EMPTY, nullptr);
+    case 2: return fn_one(PAIR(0), PAIR(1), NEWT_GRID_EMPTY, nullptr);
+    case 3: return fn_one(PAIR(0), PAIR(1), PAIR(2), NEWT_GRID_EMPTY, nullptr);
+    case 4: return fn_one(PAIR(0), PAIR(1), PAIR(2), PAIR(3), NEWT_GRID_EMPTY, nullptr);
+    case 5: return fn_one(PAIR(0), PAIR(1), PAIR(2), PAIR(3), PAIR(4), NEWT_GRID_EMPTY, nullptr);
+    case 6: return fn_one(PAIR(0), PAIR(1), PAIR(2), PAIR(3), PAIR(4), PAIR(5), NEWT_GRID_EMPTY, nullptr);
+    case 7: return fn_one(PAIR(0), PAIR(1), PAIR(2), PAIR(3), PAIR(4), PAIR(5), PAIR(6), NEWT_GRID_EMPTY, nullptr);
+    default:return fn_one(PAIR(0), PAIR(1), PAIR(2), PAIR(3), PAIR(4), PAIR(5), PAIR(6), PAIR(7), NEWT_GRID_EMPTY, nullptr);
+    }
+#undef PAIR
+}
+
+static int wrap_GridVStacked(char* v, WORD_LIST* a) {
+    newtGrid g = grid_stacked_helper(newtGridVStacked, a);
+    if (!g) {
+        std::fprintf(stderr,
+            "newt: usage: newt GridVStacked type1 val1 [type2 val2 ...]\n");
+        return EXECUTION_FAILURE;
+    }
+    if (v) {
+        std::string s = to_bash_string(g);
+        builtin_bind_variable(v, const_cast<char*>(s.c_str()), 0);
+    }
+    return EXECUTION_SUCCESS;
+}
+
+static int wrap_GridVCloseStacked(char* v, WORD_LIST* a) {
+    newtGrid g = grid_stacked_helper(newtGridVCloseStacked, a);
+    if (!g) {
+        std::fprintf(stderr,
+            "newt: usage: newt GridVCloseStacked type1 val1 [type2 val2 ...]\n");
+        return EXECUTION_FAILURE;
+    }
+    if (v) {
+        std::string s = to_bash_string(g);
+        builtin_bind_variable(v, const_cast<char*>(s.c_str()), 0);
+    }
+    return EXECUTION_SUCCESS;
+}
+
+static int wrap_GridHStacked(char* v, WORD_LIST* a) {
+    newtGrid g = grid_stacked_helper(newtGridHStacked, a);
+    if (!g) {
+        std::fprintf(stderr,
+            "newt: usage: newt GridHStacked type1 val1 [type2 val2 ...]\n");
+        return EXECUTION_FAILURE;
+    }
+    if (v) {
+        std::string s = to_bash_string(g);
+        builtin_bind_variable(v, const_cast<char*>(s.c_str()), 0);
+    }
+    return EXECUTION_SUCCESS;
+}
+
+static int wrap_GridHCloseStacked(char* v, WORD_LIST* a) {
+    newtGrid g = grid_stacked_helper(newtGridHCloseStacked, a);
+    if (!g) {
+        std::fprintf(stderr,
+            "newt: usage: newt GridHCloseStacked type1 val1 [type2 val2 ...]\n");
+        return EXECUTION_FAILURE;
+    }
+    if (v) {
+        std::string s = to_bash_string(g);
+        builtin_bind_variable(v, const_cast<char*>(s.c_str()), 0);
+    }
+    return EXECUTION_SUCCESS;
+}
+
+// ─── Convenience window functions ─────────────────────────────────────────────
+
+// WinMessage title buttonText text
+static int wrap_WinMessage(char* /*v*/, WORD_LIST* a) {
+    const char* title;
+    const char* btn;
+    const char* text;
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, title)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, btn))   goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, text))  goto usage;
+    newtWinMessage(const_cast<char*>(title), const_cast<char*>(btn),
+                   const_cast<char*>("%s"), text);
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr, "newt: usage: newt WinMessage title button text\n");
+    return EXECUTION_FAILURE;
+}
+
+// WinChoice title button1 button2 text  → binds result (0/1/2) to varname
+static int wrap_WinChoice(char* v, WORD_LIST* a) {
+    const char* title;
+    const char* btn1;
+    const char* btn2;
+    const char* text;
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, title)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, btn1))  goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, btn2))  goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, text))  goto usage;
+    {
+        int rc = newtWinChoice(const_cast<char*>(title),
+                               const_cast<char*>(btn1),
+                               const_cast<char*>(btn2),
+                               const_cast<char*>("%s"), text);
+        if (v) {
+            std::string s = to_bash_string(rc);
+            builtin_bind_variable(v, const_cast<char*>(s.c_str()), 0);
+        }
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr,
+        "newt: usage: newt WinChoice title button1 button2 text\n");
+    return EXECUTION_FAILURE;
+}
+
+// WinTernary title button1 button2 button3 text  → result 0/1/2/3
+static int wrap_WinTernary(char* v, WORD_LIST* a) {
+    const char* title;
+    const char* btn1;
+    const char* btn2;
+    const char* btn3;
+    const char* text;
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, title)) goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, btn1))  goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, btn2))  goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, btn3))  goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, text))  goto usage;
+    {
+        int rc = newtWinTernary(const_cast<char*>(title),
+                                const_cast<char*>(btn1),
+                                const_cast<char*>(btn2),
+                                const_cast<char*>(btn3),
+                                const_cast<char*>("%s"), text);
+        if (v) {
+            std::string s = to_bash_string(rc);
+            builtin_bind_variable(v, const_cast<char*>(s.c_str()), 0);
+        }
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr,
+        "newt: usage: newt WinTernary title button1 button2 button3 text\n");
+    return EXECUTION_FAILURE;
+}
+
+// WinMenu title text suggestedWidth flexDown flexUp maxListHeight
+//         listItemVar item0 item1 ...  button1 [button2 ...]
+// This is complex-variadic across both items and buttons; expose simpler
+// flat variant: WinMenu title text suggestedWidth flexDown flexUp maxListHeight
+//               listItemVar numItems item0 item1 ... button1 [button2 ...]
+static int wrap_WinMenu(char* v, WORD_LIST* a) {
+    const char* title;
+    const char* text;
+    int         suggested_w, flex_down, flex_up, max_height;
+    const char* listitem_var;
+    int         num_items;
+
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, title))           goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, text))            goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, suggested_w))     goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, flex_down))       goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, flex_up))         goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, max_height))      goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, listitem_var))    goto usage;
+    if (!a->next) goto usage; a = a->next;
+    if (!from_string(a->word->word, num_items))       goto usage;
+    {
+        std::vector<const char*> items;
+        for (int i = 0; i < num_items; ++i) {
+            if (!a->next) goto usage;
+            a = a->next;
+            const char* s;
+            if (!from_string(a->word->word, s)) goto usage;
+            items.push_back(s);
+        }
+        items.push_back(nullptr); // null-terminated
+
+        // Collect button strings.
+        std::vector<std::string> btns;
+        while (a->next) {
+            a = a->next;
+            btns.push_back(a->word->word);
+        }
+        if (btns.empty()) goto usage;
+
+        int listitem = 0;
+        // newtWinMenu accepts: title, text, suggestedWidth, flexDown, flexUp,
+        // maxListHeight, items, &listItem, button1, ..., NULL
+        int rc;
+        // Build the call manually up to 4 buttons.
+#define B(i) const_cast<char*>(btns[i].c_str())
+        switch (btns.size()) {
+        case 1: rc = newtWinMenu(const_cast<char*>(title), const_cast<char*>(text),
+                    suggested_w, flex_down, flex_up, max_height,
+                    const_cast<char**>(items.data()), &listitem, B(0), nullptr); break;
+        case 2: rc = newtWinMenu(const_cast<char*>(title), const_cast<char*>(text),
+                    suggested_w, flex_down, flex_up, max_height,
+                    const_cast<char**>(items.data()), &listitem, B(0), B(1), nullptr); break;
+        case 3: rc = newtWinMenu(const_cast<char*>(title), const_cast<char*>(text),
+                    suggested_w, flex_down, flex_up, max_height,
+                    const_cast<char**>(items.data()), &listitem, B(0), B(1), B(2), nullptr); break;
+        default:rc = newtWinMenu(const_cast<char*>(title), const_cast<char*>(text),
+                    suggested_w, flex_down, flex_up, max_height,
+                    const_cast<char**>(items.data()), &listitem, B(0), B(1), B(2), B(3), nullptr); break;
+        }
+#undef B
+        builtin_bind_variable(const_cast<char*>(listitem_var),
+                      const_cast<char*>(to_bash_string(listitem).c_str()), 0);
+        if (v) {
+            std::string s = to_bash_string(rc);
+            builtin_bind_variable(v, const_cast<char*>(s.c_str()), 0);
+        }
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr,
+        "newt: usage: newt WinMenu title text suggestedWidth flexDown flexUp "
+        "maxListHeight listItemVar numItems item0 ... button1 [button2 ...]\n");
+    return EXECUTION_FAILURE;
+}
+
+// ─── ButtonBar ────────────────────────────────────────────────────────────────
+// ButtonBar label1 varForComp1 [label2 varForComp2 ...]
+// Creates a button bar grid; the component for each button is bound to the
+// named variable.  Returns the newtGrid in varname.
+static int wrap_ButtonBar(char* v, WORD_LIST* a) {
+    struct BtnEntry { std::string label; std::string var; };
+    std::vector<BtnEntry> entries;
+    while (a->next) {
+        a = a->next;
+        BtnEntry e;
+        e.label = a->word->word;
+        if (!a->next) goto usage;
+        a = a->next;
+        e.var = a->word->word;
+        entries.push_back(e);
+    }
+    if (entries.empty()) goto usage;
+    {
+        // newtButtonBar takes: label, &comp, label, &comp, ..., NULL
+        // We allocate a vector of newtComponents, then build the call.
+        std::vector<newtComponent> comps(entries.size(), nullptr);
+#define LBL(i) const_cast<char*>(entries[i].label.c_str())
+#define CMP(i) &comps[i]
+        newtGrid g = nullptr;
+        size_t n = entries.size();
+        switch (n) {
+        case 1: g = newtButtonBar(LBL(0), CMP(0), nullptr); break;
+        case 2: g = newtButtonBar(LBL(0), CMP(0), LBL(1), CMP(1), nullptr); break;
+        case 3: g = newtButtonBar(LBL(0), CMP(0), LBL(1), CMP(1), LBL(2), CMP(2), nullptr); break;
+        case 4: g = newtButtonBar(LBL(0), CMP(0), LBL(1), CMP(1), LBL(2), CMP(2), LBL(3), CMP(3), nullptr); break;
+        case 5: g = newtButtonBar(LBL(0), CMP(0), LBL(1), CMP(1), LBL(2), CMP(2), LBL(3), CMP(3), LBL(4), CMP(4), nullptr); break;
+        case 6: g = newtButtonBar(LBL(0), CMP(0), LBL(1), CMP(1), LBL(2), CMP(2), LBL(3), CMP(3), LBL(4), CMP(4), LBL(5), CMP(5), nullptr); break;
+        default:g = newtButtonBar(LBL(0), CMP(0), LBL(1), CMP(1), LBL(2), CMP(2), LBL(3), CMP(3), LBL(4), CMP(4), LBL(5), CMP(5), LBL(6), CMP(6), nullptr); break;
+        }
+#undef LBL
+#undef CMP
+        for (size_t i = 0; i < entries.size(); ++i) {
+            std::string val = to_bash_string(comps[i]);
+            builtin_bind_variable(
+                const_cast<char*>(entries[i].var.c_str()),
+                const_cast<char*>(val.c_str()), 0);
+        }
+        if (v && g) {
+            std::string s = to_bash_string(g);
+            builtin_bind_variable(v, const_cast<char*>(s.c_str()), 0);
+        }
+    }
+    return EXECUTION_SUCCESS;
+usage:
+    std::fprintf(stderr,
+        "newt: usage: newt ButtonBar label1 compVar1 [label2 compVar2 ...]\n");
+    return EXECUTION_FAILURE;
+}
+
 // ─── dispatch table ───────────────────────────────────────────────────────────
 
 struct DispatchEntry {
@@ -852,6 +1514,42 @@ static const DispatchEntry dispatch_table[] = {
     { "EntrySetFilter",         wrap_EntrySetFilter    },
     // ── form helpers ──────────────────────────────────────────────────────────
     { "FormAddComponents",      wrap_FormAddComponents },
+    // ── CheckboxTree ──────────────────────────────────────────────────────────
+    { "CheckboxTree",               wrap_CheckboxTree              },
+    { "CheckboxTreeMulti",          wrap_CheckboxTreeMulti         },
+    { "CheckboxTreeSetCurrent",     wrap_CheckboxTreeSetCurrent    },
+    { "CheckboxTreeGetCurrent",     wrap_CheckboxTreeGetCurrent    },
+    { "CheckboxTreeSetEntry",       wrap_CheckboxTreeSetEntry      },
+    { "CheckboxTreeSetWidth",       wrap_CheckboxTreeSetWidth      },
+    { "CheckboxTreeGetEntryValue",  wrap_CheckboxTreeGetEntryValue },
+    { "CheckboxTreeSetEntryValue",  wrap_CheckboxTreeSetEntryValue },
+    { "CheckboxTreeGetSelection",   wrap_CheckboxTreeGetSelection  },
+    { "CheckboxTreeGetMultiSelection", wrap_CheckboxTreeGetMultiSelection },
+    { "CheckboxTreeAddItem",        wrap_CheckboxTreeAddItem       },
+    { "CheckboxTreeFindItem",       wrap_CheckboxTreeFindItem      },
+    // ── Listbox selection ─────────────────────────────────────────────────────
+    { "ListboxGetSelection",        wrap_ListboxGetSelection       },
+    // ── Textbox ───────────────────────────────────────────────────────────────
+    { "TextboxReflowed",            wrap_TextboxReflowed           },
+    { "ReflowText",                 wrap_ReflowText                },
+    // ── Grid ──────────────────────────────────────────────────────────────────
+    { "CreateGrid",                 wrap_CreateGrid                },
+    { "GridSetField",               wrap_GridSetField              },
+    { "GridWrappedWindow",          wrap_GridWrappedWindow         },
+    { "GridWrappedWindowAt",        wrap_GridWrappedWindowAt       },
+    { "GridGetSize",                wrap_GridGetSize               },
+    { "GridAddComponentsToForm",    wrap_GridAddComponentsToForm   },
+    { "GridVStacked",               wrap_GridVStacked              },
+    { "GridVCloseStacked",          wrap_GridVCloseStacked         },
+    { "GridHStacked",               wrap_GridHStacked              },
+    { "GridHCloseStacked",          wrap_GridHCloseStacked         },
+    { "GridDestroy",                wrap_GridFree                  },   // alias
+    // ── Win* convenience dialogs ──────────────────────────────────────────────
+    { "WinMessage",                 wrap_WinMessage                },
+    { "WinChoice",                  wrap_WinChoice                 },
+    { "WinTernary",                 wrap_WinTernary                },
+    { "WinMenu",                    wrap_WinMenu                   },
+    { "ButtonBar",                  wrap_ButtonBar                 },
 };
 static constexpr std::size_t dispatch_table_size =
     sizeof(dispatch_table) / sizeof(dispatch_table[0]);

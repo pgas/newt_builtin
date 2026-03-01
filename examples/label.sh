@@ -22,7 +22,7 @@ if newt Init;then
     newt -v b1 Button  10 3 "Ok"
 
     
-    newt -v form Form  NULL "" 0
+    newt -v form Form "" "" 0
     newt FormAddComponent "$form" "$l1"
     newt FormAddComponent "$form" "$b1"
     
