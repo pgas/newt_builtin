@@ -12,7 +12,7 @@ def test_entry_visible(bash_newt):
     bash_newt.sendline(
         b"newt Init && newt Cls && "
         b'newt OpenWindow 5 3 50 10 "Entry Test" && '
-        b'newt -v e Entry 3 2 "hello" 30 0 "" 0 && '
+        b'newt -v e Entry 3 2 "hello" 30 && '
         b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponents "$f" "$e" && '
         b'newt RunForm "$f" && '
@@ -34,7 +34,7 @@ def test_entry_getvalue(bash_newt):
     bash_newt.sendline(
         b"newt Init && newt Cls && "
         b'newt OpenWindow 5 3 50 10 "EntryGV" && '
-        b'newt -v e Entry 3 2 "world" 30 0 "" 0 && '
+        b'newt -v e Entry 3 2 "world" 30 && '
         b'newt -v _ok Button 3 5 "OK" && '
         b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponents "$f" "$_ok" "$e" && '
@@ -66,7 +66,7 @@ def test_entry_set_changes_value(bash_newt):
     bash_newt.sendline(
         b"newt Init && newt Cls && "
         b'newt OpenWindow 5 3 50 10 "EntrySet" && '
-        b'newt -v e Entry 3 2 "original" 30 0 "" 0 && '
+        b'newt -v e Entry 3 2 "original" 30 && '
         b'newt EntrySet "$e" "updated" 1 && '
         b'newt -v _ok Button 3 5 "OK" && '
         b'newt -v f Form "" "" 0 && '
@@ -93,17 +93,16 @@ def test_entry_set_changes_value(bash_newt):
 
 
 def test_entry_set_flags_disabled(bash_newt):
-    """EntrySetFlags with NEWT_FLAG_DISABLED should prevent editing."""
+    """EntrySetFlags with NEWT_FLAG_DISABLED (8) should prevent editing."""
     bash_newt.sendline(
         b"newt Init && newt Cls && "
         b'newt OpenWindow 5 3 50 10 "EntryFlags" && '
-        b'newt -v e Entry 3 2 "fixed" 30 0 "" 0 && '
-        b'newt EntrySetFlags "$e" 2 1 && '
+        b'newt -v e Entry 3 2 "fixed" 30 && '
+        b'newt EntrySetFlags "$e" 8 0 && '
+        b'newt -v _ok Button 3 5 "OK" && '
         b'newt -v f Form "" "" 0 && '
-        b'newt FormAddComponents "$f" "$e" && '
-        b'newt RunForm "$f" && '
-        b'newt FormDestroy "$f" && '
-        b"newt Finished"
+        b'newt FormAddComponents "$f" "$_ok" "$e" && '
+        b'newt RunForm "$f"'
     )
     screen = render(bash_newt, initial_timeout=2.0)
     rows = screen_rows(screen)
@@ -112,4 +111,24 @@ def test_entry_set_flags_disabled(bash_newt):
     assert any("fixed" in r for r in rows), \
         f"Entry with disabled flag not visible.\n{full}"
 
-    bash_newt.send(b"\n")
+    # Type some text — it should NOT appear in the entry because it is disabled.
+    bash_newt.send(b"ZZZZ")
+    time.sleep(0.3)
+    # Tab to the OK button and press Enter to exit the form.
+    bash_newt.send(b"\t")
+    time.sleep(0.1)
+    bash_newt.send(b"\r")
+    time.sleep(0.5)
+    # Read back the entry value — it must still be "fixed".
+    bash_newt.sendline(
+        b'newt -v val EntryGetValue "$e" && '
+        b'newt FormDestroy "$f" && '
+        b'newt Finished && '
+        b'echo "val=[$val]"'
+    )
+    screen2 = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
+    rows2 = screen_rows(screen2)
+    full2 = screen_text(screen2)
+
+    assert any("val=[fixed]" in r for r in rows2), \
+        f"Disabled entry should still contain 'fixed' after typing.\n{full2}"

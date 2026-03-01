@@ -48,8 +48,8 @@ def test_radio_get_current_returns_value(bash_newt):
         b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponents "$f" "$_ok" "$r1" "$r2" && '
         b'newt RunForm "$f" && '
-        b'newt FormDestroy "$f" && '
         b'newt -v cur RadioGetCurrent "$r1" && '
+        b'newt FormDestroy "$f" && '
         b'newt Finished && '
         b'echo "cur=$cur"'
     )
@@ -82,8 +82,8 @@ def test_radio_set_current(bash_newt):
         b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponents "$f" "$_ok" "$r1" "$r2" "$r3" && '
         b'newt RunForm "$f" && '
-        b'newt FormDestroy "$f" && '
         b'newt -v cur RadioGetCurrent "$r1" && '
+        b'newt FormDestroy "$f" && '
         b'newt Finished && '
         b'[[ "$cur" == "$r3" ]] && echo "correct" || echo "wrong"'
     )

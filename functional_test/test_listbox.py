@@ -162,8 +162,8 @@ def test_listbox_getcurrent(bash_newt):
         b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponents "$f" "$_ok" "$lb" && '
         b'newt RunForm "$f" && '
-        b'newt FormDestroy "$f" && '
         b'newt -v key ListboxGetCurrent "$lb" && '
+        b'newt FormDestroy "$f" && '
         b'newt Finished && '
         b'echo "key=[$key]"'
     )
