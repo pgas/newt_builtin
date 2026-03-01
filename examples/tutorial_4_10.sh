@@ -20,11 +20,7 @@ if ! type newt &>/dev/null; then
 fi
 
 # The $'...' quoting lets us embed real newlines via \n.
-message=$'This is a pretty long message. It will be displayed \
-in a newt textbox, and illustrates how to construct \
-a textbox from arbitrary text which may not have \
-very good line breaks.\n\nNotice how literal newline characters are \
-respected, and may be used to force line breaks and blank lines.'
+message=$'This is a pretty long message. It will be displayed in a newt textbox, and illustrates how to construct a textbox from arbitrary text which may not have very good line breaks.\n\nNotice how literal newline characters are respected, and may be used to force line breaks and blank lines.'
 
 if newt Init; then
     trap 'newt Finished' EXIT
