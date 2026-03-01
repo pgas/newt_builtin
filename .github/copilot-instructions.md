@@ -8,7 +8,7 @@
 enable -f build/src/newt.so newt   # load once per shell session
 newt Init
 newt -v lbl Label 10 2 "Hello"
-newt -v f   Form NULL "" 0
+newt -v f   Form "" "" 0
 newt FormAddComponent "$f" "$lbl"
 newt RunForm "$f"
 newt Finished
@@ -147,14 +147,64 @@ Add overloads to `src/newt_arg_parser.hpp` when a new C type needs parsing:
 | `int`, `unsigned int`, `long long`, `unsigned long long` | via `legal_number` |
 | `char*` / `const char*` | direct alias of the bash string |
 | `char` | first character of the string |
-| `newtComponent`, `newtGrid` | `%p` hex or `"NULL"` |
-| `void*` / `const void*` | decimal integer first (listbox keys), then `%p`, then `"NULL"` |
+| `newtComponent`, `newtGrid` | `""` (empty string) for nullptr, or `%p` hex pointer |
+| `void*` / `const void*` | `""` for nullptr, decimal integer first (listbox keys), then `%p` hex |
 | `newtCallback`, `newtSuspendCallback`, `newtEntryFilter` | `%p` hex |
 | `newtFlagsSense` | integer cast from `legal_number` |
 
 > **Important**: `void*` parsing tries `legal_number` (decimal) **before**
 > `sscanf("%p")`.  On Linux/glibc, `sscanf("42", "%p")` yields `0x42` = 66,
 > not 42.  Always keep decimal-first ordering.
+
+---
+
+## Null pointer conventions — `""` in, `"(nil)"` out
+
+This is a critical convention that affects every wrapper dealing with pointer
+arguments or return values.
+
+### Input (bash → builtin): use `""` (empty string)
+
+When a libnewt function expects a `newtComponent`, `newtGrid`, or `void*`
+argument that should be `NULL`, pass an **empty string** `""`.
+
+```bash
+# Correct — empty string means nullptr:
+newt -v f Form '' '' 0
+newt FormAddComponent "$f" ''
+
+# WRONG — will fail with a parse/usage error:
+newt -v f Form NULL '' 0
+```
+
+**Why not `"NULL"`?**  The `from_string` overloads for pointer types use
+`sscanf("%p")` to parse hex pointer strings.  On Linux/glibc,
+`sscanf("NULL", "%p")` returns 0 (no match), so the string `"NULL"` is
+**rejected** and causes `EXECUTION_FAILURE`.  The empty-string check is a
+special case that runs *before* `sscanf`.
+
+### Output (builtin → bash): check for `"(nil)"`
+
+When the builtin returns a null pointer (e.g. `newtRunForm` returns `NULL`
+after the user presses ESC), the value bound to the bash variable is
+`"(nil)"` — the string produced by glibc's `snprintf("%p", NULL)`.
+
+```bash
+newt -v result RunForm "$f"
+if [[ "$result" == "(nil)" ]]; then
+    echo "User pressed ESC"
+fi
+```
+
+### Summary table
+
+| Direction | Null representation | Example |
+|-----------|--------------------|---------
+| **Input** (bash → builtin)  | `""` (empty string) | `newt -v f Form '' '' 0` |
+| **Output** (builtin → bash) | `"(nil)"` | `[[ "$var" == "(nil)" ]]` |
+
+> **Common mistake**: Do not use the string `"NULL"` in either direction.
+> It is rejected on input and never produced on output.
 
 ---
 
@@ -170,12 +220,12 @@ installation needed.
 static int fake_my_fn(newtComponent, int) { return 0; }
 
 TEST_CASE("MyCommand: co num → SUCCESS", "[wrappers][MyCommand]") {
-    WordListBuilder wl{"cmd", "NULL", "5"};
+    WordListBuilder wl{"cmd", "", "5"};
     CHECK(call_newt("MyCommand", "co num", fake_my_fn, nullptr, wl.head())
           == EXECUTION_SUCCESS);
 }
 TEST_CASE("MyCommand: too few args → FAILURE", "[wrappers][MyCommand]") {
-    WordListBuilder wl{"cmd", "NULL"};   // missing num
+    WordListBuilder wl{"cmd", ""};   // missing num
     CHECK(call_newt("MyCommand", "co num", fake_my_fn, nullptr, wl.head())
           == EXECUTION_FAILURE);
 }
@@ -188,7 +238,7 @@ Key helpers:
   non-void return.
 - `last_bound("varname")` — returns `const std::string*` of the last value
   bound to that variable name.
-- `CO = "NULL"` — sentinel for a null `newtComponent`.
+- `CO = ""` — sentinel for a null `newtComponent` (empty string, **not** `"NULL"`).
 
 ### Running unit tests
 
@@ -212,7 +262,7 @@ def test_mything_visible(bash_newt):
         b"newt Init && newt Cls && "
         b'newt OpenWindow 5 3 50 10 "My Test" && '
         b'newt -v w MyWidget 3 2 "Label" && '
-        b'newt -v f Form NULL "" 0 && '
+        b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponents "$f" "$w" && '
         b'newt RunForm "$f" && '
         b'newt FormDestroy "$f" && '
