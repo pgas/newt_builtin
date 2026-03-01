@@ -422,11 +422,7 @@ newt Init
 trap 'newt Finished' EXIT
 newt Cls
 
-message=$'This is a pretty long message. It will be displayed \
-in a newt textbox, and illustrates how to construct \
-a textbox from arbitrary text which may not have \
-very good line breaks.\n\nNotice how literal newline characters are \
-respected, and may be used to force line breaks and blank lines.'
+message=$'This is a pretty long message. It will be displayed in a newt textbox, and illustrates how to construct a textbox from arbitrary text which may not have very good line breaks.\n\nNotice how literal newline characters are respected, and may be used to force line breaks and blank lines.'
 
 # Create the reflowed textbox first — we need its height to size the window.
 newt -v text TextboxReflowed 1 1 "$message" 30 5 5 0

@@ -58,15 +58,52 @@ if newt Init; then
     newt Cls
     newt OpenWindow 10 5 40 7 "Hello"
     newt -v lbl Label 10 1 "Hello, world!"
-    newt -v frm Form NULL '' 0
+    newt -v frm Form '' '' 0
     newt FormAddComponent "$frm" "$lbl"
     newt RunForm "$frm"
     newt FormDestroy "$frm"
 fi
 ```
 
-The `bash_test/` directory contains more examples covering windows, labels,
+The `examples/` directory contains more examples covering windows, labels,
 entries, forms, buttons and callbacks.
+
+---
+
+## Null pointers — `""` in, `"(nil)"` out
+
+Pointer arguments (`newtComponent`, `newtGrid`) use an **empty string** to
+represent a null pointer on input.  The C string `"NULL"` is **not
+accepted** and will cause a parse error.
+
+```bash
+# Correct — empty string means nullptr:
+newt -v f Form '' '' 0
+
+# WRONG — will fail with a usage error:
+newt -v f Form NULL '' 0
+```
+
+When the builtin *returns* a null pointer (e.g. `newtRunForm` after the user
+presses ESC), the value bound to the variable is `"(nil)"` — the string
+produced by glibc's `printf("%p", NULL)`.
+
+```bash
+newt -v result RunForm "$f"
+if [[ "$result" == "(nil)" ]]; then
+    echo "User pressed ESC"
+fi
+```
+
+| Direction | Null representation | Example |
+|-----------|--------------------|---------|
+| **Input** (bash → builtin)  | `""` (empty string) | `newt -v f Form '' '' 0` |
+| **Output** (builtin → bash) | `"(nil)"` | `[[ "$var" == "(nil)" ]]` |
+
+> **Why not `"NULL"`?**  The builtin parses pointer strings with
+> `sscanf("%p")`.  On Linux/glibc, `sscanf("NULL", "%p")` returns 0
+> (no match), so `"NULL"` fails parsing.  The empty string is handled as a
+> special case before `sscanf` is tried.
 
 ---
 
@@ -96,3 +133,11 @@ uv run pytest -v
 ```
 
 See [functional_test/README.md](functional_test/README.md) for full details.
+
+---
+
+## License
+
+This project is licensed under the same terms as `libnewt` — the [GNU Library General Public License v2.0 (LGPL-2.0)](LICENSE).
+
+Newt library homepage: https://pagure.io/newt
