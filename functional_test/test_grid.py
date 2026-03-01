@@ -221,3 +221,37 @@ def test_grid_hclose_and_vclose_stacked(bash_newt):
         f"GridVCloseStacked first button not visible.\n{full}"
 
     bash_newt.send(b"\n")
+
+
+# ─── GridSimpleWindow ─────────────────────────────────────────────────────────
+
+def test_gridsimplewindow(bash_newt):
+    """GridSimpleWindow should create a wrapped window with text + buttons."""
+    # GridSimpleWindow(text: newtComponent, middle: newtComponent, buttons: newtGrid)
+    # Unlike GridBasicWindow, the middle slot is a single component, not a grid.
+    bash_newt.sendline(
+        b"newt Init && newt Cls && "
+        b'newt -v tb Textbox 0 0 30 2 0 && '
+        b'newt TextboxSetText "$tb" "SimpleWindow text" && '
+        b'newt -v lbl Label 0 0 "mid-item" && '
+        b'newt -v b Button 0 0 "Close" && '
+        b'newt -v btns GridVStacked 1 "$b" && '
+        b'newt -v grid GridSimpleWindow "$tb" "$lbl" "$btns" && '
+        b'newt GridWrappedWindow "$grid" "Simple Title" && '
+        b'newt -v f Form "" "" 0 && '
+        b'newt GridAddComponentsToForm "$grid" "$f" 1 && '
+        b'newt RunForm "$f" && '
+        b'newt FormDestroy "$f" && '
+        b'newt GridFree "$grid" 1 && '
+        b"newt Finished"
+    )
+    screen = render(bash_newt, initial_timeout=2.0)
+    rows = screen_rows(screen)
+    full = screen_text(screen)
+
+    assert any("Simple Title" in r for r in rows), \
+        f"GridSimpleWindow title not found.\n{full}"
+    assert any("mid-item" in r for r in rows), \
+        f"GridSimpleWindow middle component not visible.\n{full}"
+
+    bash_newt.send(b"\n")

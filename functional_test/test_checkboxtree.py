@@ -69,8 +69,8 @@ def test_checkboxtree_getentryvalue(bash_newt):
     rows = screen_rows(screen)
     full = screen_text(screen)
 
-    assert any("val=[" in r for r in rows), \
-        f"'val=[' not found in output.\n{full}"
+    assert any("val=[*]" in r for r in rows), \
+        f"CheckboxTreeGetEntryValue should return '*' after SetEntryValue.\n{full}"
 
 
 def test_checkboxtree_multi(bash_newt):
@@ -115,11 +115,10 @@ def test_checkboxtree_setcurrent_getcurrent(bash_newt):
     rows = screen_rows(screen)
     full = screen_text(screen)
 
-    assert any("cur=[" in r for r in rows), \
-        f"CheckboxTreeGetCurrent not bound.\n{full}"
-    cur_lines = [r for r in rows if "cur=[" in r]
-    assert cur_lines and "cur=[]" not in cur_lines[0], \
-        f"CheckboxTreeGetCurrent returned empty/null.\n{full}"
+    # GetCurrent returns the void* data stored when the item was added, as a
+    # decimal integer.  We added item 2 as the current item via SetCurrent.
+    assert any("cur=[2]" in r for r in rows), \
+        f"CheckboxTreeGetCurrent should return data key 2.\n{full}"
 
 
 def test_checkboxtree_getselection(bash_newt):

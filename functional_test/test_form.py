@@ -261,14 +261,14 @@ def test_componentaddcallback_fires(bash_newt):
 
 def test_formaddhotkey_f12_exit(bash_newt):
     """FormAddHotKey should cause FormRun to exit with HOTKEY when the key is pressed."""
-    # F12 key code = NEWT_KEY_F12 = NEWT_KEY_EXTRA_BASE + 24 = 0x8000 + 24 = 32792
+    # F12 key code = NEWT_KEY_F12 = NEWT_KEY_EXTRA_BASE + 112 = 32768 + 112 = 32880
     bash_newt.sendline(
         b"newt Init && newt Cls && "
         b'newt OpenWindow 10 5 40 6 "HotKey Test" && '
         b'newt -v lbl Label 3 1 "Press F12" && '
         b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponent "$f" "$lbl" && '
-        b'newt FormAddHotKey "$f" 32792 && '
+        b'newt FormAddHotKey "$f" 32880 && '
         b'newt FormRun "$f" REASON VALUE && '
         b'newt FormDestroy "$f" && '
         b'newt Finished && '
@@ -290,3 +290,32 @@ def test_formaddhotkey_f12_exit(bash_newt):
 
     assert any("REASON=HOTKEY" in r for r in rows), \
         f"Expected 'REASON=HOTKEY' after pressing F12.\n{full}"
+    # NEWT_KEY_F12 = NEWT_KEY_EXTRA_BASE + 112 = 32768 + 112 = 32880
+    assert any("VALUE=32880" in r for r in rows), \
+        f"Expected 'VALUE=32880' (F12 key code) after pressing F12.\n{full}"
+
+
+# ─── FormSetCurrent / FormGetCurrent ─────────────────────────────────────────
+
+def test_form_setcurrent_getcurrent(bash_newt):
+    """FormSetCurrent should move focus; FormGetCurrent should return that component."""
+    bash_newt.sendline(
+        b"newt Init && newt Cls && "
+        b'newt OpenWindow 5 3 50 10 "FocusCheck" && '
+        b'newt -v btn1 Button 3 2 "One" && '
+        b'newt -v btn2 Button 3 4 "Two" && '
+        b'newt -v f Form "" "" 0 && '
+        b'newt FormAddComponents "$f" "$btn1" "$btn2" && '
+        b'newt FormSetCurrent "$f" "$btn2" && '
+        b'newt -v cur FormGetCurrent "$f" && '
+        b'newt FormDestroy "$f" && '
+        b'newt Finished && '
+        b'[[ "$cur" == "$btn2" ]] && echo "match" || echo "mismatch"'
+    )
+    time.sleep(0.3)
+    screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
+    rows = screen_rows(screen)
+    full = screen_text(screen)
+
+    assert any("match" in r for r in rows), \
+        f"FormGetCurrent should return btn2 after FormSetCurrent.\n{full}"

@@ -114,3 +114,29 @@ def test_setcolors_too_few_args_returns_failure(bash_newt):
         "SetColors with too few args should return non-zero, got: " + str(code)
     )
     bash_newt.sendline(b"newt Finished")
+
+
+# ─── SetColor ─────────────────────────────────────────────────────────────────
+
+def test_setcolor_single_pair(bash_newt):
+    """SetColor should update a single colorset without crashing."""
+    # Use colorset 1 (NEWT_COLORSET_BORDER) with valid color names.
+    bash_newt.sendline(
+        b"newt Init && newt Cls && "
+        b'newt SetColor 1 white blue && '
+        b'newt OpenWindow 5 3 50 8 "SetColor" && '
+        b'newt -v lbl Label 3 2 "colour-ok" && '
+        b'newt -v f Form "" "" 0 && '
+        b'newt FormAddComponents "$f" "$lbl" && '
+        b'newt RunForm "$f" && '
+        b'newt FormDestroy "$f" && '
+        b"newt Finished"
+    )
+    screen = render(bash_newt, initial_timeout=2.0)
+    rows = screen_rows(screen)
+    full = screen_text(screen)
+
+    assert any("colour-ok" in r for r in rows), \
+        f"Rendering after SetColor crashed or label not visible.\n{full}"
+
+    bash_newt.send(b"\n")

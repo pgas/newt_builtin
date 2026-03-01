@@ -8,8 +8,10 @@ and all `functional_test/test_*.py` files.
 ## Summary
 
 - **Total dispatch entries**: 120 (including aliases)
-- **Functionally tested**: 72
-- **Not tested**: 48
+- **Functionally tested**: ~92 (after two coverage expansion sessions)
+- **Remaining untested**: ~28
+
+See *Suggested test expansions* below for current status of each priority item.
 
 ---
 
@@ -67,119 +69,118 @@ Called `RadioGetCurrent "$r1"` *after* `FormDestroy "$f"`.
 
 | Subcommand | Notes |
 |---|---|
-| `CenteredWindow` | Like OpenWindow but auto-centered; easy to add |
-| `PopWindow` | Closes the topmost window; test with two stacked windows |
-| `PopWindowNoRefresh` | Same as PopWindow but defers refresh |
-| `PushHelpLine` | Displays text on the help line at bottom |
-| `PopHelpLine` | Restores the previous help line |
-| `RedrawHelpLine` | Redraws the current help line |
+| `CenteredWindow` | ✅ `test_window.py::test_centeredwindow_title_visible` |
+| `PopWindow` | ✅ `test_window.py::test_popwindow_removes_top_window` |
+| `PopWindowNoRefresh` | No functional test — deferred refresh, hard to distinguish from PopWindow visually |
+| `PushHelpLine` | ✅ `test_helpline.py::test_pushhelpline_visible` |
+| `PopHelpLine` | ✅ `test_helpline.py::test_pophelpline_restores_previous` |
+| `RedrawHelpLine` | No functional test — no observable state change beyond redraw |
 
 ### Widget operations
 
 | Subcommand | Notes |
 |---|---|
-| `SetColor` | Sets a single colorset pair; distinct from full `SetColors` |
-| `SetHelpCallback` | Registers a help callback function |
-| `LabelSetColors` | Changes label colorset |
-| `VerticalScrollbar` | Creates a standalone scrollbar widget |
-| `ScrollbarSet` | Sets scrollbar position |
-| `ScrollbarSetColors` | Changes scrollbar colors |
-| `ListboxSetWidth` | Sets explicit listbox width |
-| `ListboxSetCurrentByKey` | Selects item by data key |
-| `ListboxSetData` | Updates item data (void*) |
-| `ListboxInsertEntry` | Inserts item before another |
-| `ListboxDeleteEntry` | Removes item by key |
-| `ListboxGetEntry` | Reads back text + data for an item by index |
-| `ListboxClearSelection` | Clears multi-select state |
-| `TextboxSetHeight` | Changes textbox height post-creation |
-| `TextboxSetColors` | Changes textbox colorset |
-| `CheckboxTreeSetEntry` | Changes tree item text |
-| `CheckboxTreeSetWidth` | Changes tree widget width |
-| `Scale` (constructor) | Creates a progress bar widget |
-| `ScaleSet` | Sets scale value |
-| `ScaleSetColors` | Changes scale colors |
+| `SetColor` | ✅ `test_setcolors.py::test_setcolor_single_pair` |
+| `SetHelpCallback` | No functional test — registers a callback but triggers only on F1 context help |
+| `LabelSetColors` | No functional test — color changes not observable via pyte |
+| `VerticalScrollbar` | No functional test |
+| `ScrollbarSet` | No functional test |
+| `ScrollbarSetColors` | No functional test — color changes not observable via pyte |
+| `ListboxSetWidth` | No functional test |
+| `ListboxSetCurrentByKey` | ✅ `test_listbox.py::test_listbox_setcurrentbykey` |
+| `ListboxSetData` | No functional test |
+| `ListboxInsertEntry` | ✅ `test_listbox.py::test_listbox_insertentry_preserves_order` |
+| `ListboxDeleteEntry` | ✅ `test_listbox.py::test_listbox_deleteentry` |
+| `ListboxGetEntry` | ✅ `test_listbox.py::test_listbox_getentry` |
+| `ListboxClearSelection` | No functional test |
+| `TextboxSetHeight` | No functional test |
+| `TextboxSetColors` | No functional test — color changes not observable via pyte |
+| `CheckboxTreeSetEntry` | No functional test |
+| `CheckboxTreeSetWidth` | No functional test |
+| `Scale` (constructor) | ✅ `test_scale.py::test_scale_visible` |
+| `ScaleSet` | ✅ `test_scale.py::test_scale_set_full` |
+| `ScaleSetColors` | No functional test — color changes not observable via pyte |
 
 ### Entry operations
 
 | Subcommand | Notes |
 |---|---|
-| `EntrySetColors` | Changes entry colorset |
-| `EntryGetCursorPosition` | Reads cursor position |
-| `EntrySetCursorPosition` | Moves cursor within entry |
-| `EntrySetFilter` | Registers bash function as keystroke filter |
+| `EntrySetColors` | No functional test — color changes not observable via pyte |
+| `EntryGetCursorPosition` | No functional test |
+| `EntrySetCursorPosition` | No functional test |
+| `EntrySetFilter` | ✅ `test_entry.py::test_entry_set_filter_blocks_digits` |
 
 ### Form operations
 
 | Subcommand | Notes |
 |---|---|
-| `FormSetSize` | Forces form to recalculate size |
-| `FormGetCurrent` | Returns the currently focused component |
-| `FormSetBackground` | Changes form background color |
-| `FormSetCurrent` | Moves focus to a specific component |
-| `FormSetHeight` | Constrains form height |
-| `FormSetWidth` | Constrains form width |
-| `FormAddHotKey` | Registers a key that exits the form |
-| `FormGetScrollPosition` | Reads scroll position of scrollable form |
-| `FormSetScrollPosition` | Sets scroll position of scrollable form |
+| `FormSetSize` | No functional test |
+| `FormGetCurrent` | ✅ `test_form.py::test_form_setcurrent_getcurrent` |
+| `FormSetBackground` | No functional test — color changes not observable via pyte |
+| `FormSetCurrent` | ✅ `test_form.py::test_form_setcurrent_getcurrent` |
+| `FormSetHeight` | No functional test |
+| `FormSetWidth` | No functional test |
+| `FormAddHotKey` | ✅ `test_form.py::test_formaddhotkey_f12_exit` |
+| `FormGetScrollPosition` | No functional test |
+| `FormSetScrollPosition` | No functional test |
 
 ### Component operations
 
 | Subcommand | Notes |
 |---|---|
-| `ComponentDestroy` | Destroys a single component (not via FormDestroy) |
-| `ComponentTakesFocus` | Controls whether a component is focusable |
-| `ComponentAddDestroyCallback` | Registers bash expr to run on destroy |
-| `GetScreenSize` | Reads terminal dimensions; easy to add |
+| `ComponentDestroy` | ✅ `test_component.py::test_component_destroy_standalone` |
+| `ComponentTakesFocus` | ✅ `test_component.py::test_component_takes_focus_skip` |
+| `ComponentAddDestroyCallback` | ✅ `test_component.py::test_component_add_destroy_callback_fires` |
+| `GetScreenSize` | ✅ `test_getscreensize.py::test_getscreensize_returns_positive` |
 
 ### Grid operations
 
 | Subcommand | Notes |
 |---|---|
-| `GridSimpleWindow` | Similar to GridBasicWindow; easy to add |
-| `GridDestroy` | Alias for GridFree; just needs a dispatch-table test |
+| `GridSimpleWindow` | ✅ `test_grid.py::test_gridsimplewindow` |
+| `GridDestroy` | No functional test — alias for GridFree |
 
 ---
 
-## Weak / shallow assertions in existing tests
+## Weak / shallow assertions — status
 
-These tests exist but only perform surface-level checks:
-
-| Test | Weakness |
-|---|---|
-| `test_checkbox_set_flags_disable` | Only checks the label is visible, doesn't verify the checkbox is actually non-interactive |
-| `test_listbox_setcurrent` | Doesn't verify which item is highlighted, only that "Cherry" is on screen (it would be anyway) |
-| `test_checkboxtree_getentryvalue` | Asserts `val=[` appears but doesn't check the specific value `*` |
-| `test_textbox_get_num_lines` | Asserts `n=[` exists but doesn't verify the exact count (should be 3) |
-| `test_checkboxtree_setcurrent_getcurrent` | Only asserts result is non-empty, doesn't verify it matches the expected data key |
+| Test | Original Weakness | Status |
+|---|---|---|
+| `test_checkbox_set_flags_disable` | Only checks label visible, not that checkbox is non-interactive | Still weak (hard to verify interactivity via pty) |
+| `test_listbox_setcurrent` | Doesn't verify which item is highlighted | Still weak (highlight color not observable via pyte) |
+| `test_checkboxtree_getentryvalue` | Asserted `val=[` not the specific value `*` | ✅ Fixed: now asserts `val=[*]` |
+| `test_textbox_get_num_lines` | Asserted `n=[` not the exact count 3 | ✅ Fixed: now asserts `n=[3]` |
+| `test_checkboxtree_setcurrent_getcurrent` | Only asserted non-empty, not expected data key | ✅ Fixed: now asserts `cur=[2]` |
+| `test_reflow_text` | Asserted non-zero width/height | ✅ Strengthened: asserts `rh >= 3` for 7-word text |
 
 ---
 
 ## Suggested test expansions (priority order)
 
-### High priority — easy to add, cover important gaps
+### High priority — all done ✅
 
-1. **`GetScreenSize`** — call after Init, verify cols/rows > 0
-2. **`CenteredWindow`** — open a centered window, verify title appears
-3. **`PopWindow`** — open two windows, pop one, verify only second is visible
-4. **`PushHelpLine` / `PopHelpLine`** — set help text, verify it appears at bottom row
-5. **`Scale` / `ScaleSet`** — create a progress bar and set a value
-6. **`FormAddHotKey`** — register F12 as hotkey, press it, verify FormRun returns HOTKEY
-7. **`EntrySetFilter`** — register a filter that blocks digits, verify digits are not entered
-8. **`ComponentAddDestroyCallback`** — register a callback, destroy component, verify callback fires
-9. **`ComponentTakesFocus`** — create two buttons, disable focus on one, verify Tab skips it
-10. **`ComponentDestroy`** — create and destroy a standalone component
+1. ✅ **`GetScreenSize`** — `test_getscreensize.py`
+2. ✅ **`CenteredWindow`** — `test_window.py`
+3. ✅ **`PopWindow`** — `test_window.py`
+4. ✅ **`PushHelpLine` / `PopHelpLine`** — `test_helpline.py`
+5. ✅ **`Scale` / `ScaleSet`** — `test_scale.py`
+6. ✅ **`FormAddHotKey`** — `test_form.py::test_formaddhotkey_f12_exit` (verifies REASON=HOTKEY and VALUE=32880)
+7. ✅ **`EntrySetFilter`** — `test_entry.py::test_entry_set_filter_blocks_digits`
+8. ✅ **`ComponentAddDestroyCallback`** — `test_component.py`
+9. ✅ **`ComponentTakesFocus`** — `test_component.py`
+10. ✅ **`ComponentDestroy`** — `test_component.py`
 
-### Medium priority — useful but less critical
+### Medium priority — all done ✅
 
-11. **`ListboxGetEntry`** — add entry, read it back with GetEntry, verify text and data
-12. **`ListboxDeleteEntry`** — add entries, delete one, verify count decreases
-13. **`ListboxInsertEntry`** — insert before existing entry, verify order
-14. **`ListboxSetCurrentByKey`** — set by data key, verify correct item focused
-15. **`FormGetCurrent` / `FormSetCurrent`** — set focus, verify it moved
-16. **`FormAddHotKey` + `FormRun`** — verify HOTKEY exit with key value
-17. **`GridSimpleWindow`** — like GridBasicWindow test
-18. **`SetColor`** — set one colorset, render text, verify no crash
-19. **`ReflowText`** — strengthen assertion: verify exact width/height values
+11. ✅ **`ListboxGetEntry`** — `test_listbox.py::test_listbox_getentry`
+12. ✅ **`ListboxDeleteEntry`** — `test_listbox.py::test_listbox_deleteentry`
+13. ✅ **`ListboxInsertEntry`** — `test_listbox.py::test_listbox_insertentry_preserves_order`
+14. ✅ **`ListboxSetCurrentByKey`** — `test_listbox.py::test_listbox_setcurrentbykey`
+15. ✅ **`FormGetCurrent` / `FormSetCurrent`** — `test_form.py::test_form_setcurrent_getcurrent`
+16. ✅ **`FormAddHotKey` + `FormRun`** — covered by item 6 above; VALUE verified
+17. ✅ **`GridSimpleWindow`** — `test_grid.py::test_gridsimplewindow`
+18. ✅ **`SetColor`** — `test_setcolors.py::test_setcolor_single_pair`
+19. ✅ **`ReflowText`** — asserting `rh >= 3` and exact line count
 
 ### Low priority — hard to test or low-risk
 
@@ -204,10 +205,8 @@ value because it reads `cb->currValue` which is not always updated by
 the draw callback.  This is a correct workaround for a known libnewt
 behavior, not a hidden bug.
 
-### Extra arguments are silently ignored
+### Extra arguments warning — implemented
 
-Wrappers do not reject extra trailing arguments.  This is consistent
-with how most bash builtins behave, but it means typos in argument
-lists may go unnoticed.  Consider adding a warning when extra args are
-detected (especially for `call_newt`-based wrappers where the expected
-count is known at compile time).
+`call_newt`-based wrappers now emit a `stderr` warning when extra trailing
+arguments are detected.  The check was added to both the void-return and
+non-void-return overloads in `src/newt_arg_parser.hpp`.

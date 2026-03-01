@@ -207,3 +207,112 @@ def test_listbox_getselection(bash_newt):
         f"ListboxGetSelection returned zero items.\n{full}"
     assert any("first=[" in r for r in rows), \
         f"ListboxGetSelection first item not bound.\n{full}"
+
+
+# ─── ListboxGetEntry ─────────────────────────────────────────────────────────
+
+def test_listbox_getentry(bash_newt):
+    """ListboxGetEntry should return the stored text and data for an item by index."""
+    # No form/RunForm needed — the item list is populated by ListboxAddEntry.
+    bash_newt.sendline(
+        b"newt Init && newt Cls && "
+        b'newt -v lb Listbox 3 1 8 0 && '
+        b'newt ListboxAddEntry "$lb" "Mango" 5 && '
+        b'newt ListboxAddEntry "$lb" "Pear"  6 && '
+        b'newt ListboxGetEntry "$lb" 0 ltxt ldat && '
+        b'newt Finished && '
+        b'echo "ltxt=[$ltxt] ldat=[$ldat]"'
+    )
+    time.sleep(0.3)
+    screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
+    rows = screen_rows(screen)
+    full = screen_text(screen)
+
+    assert any("ltxt=[Mango]" in r for r in rows), \
+        f"ListboxGetEntry text should be 'Mango'.\n{full}"
+    assert any("ldat=[5]" in r for r in rows), \
+        f"ListboxGetEntry data should be '5'.\n{full}"
+
+
+# ─── ListboxDeleteEntry ───────────────────────────────────────────────────────
+
+def test_listbox_deleteentry(bash_newt):
+    """ListboxDeleteEntry should remove the item with the given data key."""
+    bash_newt.sendline(
+        b"newt Init && newt Cls && "
+        b'newt -v lb Listbox 3 1 8 0 && '
+        b'newt ListboxAddEntry "$lb" "A" 1 && '
+        b'newt ListboxAddEntry "$lb" "B" 2 && '
+        b'newt ListboxAddEntry "$lb" "C" 3 && '
+        b'newt ListboxDeleteEntry "$lb" 2 && '
+        b'newt -v cnt ListboxItemCount "$lb" && '
+        b'newt Finished && '
+        b'echo "cnt=[$cnt]"'
+    )
+    time.sleep(0.3)
+    screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
+    rows = screen_rows(screen)
+    full = screen_text(screen)
+
+    assert any("cnt=[2]" in r for r in rows), \
+        f"ListboxDeleteEntry should reduce item count to 2.\n{full}"
+
+
+# ─── ListboxInsertEntry ───────────────────────────────────────────────────────
+
+def test_listbox_insertentry_preserves_order(bash_newt):
+    """ListboxInsertEntry should insert a new item immediately before the given key."""
+    bash_newt.sendline(
+        b"newt Init && newt Cls && "
+        b'newt OpenWindow 5 3 50 10 "InsertEntry" && '
+        b'newt -v lb Listbox 3 1 6 0 && '
+        b'newt ListboxAddEntry "$lb" "First" 1 && '
+        b'newt ListboxAddEntry "$lb" "Third" 3 && '
+        # Insert "Second" with data key 2, before the item with key 3
+        b'newt ListboxInsertEntry "$lb" "Second" 2 3 && '
+        b'newt -v f Form "" "" 0 && '
+        b'newt FormAddComponents "$f" "$lb" && '
+        b'newt RunForm "$f" && '
+        b'newt FormDestroy "$f" && '
+        b'newt Finished'
+    )
+    screen = render(bash_newt, initial_timeout=2.0)
+    rows = screen_rows(screen)
+    full = screen_text(screen)
+
+    assert any("First"  in r for r in rows), f"'First' not visible.\n{full}"
+    assert any("Second" in r for r in rows), f"'Second' not visible after insert.\n{full}"
+    assert any("Third"  in r for r in rows), f"'Third' not visible.\n{full}"
+
+    bash_newt.send(b"\n")
+
+
+# ─── ListboxSetCurrentByKey ───────────────────────────────────────────────────
+
+def test_listbox_setcurrentbykey(bash_newt):
+    """ListboxSetCurrentByKey should pre-select the item matching the given data key."""
+    bash_newt.sendline(
+        b"newt Init && newt Cls && "
+        b'newt -v lb Listbox 3 1 8 0 && '
+        b'newt ListboxAddEntry "$lb" "Alpha"  1 && '
+        b'newt ListboxAddEntry "$lb" "Beta"   2 && '
+        b'newt ListboxAddEntry "$lb" "Gamma"  3 && '
+        b'newt ListboxSetCurrentByKey "$lb" 2 && '
+        b'newt -v _ok Button 3 10 "OK" && '
+        b'newt -v f Form "" "" 0 && '
+        b'newt FormAddComponents "$f" "$_ok" "$lb" && '
+        b'newt RunForm "$f" && '
+        b'newt -v cur ListboxGetCurrent "$lb" && '
+        b'newt FormDestroy "$f" && '
+        b'newt Finished && '
+        b'echo "cur=[$cur]"'
+    )
+    render(bash_newt, initial_timeout=2.0)
+    bash_newt.send(b"\r")
+    time.sleep(0.5)
+    screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
+    rows = screen_rows(screen)
+    full = screen_text(screen)
+
+    assert any("cur=[2]" in r for r in rows), \
+        f"ListboxSetCurrentByKey did not select key 2 (expected cur=[2]).\n{full}"

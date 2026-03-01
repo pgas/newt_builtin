@@ -103,8 +103,8 @@ def test_textbox_get_num_lines(bash_newt):
     rows = screen_rows(screen)
     full = screen_text(screen)
 
-    assert any("n=[" in r for r in rows), \
-        f"'n=[' not found in output.\n{full}"
+    assert any("n=[3]" in r for r in rows), \
+        f"TextboxGetNumLines should return 3 (one per '\\n'-delimited line).\n{full}"
 
 
 def test_reflow_text(bash_newt):
@@ -129,3 +129,11 @@ def test_reflow_text(bash_newt):
     w_lines = [r for r in rows if "rw=[" in r]
     assert w_lines and "rw=[0]" not in w_lines[0], \
         f"ReflowText widthVar unexpectedly zero.\n{full}"
+    rh_lines = [r for r in rows if "rh=[" in r]
+    assert rh_lines and "rh=[0]" not in rh_lines[0], \
+        f"ReflowText heightVar unexpectedly zero.\n{full}"
+    # The text contains 7 words; with width 10 it must span at least 3 lines.
+    import re as _re
+    rh_m = _re.search(r"rh=\[(\d+)\]", rh_lines[0])
+    assert rh_m and int(rh_m.group(1)) >= 3, \
+        f"ReflowText height expected >=3 for this text (width=10, flex±2).\n{full}"
