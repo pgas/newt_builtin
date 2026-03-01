@@ -255,3 +255,38 @@ def test_componentaddcallback_fires(bash_newt):
     assert any("CB_FIRED=1" in r for r in rows), (
         f"Expected 'CB_FIRED=1' after checkbox toggle.\n{full}"
     )
+
+
+# ─── FormAddHotKey: hotkey exit ───────────────────────────────────────────────
+
+def test_formaddhotkey_f12_exit(bash_newt):
+    """FormAddHotKey should cause FormRun to exit with HOTKEY when the key is pressed."""
+    # F12 key code = NEWT_KEY_F12 = NEWT_KEY_EXTRA_BASE + 24 = 0x8000 + 24 = 32792
+    bash_newt.sendline(
+        b"newt Init && newt Cls && "
+        b'newt OpenWindow 10 5 40 6 "HotKey Test" && '
+        b'newt -v lbl Label 3 1 "Press F12" && '
+        b'newt -v f Form "" "" 0 && '
+        b'newt FormAddComponent "$f" "$lbl" && '
+        b'newt FormAddHotKey "$f" 32792 && '
+        b'newt FormRun "$f" REASON VALUE && '
+        b'newt FormDestroy "$f" && '
+        b'newt Finished && '
+        b'echo "REASON=$REASON VALUE=$VALUE"'
+    )
+    screen = render(bash_newt, initial_timeout=2.0)
+    rows = screen_rows(screen)
+    full = screen_text(screen)
+
+    assert any("Press F12" in r for r in rows), \
+        f"Form window did not appear.\n{full}"
+
+    # Send F12 (ESC [ 2 4 ~)
+    bash_newt.send(b"\x1b[24~")
+    time.sleep(0.8)
+    screen = render(bash_newt, initial_timeout=1.0, drain_timeout=0.3)
+    rows = screen_rows(screen)
+    full = screen_text(screen)
+
+    assert any("REASON=HOTKEY" in r for r in rows), \
+        f"Expected 'REASON=HOTKEY' after pressing F12.\n{full}"

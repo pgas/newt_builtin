@@ -236,6 +236,9 @@ int call_newt(const char* name, const char* usage_str,
     if (!parse_args(args, parsed))
         goto usage;
 
+    if (args->next)
+        std::fprintf(stderr, "newt: warning: %s: extra arguments ignored\n", name);
+
     {
         Ret rv = std::apply(fn, parsed);
         if (varname) {
@@ -259,6 +262,9 @@ int call_newt(const char* name, const char* usage_str,
     std::tuple<std::decay_t<Args>...> parsed;
     if (!parse_args(args, parsed))
         goto usage;
+
+    if (args->next)
+        std::fprintf(stderr, "newt: warning: %s: extra arguments ignored\n", name);
 
     std::apply(fn, parsed);
     return EXECUTION_SUCCESS;

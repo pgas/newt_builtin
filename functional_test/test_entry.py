@@ -132,3 +132,51 @@ def test_entry_set_flags_disabled(bash_newt):
 
     assert any("val=[fixed]" in r for r in rows2), \
         f"Disabled entry should still contain 'fixed' after typing.\n{full2}"
+
+
+def test_entry_set_filter_blocks_digits(bash_newt):
+    """EntrySetFilter should block characters when the filter function returns non-zero."""
+    # The filter bash function receives NEWT_CH (decimal key code).
+    # ASCII digits '0'-'9' are codes 48-57.  We return 1 (failure) for those
+    # so the shim returns 0 (block), and return 0 (success) for all others
+    # so the shim passes the character through.
+    bash_newt.sendline(
+        b"newt Init && newt Cls && "
+        b'newt OpenWindow 5 3 50 10 "FilterTest" && '
+        b'block_digits() { [[ $NEWT_CH -ge 48 && $NEWT_CH -le 57 ]] && return 1; return 0; } && '
+        b'newt -v e Entry 3 2 "" 30 && '
+        b'newt EntrySetFilter "$e" block_digits && '
+        b'newt -v _ok Button 3 5 "OK" && '
+        b'newt -v f Form "" "" 0 && '
+        b'newt FormAddComponents "$f" "$e" "$_ok" && '
+        b'newt RunForm "$f"'
+    )
+    screen = render(bash_newt, initial_timeout=2.0)
+    rows = screen_rows(screen)
+    full = screen_text(screen)
+
+    assert any("FilterTest" in r for r in rows), \
+        f"Filter test window not visible.\n{full}"
+
+    # Type a mix of letters and digits — only letters should get through
+    bash_newt.send(b"a1b2c3")
+    time.sleep(0.3)
+    # Tab to OK and press Enter to exit the form
+    bash_newt.send(b"\t")
+    time.sleep(0.1)
+    bash_newt.send(b"\r")
+    time.sleep(0.5)
+    # Read back the entry value
+    bash_newt.sendline(
+        b'newt -v val EntryGetValue "$e" && '
+        b'newt FormDestroy "$f" && '
+        b'newt Finished && '
+        b'echo "val=[$val]"'
+    )
+    screen2 = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
+    rows2 = screen_rows(screen2)
+    full2 = screen_text(screen2)
+
+    assert any("val=[abc]" in r for r in rows2), \
+        f"EntrySetFilter should have blocked digits; expected 'abc'.\n{full2}"
+
