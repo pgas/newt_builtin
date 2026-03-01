@@ -38,15 +38,19 @@ def test_entry_getvalue(bash_newt):
         b'newt -v _ok Button 3 5 "OK" && '
         b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponents "$f" "$_ok" "$e" && '
-        b'newt RunForm "$f" && '
-        b'newt FormDestroy "$f" && '
-        b'newt -v val EntryGetValue "$e" && '
-        b'newt Finished && '
-        b'echo "val=[$val]"'
+        b'newt RunForm "$f"'
     )
     render(bash_newt, initial_timeout=2.0)
     bash_newt.send(b"\r")
     time.sleep(0.5)
+    # Read the value BEFORE FormDestroy (component still valid),
+    # then clean up and echo the result.
+    bash_newt.sendline(
+        b'newt -v val EntryGetValue "$e" && '
+        b'newt FormDestroy "$f" && '
+        b'newt Finished && '
+        b'echo "val=[$val]"'
+    )
     screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
     rows = screen_rows(screen)
     full = screen_text(screen)
@@ -67,15 +71,19 @@ def test_entry_set_changes_value(bash_newt):
         b'newt -v _ok Button 3 5 "OK" && '
         b'newt -v f Form "" "" 0 && '
         b'newt FormAddComponents "$f" "$_ok" "$e" && '
-        b'newt RunForm "$f" && '
-        b'newt FormDestroy "$f" && '
-        b'newt -v val EntryGetValue "$e" && '
-        b'newt Finished && '
-        b'echo "val=[$val]"'
+        b'newt RunForm "$f"'
     )
     render(bash_newt, initial_timeout=2.0)
     bash_newt.send(b"\r")
     time.sleep(0.5)
+    # Read the value BEFORE FormDestroy (component still valid),
+    # then clean up and echo the result.
+    bash_newt.sendline(
+        b'newt -v val EntryGetValue "$e" && '
+        b'newt FormDestroy "$f" && '
+        b'newt Finished && '
+        b'echo "val=[$val]"'
+    )
     screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
     rows = screen_rows(screen)
     full = screen_text(screen)

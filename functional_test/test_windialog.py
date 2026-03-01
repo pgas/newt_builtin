@@ -136,7 +136,11 @@ def test_winmenu_items_visible(bash_newt):
     assert any("Beta" in r for r in rows), \
         f"WinMenu item 'Beta' not visible.\n{full}"
 
-    # Press Enter → rc=1, sel=0 (first item selected by default)
+    # Tab from the listbox to the OK button, then Enter to press it → rc=1.
+    # (Pressing Enter while the listbox has focus exits with rc=0; the button
+    # must be focused explicitly to get a 1-based button return value.)
+    bash_newt.send(b"\t")
+    time.sleep(0.1)
     bash_newt.send(b"\r")
     time.sleep(0.5)
     screen2 = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)

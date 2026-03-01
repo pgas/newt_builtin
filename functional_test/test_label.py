@@ -43,11 +43,14 @@ def test_label_text_visible(bash_newt):
 
 def test_label_set_text(bash_newt):
     """LabelSetText should update the label text visible on screen."""
+    # Use an initial text whose every character differs from "updated text"
+    # so that a differential terminal refresh sends all 12 updated cells,
+    # giving pyte a complete fresh repaint to assert on.
     setup = (
         b"newt Init && "
         b"newt Cls && "
         b'newt OpenWindow 10 5 40 7 "Update Test" && '
-        b'newt -v l1 Label 10 1 "initial text" && '
+        b'newt -v l1 Label 10 1 "HELLO WORLD!" && '
         b'newt -v _cont Button 5 4 "Continue" && '
         b"newt -v myform Form '' '' 0 && "
         b'newt FormAddComponents "$myform" "$_cont" "$l1" && '
@@ -55,11 +58,11 @@ def test_label_set_text(bash_newt):
     )
     bash_newt.sendline(setup)
 
-    # Confirm initial render shows "initial text".
+    # Confirm initial render shows "HELLO WORLD!".
     screen = render(bash_newt, initial_timeout=2.0)
     rows = screen_rows(screen)
-    assert any("initial text" in row for row in rows), (
-        "'initial text' not found on initial render.\n" + screen_text(screen)
+    assert any("HELLO WORLD!" in row for row in rows), (
+        "'HELLO WORLD!' not found on initial render.\n" + screen_text(screen)
     )
 
     # Press Enter to return from RunForm, then update the label and refresh.

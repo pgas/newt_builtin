@@ -69,17 +69,22 @@ def test_listbox_item_count(bash_newt):
         b'newt ListboxAddEntry "$lb" "A" 1 && '
         b'newt ListboxAddEntry "$lb" "B" 2 && '
         b'newt ListboxAddEntry "$lb" "C" 3 && '
-        b'newt -v cnt ListboxItemCount "$lb" && '
+        b'newt -v _ok Button 3 10 "OK" && '
         b'newt -v f Form "" "" 0 && '
-        b'newt FormAddComponents "$f" "$lb" && '
-        b'newt RunForm "$f" && '
+        b'newt FormAddComponents "$f" "$_ok" "$lb" && '
+        b'newt RunForm "$f"'
+    )
+    render(bash_newt, initial_timeout=2.0)  # wait for listbox form
+    bash_newt.send(b"\r")  # press Enter on the OK button to exit the form
+    time.sleep(0.5)
+    # Query the count BEFORE FormDestroy (component still valid),
+    # then clean up and echo the result.
+    bash_newt.sendline(
+        b'newt -v cnt ListboxItemCount "$lb" && '
         b'newt FormDestroy "$f" && '
         b'newt Finished && '
         b'echo "cnt=[$cnt]"'
     )
-    render(bash_newt, initial_timeout=2.0)  # wait for listbox form
-    bash_newt.send(b"\r")  # press Enter to select item and exit form
-    time.sleep(0.5)
     screen = render(bash_newt, initial_timeout=1.5, drain_timeout=0.3)
     rows = screen_rows(screen)
     full = screen_text(screen)
